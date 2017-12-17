@@ -1,0 +1,14 @@
+.env
+.git
+
+.DS_Store
+.dockerignore
+Dockerfile
+
+node_modules
+
+# data
+*.csv
+*.tsv
+*.sql
+*.dump
