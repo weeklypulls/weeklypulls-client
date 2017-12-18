@@ -30,21 +30,21 @@ class Store {
   @action
   async getAllSeries () {
     this.isLoading.set('app', true);
-    const response = await axios.get('http://localhost:8000/series/');
-    await Promise.all(response.data.map(series => this.getSeries(series.id)));
+    const response = await axios.get('https://weeklypulls-data.herokuapp.com/series/');
+    await Promise.all(response.data.map(series => this.getSeries(series.series_id)));
     this.isLoading.set('app', false);
   }
 
   @action
-  async getSeries (id) {
-    const response = await axios.get(`http://localhost:8000/series/${id}/`);
+  async getSeries (series_id) {
+    const response = await axios.get(`https://weeklypulls-marvel.herokuapp.com/series/${series_id}/`);
     this.series.set(response.data.id, response.data);
   }
 
   @action
   async pull (series_id) {
     this.isLoading.set('app', true);
-    const response = await axios.post('http://localhost:8000/series/', { series_id });
+    const response = await axios.post('https://weeklypulls-data.herokuapp.com/series/', { series_id });
     this.series.set(response.data.id, response.data);
     this.isLoading.set('app', false);
   }
