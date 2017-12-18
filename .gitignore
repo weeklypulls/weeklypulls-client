@@ -3,3 +3,4 @@ build
 *.log
 node_modules
 dist
+.idea
