@@ -44,6 +44,23 @@ class ActionButton extends Component {
 @autobind
 @observer
 class Comic extends Component {
+  get propsPull () {
+    const {
+      comic,
+      store,
+    } = this.props
+    , seriesPulls = store.pulls.get(comic.series_id);
+    // return {
+    //   read: false,
+    //   skipped: false,
+    // }
+
+    return {
+      read: seriesPulls.read.includes(comic.id),
+      skipped: seriesPulls.skipped.includes(comic.id),
+    }
+  }
+
   mark (action) {
     const {
       comic: {
@@ -58,24 +75,27 @@ class Comic extends Component {
 
   @action
   async pull () {
-    const {
-      comic,
-      store,
-    } = this.props;
-
-    store.pull(comic.series_id);
+    console.log('pull called');
+    // const {
+    //   comic,
+    //   store,
+    // } = this.props;
+    //
+    // store.pull(comic.series_id);
   }
 
   currentState () {
     const {
-      comic: {
-        read,
-        skipped,
-      },
       pulled,
     } = this.props;
 
     if (!pulled) { return 'unpulled'; }
+
+    const {
+      read,
+      skipped,
+    } = this.propsPull;
+
     if (read) { return 'read'; }
     if (skipped) { return 'skipped'; }
     return 'toread';
