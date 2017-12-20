@@ -16,7 +16,7 @@ class App extends Component {
     } = this.props;
 
     return (
-      <div className="weeks">
+      <div className='weeks'>
         <h1>Weeks</h1>
         <Weeks
           store={store}
@@ -33,7 +33,7 @@ class App extends Component {
     } = this.props;
 
     return (
-      <div className="series">
+      <div className='series'>
         <h1>Series</h1>
         {_.sortBy(store.series.values(), 'api.title').map(series => (
           <Series

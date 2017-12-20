@@ -117,10 +117,9 @@ class Weeks extends Component {
     const weeks = Array.from(new Set(comics.map(comic => comic.on_sale)));
     weeks.sort();
 
-    const firstUnreadWeek = store.firstUnreadWeek(this.props.series);
-    // _.findIndex(weeks, week => comics.filter(comic => (comic.on_sale === week)).some(comics => !(comics.read || comics.skipped)));
-    const firstUnreadWeekIndex = _.findIndex(weeks, week => (week == firstUnreadWeek));
-    const weeksUnread = weeks.slice(firstUnreadWeekIndex, weeks.length);
+    const firstUnreadWeek = store.firstUnreadWeek(this.props.series)
+      , firstUnreadWeekIndex = _.findIndex(weeks, week => (week === firstUnreadWeek))
+      , weeksUnread = weeks.slice(firstUnreadWeekIndex, weeks.length);
 
     return (
       <div className='weeks'>

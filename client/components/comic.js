@@ -50,10 +50,6 @@ class Comic extends Component {
       store,
     } = this.props
     , seriesPulls = store.pulls.get(comic.series_id);
-    // return {
-    //   read: false,
-    //   skipped: false,
-    // }
 
     return {
       read: seriesPulls.read.includes(comic.id),
@@ -75,13 +71,12 @@ class Comic extends Component {
 
   @action
   async pull () {
-    console.log('pull called');
-    // const {
-    //   comic,
-    //   store,
-    // } = this.props;
-    //
-    // store.pull(comic.series_id);
+    const {
+      comic,
+      store,
+    } = this.props;
+
+    store.pull(comic.series_id);
   }
 
   currentState () {

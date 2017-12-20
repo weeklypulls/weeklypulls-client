@@ -83,7 +83,7 @@ class Store {
   @action
   async loadWeek (week) {
     this.isLoading.set(`week.${week}`, true);
-    const response = await axios.get(`https://weeklypulls-marvel.herokuapp.com/week/${week}/`);
+    const response = await axios.get(`https://weeklypulls-marvel.herokuapp.com/weeks/${week}/`);
     this.weeks.set(week, response.data.comics);
     this.isLoading.set(`week.${week}`, false);
   }
