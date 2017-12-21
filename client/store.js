@@ -35,8 +35,7 @@ class Store {
   firstUnreadWeek (series) {
     const allStartWeeks = series.map(serie => this._firstUnreadWeek(serie))
       , lastStartWeek = allStartWeeks.filter(s => s).sort()[0];
-
-    return lastStartWeek
+    return lastStartWeek;
   }
 
   extraComics (week) {
@@ -48,12 +47,11 @@ class Store {
 
   @action
   async getAllSeries () {
-    console.log('getAllSeries');
     this.isLoading.set('app', true);
     const response = await axios.get('https://weeklypulls-data.herokuapp.com/series/')
       , pulls = response.data;
 
-    for (let pull of pulls) {
+    for (const pull of pulls) {
       this.pulls.set(pull.series_id, pull);
       await this.getSeries(pull.series_id);
     }
@@ -67,6 +65,7 @@ class Store {
       this.series.set(response.data.series_id, response.data);
     }
     catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
   }
@@ -76,7 +75,7 @@ class Store {
     this.isLoading.set('app', true);
     const response = await axios.post('https://weeklypulls-data.herokuapp.com/series/', { series_id });
     this.pulls.set(response.data.series_id, response.data);
-    this.getSeries(response.data.series_id)
+    this.getSeries(response.data.series_id);
     this.isLoading.set('app', false);
   }
 

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
-import Hover from './lib/Hover'
-import Trigger from './lib/Trigger'
+import Hover from './Hover'
+import Trigger from './Trigger'
 import PropTypes from 'prop-types'
 import autobind from 'autobind-decorator';
 
