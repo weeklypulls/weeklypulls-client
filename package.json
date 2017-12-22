@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "heroku-postbuild": "./node_modules/webpack/bin/webpack.js -p --progress",
+    "heroku-postbuild": "yarn install && ./node_modules/webpack/bin/webpack.js -p --progress",
     "prod": " node server.js",
     "start": "webpack-dev-server"
   },
@@ -24,13 +24,13 @@
     "eslint": "^4.3.0",
     "express": "^4.14.1",
     "html-webpack-plugin": "^2.26.0",
-    "mobx-react": "3.5.9",
     "mobx": "^3.2.0",
+    "mobx-react": "3.5.9",
     "moment": "^2.18.1",
     "path": "^0.12.7",
     "prop-types": "^15.5.10",
-    "react-dom": "15.4.2",
     "react": "15.4.2",
+    "react-dom": "15.4.2",
     "store": "^2.0.12",
     "style-loader": "^0.19.1",
     "webpack": "^2.2.1"
