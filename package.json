@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "heroku-postbuild": "./node_modules/webpack/bin/webpack.js -p",
+    "heroku-postbuild": "./node_modules/webpack/bin/webpack.js -p --progress",
     "prod": " node server.js",
     "start": "webpack-dev-server"
   },
