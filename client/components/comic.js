@@ -4,6 +4,7 @@ import autobind from 'autobind-decorator';
 import { action } from 'mobx';
 import { observer } from 'mobx-react';
 import cx from 'classnames';
+import { Icon } from 'antd';
 
 import consts from '../consts';
 import ReactHover from './react-hover';
@@ -141,7 +142,7 @@ class Comic extends Component {
         }}>
           <ReactHover.Trigger>
             <a className='action-button' href={imageSrc} target='_blank'>
-              <span className='glyphicon glyphicon-picture' aria-hidden='true' />
+              <Icon type='picture' />
             </a>
           </ReactHover.Trigger>
           <ReactHover.Hover>
