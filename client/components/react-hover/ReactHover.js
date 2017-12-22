@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
-import Hover from './Hover'
-import Trigger from './Trigger'
-import PropTypes from 'prop-types'
 import autobind from 'autobind-decorator';
+
+import Hover from './Hover';
+import Trigger from './Trigger';
 
 @autobind
 @observer
@@ -12,14 +13,14 @@ class ReactHover extends Component {
   @observable visibility = false;
 
   renderItem (item, index) {
-    if (item.type.name === 'Trigger') {
+    if (item.type === Trigger) {
       return (
         <Trigger key={index}>
           {item}
         </Trigger>
       );
     }
-    else if (item.type.name === 'Hover') {
+    else if (item.type === Hover) {
       return (
         <Hover key={index}>
           {item}
@@ -33,12 +34,12 @@ class ReactHover extends Component {
 
     for (const child of this.props.children) {
       if (child.type) {
-        if (child.type.name === 'Trigger') {
+        if (child.type === Trigger) {
           childrenWithProps.push(React.cloneElement(child, {
             setVisibility: this.setVisibility,
           }));
         }
-        else if (child.type.name === 'Hover') {
+        else if (child.type === Hover) {
           childrenWithProps.push(React.cloneElement(child, {
             visibility: this.visibility,
           }));

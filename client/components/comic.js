@@ -55,7 +55,7 @@ class Comic extends Component {
     return {
       read: seriesPulls.read.includes(comic.id),
       skipped: seriesPulls.skipped.includes(comic.id),
-    }
+    };
   }
 
   mark (action) {
