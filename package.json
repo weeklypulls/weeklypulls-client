@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "engines": {
+    "node": "6.9.5"
+  },
   "scripts": {
-    "heroku-postbuild": "yarn install && ./node_modules/webpack/bin/webpack.js -p --progress",
+    "heroku-postbuild": "yarn install && ./node_modules/webpack/bin/webpack.js -p",
     "prod": " node server.js",
     "start": "webpack-dev-server"
   },
