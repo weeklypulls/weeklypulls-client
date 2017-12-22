@@ -4,6 +4,7 @@ import { observable, action } from 'mobx';
 import _ from 'lodash';
 
 import consts from './consts';
+import Client from './client';
 
 const {
   ACTIONS,
@@ -18,6 +19,7 @@ class Store {
   @observable weeks = new Map();
 
   constructor () {
+    this.client = new Client();
     this.getAllSeries();
   }
 
@@ -48,7 +50,7 @@ class Store {
   @action
   async getAllSeries () {
     this.isLoading.set('app', true);
-    const response = await axios.get('https://weeklypulls-data.herokuapp.com/series/')
+    const response = await this.client.user.get('series/')
       , pulls = response.data;
 
     for (const pull of pulls) {
@@ -61,7 +63,7 @@ class Store {
   @action
   async getSeries (series_id) {
     try {
-      const response = await axios.get(`https://weeklypulls-marvel.herokuapp.com/series/${series_id}/`);
+      const response = await this.client.marvel.get(`series/${series_id}/`);
       this.series.set(response.data.series_id, response.data);
     }
     catch (e) {
@@ -73,7 +75,7 @@ class Store {
   @action
   async pull (series_id) {
     this.isLoading.set('app', true);
-    const response = await axios.post('https://weeklypulls-data.herokuapp.com/series/', { series_id });
+    const response = await this.client.user.post('series/', { series_id });
     this.pulls.set(response.data.series_id, response.data);
     this.getSeries(response.data.series_id);
     this.isLoading.set('app', false);
@@ -82,7 +84,7 @@ class Store {
   @action
   async loadWeek (week) {
     this.isLoading.set(`week.${week}`, true);
-    const response = await axios.get(`https://weeklypulls-marvel.herokuapp.com/weeks/${week}/`);
+    const response = await this.client.marvel.get(`weeks/${week}/`);
     this.weeks.set(week, response.data.comics);
     this.isLoading.set(`week.${week}`, false);
   }
@@ -122,7 +124,7 @@ class Store {
         alert(`Missed action ${action}`);
     }
 
-    const response = await axios.patch(`https://weeklypulls-data.herokuapp.com/series/${pull.id}/`, data);
+    const response = await this.client.user.patch(`series/${pull.id}/`, data);
     this.pulls.set(response.data.series_id, response.data);
     this.isLoading.set(`series.${seriesId}`, false);
   }
@@ -138,7 +140,7 @@ class Store {
       , data = { read: issueIds }
       ;
 
-    const response = await axios.patch(`http://localhost:8000/series/${series.id}/`, data);
+    const response = await this.client.user.patch(`series/${series.id}/`, data);
     this.series.set(response.data.id, response.data);
     this.isLoading.set(`series.${seriesId}`, false);
   }
