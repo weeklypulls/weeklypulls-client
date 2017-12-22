@@ -4,8 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server",
-    "prod": "./node_modules/webpack/bin/webpack.js -p && node server.js"
+    "heroku-postbuild": "./node_modules/webpack/bin/webpack.js -p",
+    "prod": " node server.js",
+    "start": "webpack-dev-server"
   },
   "dependencies": {
     "antd": "^3.0.2",
