@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server",
-    "prod": "./node_modules/webpack/bin/webpack.js -p --progress && node server.js"
+    "prod": "./node_modules/webpack/bin/webpack.js -p && node server.js"
   },
   "dependencies": {
     "antd": "^3.0.2",
