@@ -11,15 +11,12 @@ module.exports = {
     'babel-polyfill',
     './client/index.js',
   ],
-  devtool: "#inline-source-map",
   devServer: {
     host: '0.0.0.0',
     port: 8080,
   },
   output: {
     path: path.resolve('dist'),
-    // below line only works for webpack 1.0
-    // path: './dist',
     filename: 'index_bundle.js',
   },
   module: {
