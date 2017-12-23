@@ -33,7 +33,6 @@ class App extends Component {
         <h1>Weeks</h1>
         <Weeks
           store={store}
-          mark={store.mark}
           series={store.series.values()}
         />
       </div>
