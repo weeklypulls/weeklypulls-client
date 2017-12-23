@@ -23,15 +23,15 @@ class ActionButton extends Component {
 
   render () {
     const ICONS = {
-      READ: 'ok',
-      UNREAD: 'remove',
-      SKIP: 'fast-forward',
-      UNSKIP: 'play',
+      READ: 'check-square-o',
+      UNREAD: 'close',
+      SKIP: 'double-right',
+      UNSKIP: 'close',
     };
 
     return (
       <a className='action-button' onClick={this.mark}>
-        {' '}<span className={`glyphicon glyphicon-${ICONS[this.props.action]}`} aria-hidden='true' alt={LANG_BUTTON[this.props.action]} />
+        {' '}<Icon type={ICONS[this.props.action]} alt={LANG_BUTTON[this.props.action]} />
       </a>
     );
   }
