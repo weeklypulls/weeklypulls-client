@@ -4,10 +4,8 @@ import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 
 import autobind from 'autobind-decorator';
-import _ from 'lodash';
 import { Layout, Menu, Icon } from 'antd';
 
-import Series from './Series';
 import Weeks from './Weeks';
 
 import 'antd/dist/antd.css';
@@ -39,32 +37,11 @@ class App extends Component {
     );
   }
 
-  renderSeries () {
-    const {
-      store,
-    } = this.props;
-
-    return (
-      <div className='series'>
-        <h1>Series</h1>
-        {_.sortBy(store.series.values(), 'api.title').map(series => (
-          <Series
-            key={series.id}
-            mark={store.mark}
-            series={series}
-            store={store}
-          />
-        ))}
-      </div>
-    );
-  }
-
   render () {
     const {
       store,
     } = this.props;
 
-    // {this.renderSeries()}
     return (
       <Layout>
         <Sider
