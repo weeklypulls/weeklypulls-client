@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
@@ -48,7 +48,7 @@ class ReactHover extends Component {
     }
 
     return (
-      <div>
+      <div style={{ display: 'inline-block', position: 'relative' }}>
         {childrenWithProps.map((item, index) => this.renderItem(item, index))}
       </div>
     );

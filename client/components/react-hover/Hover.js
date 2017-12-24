@@ -9,14 +9,15 @@ export default class Hover extends Component {
 
   render () {
     const {
-      visibility,
-      children,
-    } = this.props.children.props
-    , styles = {
-      display: visibility ? 'block' : 'none',
-      position: 'absolute',
-    }
-    ;
+        visibility,
+        children,
+      } = this.props.children.props
+      , styles = {
+        display: visibility ? 'block' : 'none',
+        position: 'absolute',
+        zIndex: '1000',
+      }
+      ;
 
     return (
       <div style={styles}>

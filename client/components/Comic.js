@@ -47,10 +47,10 @@ class ActionButton extends Component {
 class Comic extends Component {
   get propsPull () {
     const {
-      comic,
-      store,
-    } = this.props
-    , seriesPulls = store.pulls.get(comic.series_id);
+        comic,
+        store,
+      } = this.props
+      , seriesPulls = store.pulls.get(comic.series_id);
 
     return {
       read: seriesPulls.read.includes(comic.id),
@@ -99,39 +99,39 @@ class Comic extends Component {
 
   render () {
     const {
-      comic: {
-        title,
-        on_sale,
-        series_id,
-        images,
-      },
-      store,
-    } = this.props
-    , label = `${title} - ${on_sale}`
-    , currentState = this.currentState()
-    , isLoading = store.isLoading.get(`series.${series_id}`)
-    , buttons = {
-      'unpulled': (
-        <span>
-          <span className='glyphicon glyphicon-plus' aria-hidden='true' />
-          {' '}<a onClick={this.pull}>Pull</a>
-        </span>),
-      'read': <ActionButton mark={this.mark} action={ACTIONS.UNREAD} />,
-      'skipped': <ActionButton mark={this.mark} action={ACTIONS.UNSKIP} />,
-      'toread': (
-        <span>
-          {' '}<ActionButton mark={this.mark} action={ACTIONS.READ} />
-          {' '}<ActionButton mark={this.mark} action={ACTIONS.SKIP} />
-        </span>
-      ),
-    }
-    , classNames = cx(
-      `comic-${currentState}`,
-      {
-        'loading': isLoading,
-      })
-    , imageSrc = images[0]
-    ;
+        comic: {
+          title,
+          on_sale,
+          series_id,
+          images,
+        },
+        store,
+      } = this.props
+      , label = `${title} - ${on_sale}`
+      , currentState = this.currentState()
+      , isLoading = store.isLoading.get(`series.${series_id}`)
+      , buttons = {
+        'unpulled': (
+          <span>
+            <span className='glyphicon glyphicon-plus' aria-hidden='true' />
+            {' '}<a onClick={this.pull}>Pull</a>
+          </span>),
+        'read': <ActionButton mark={this.mark} action={ACTIONS.UNREAD} />,
+        'skipped': <ActionButton mark={this.mark} action={ACTIONS.UNSKIP} />,
+        'toread': (
+          <span>
+            {' '}<ActionButton mark={this.mark} action={ACTIONS.READ} />
+            {' '}<ActionButton mark={this.mark} action={ACTIONS.SKIP} />
+          </span>
+        ),
+      }
+      , classNames = cx(
+        `comic-${currentState}`,
+        {
+          'loading': isLoading,
+        })
+      , imageSrc = images[0]
+      ;
 
     return (
       <li className={classNames}>

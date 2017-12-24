@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
@@ -10,27 +10,17 @@ class Trigger extends Component {
   @observable styles = {};
 
   componentDidMount () {
-    const childStyles = this.refs.triggerContainer.children[0].style;
+    const childStyles = this.refTriggerContainer.children[0].style;
     this.styles = {
-      width: childStyles.width,
       height: childStyles.height,
       margin: childStyles.margin,
+      width: childStyles.width,
+      zIndex: '1',
     };
   }
 
-  render () {
-    return (
-      <div
-        onMouseOver={this.setVisibilityTrue}
-        onMouseOut={this.setVisibilityFalse}
-        onTouchStart={this.setVisibilityTrue}
-        onTouchEnd={this.setVisibilityFalse}
-        ref='triggerContainer'
-        style={this.styles}
-      >
-        {this.props.children.props.children}
-      </div>
-    );
+  setRefTriggerContainer (component) {
+    this.refTriggerContainer = component;
   }
 
   setVisibilityTrue () {
@@ -39,6 +29,21 @@ class Trigger extends Component {
 
   setVisibilityFalse () {
     this.props.children.props.setVisibility(false);
+  }
+
+  render () {
+    return (
+      <div
+        onMouseOut={this.setVisibilityFalse}
+        onMouseOver={this.setVisibilityTrue}
+        onTouchEnd={this.setVisibilityFalse}
+        onTouchStart={this.setVisibilityTrue}
+        ref={this.setRefTriggerContainer}
+        style={this.styles}
+      >
+        {this.props.children.props.children}
+      </div>
+    );
   }
 
   static propTypes = {

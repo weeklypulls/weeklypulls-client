@@ -1,4 +1,3 @@
-import axios from 'axios';
 import autobind from 'autobind-decorator';
 import { observable, action } from 'mobx';
 import _ from 'lodash';
@@ -38,6 +37,15 @@ class Store {
     const allStartWeeks = series.map(serie => this._firstUnreadWeek(serie))
       , lastStartWeek = allStartWeeks.filter(s => s).sort()[0];
     return lastStartWeek;
+  }
+
+  getUserData (comic) {
+    const seriesPulls = this.pulls.get(comic.series_id);
+
+    return {
+      read: seriesPulls.read.includes(comic.id),
+      skipped: seriesPulls.skipped.includes(comic.id),
+    };
   }
 
   extraComics (week) {

@@ -7,8 +7,8 @@ import autobind from 'autobind-decorator';
 import _ from 'lodash';
 import { Layout, Menu, Icon } from 'antd';
 
-import Series from './series';
-import Weeks from './weeks';
+import Series from './Series';
+import Weeks from './Weeks';
 
 import 'antd/dist/antd.css';
 

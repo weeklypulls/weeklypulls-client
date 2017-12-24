@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import _ from 'lodash';
 
 import utils from '../utils';
-import Comic from './comic';
+import Comic from './Comic';
 
 
 @autobind
