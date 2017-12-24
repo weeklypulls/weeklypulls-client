@@ -1,6 +1,7 @@
 import autobind from 'autobind-decorator';
 import { observable, action } from 'mobx';
 import _ from 'lodash';
+import store from 'store';
 
 import consts from './consts';
 import Client from './client';
@@ -70,13 +71,22 @@ class Store {
 
   @action
   async getSeries (series_id) {
-    try {
-      const response = await this.client.marvel.get(`series/${series_id}/`);
-      this.series.set(response.data.series_id, response.data);
+    const seriesKey = `mapi_series_${series_id}`;
+    const cache = store.get(seriesKey);
+
+    if (cache) {
+      this.series.set(cache.series_id, cache);
     }
-    catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+    else {
+      try {
+        const response = await this.client.marvel.get(`series/${series_id}/`);
+        this.series.set(response.data.series_id, response.data);
+        store.set(seriesKey, response.data);
+      }
+      catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+      }
     }
   }
 
