@@ -56,12 +56,6 @@ const COLUMNS = [
     render: imagesCell,
   },
   {
-    title: 'Title',
-    dataIndex: 'title',
-    key: 'title',
-    sorter: titleSort,
-  },
-  {
     title: 'On Sale',
     dataIndex: 'on_sale',
     key: 'on_sale',
@@ -73,6 +67,12 @@ const COLUMNS = [
     dataIndex: 'series_id',
     key: 'series_id',
     sorter: seriesSort,
+  },
+  {
+    title: 'Title',
+    dataIndex: 'title',
+    key: 'title',
+    sorter: titleSort,
   },
 ];
 
