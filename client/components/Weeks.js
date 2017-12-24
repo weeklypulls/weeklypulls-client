@@ -59,21 +59,19 @@ const COLUMNS = [
     title: 'Title',
     dataIndex: 'title',
     key: 'title',
-    defaultSortOrder: 'descend',
     sorter: titleSort,
   },
   {
     title: 'On Sale',
     dataIndex: 'on_sale',
     key: 'on_sale',
-    defaultSortOrder: 'descend',
+    defaultSortOrder: 'ascend',
     sorter: onSaleSort,
   },
   {
     title: 'Series',
     dataIndex: 'series_id',
     key: 'series_id',
-    defaultSortOrder: 'descend',
     sorter: seriesSort,
   },
 ];
