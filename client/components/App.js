@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 
-import autobind from 'autobind-decorator';
+import autoBindMethods from 'class-autobind-decorator';
 import { Layout, Menu, Icon } from 'antd';
 
 import Weeks from './Weeks';
@@ -12,7 +12,7 @@ import 'antd/dist/antd.css';
 
 const { Header, Sider, Content } = Layout;
 
-@autobind
+@autoBindMethods
 @observer
 class App extends Component {
   @observable collapsed = false;

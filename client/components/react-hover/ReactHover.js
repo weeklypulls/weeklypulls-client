@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
-import autobind from 'autobind-decorator';
+import autoBindMethods from 'class-autobind-decorator';;
 
 import Hover from './Hover';
 import Trigger from './Trigger';
 
-@autobind
+@autoBindMethods
 @observer
 class ReactHover extends Component {
   @observable visibility = false;

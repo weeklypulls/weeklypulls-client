@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { toJS, observable } from 'mobx';
 import { observer, propTypes } from 'mobx-react';
 
-import autobind from 'autobind-decorator';
+import autoBindMethods from 'class-autobind-decorator';;
 import _ from 'lodash';
 import cx from 'classnames';
 import { Table } from 'antd';
@@ -76,7 +76,7 @@ const COLUMNS = [
   },
 ];
 
-@autobind
+@autoBindMethods
 @observer
 class Weeks extends Component {
   @observable filters = new Map();

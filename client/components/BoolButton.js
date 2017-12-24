@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import autobind from 'autobind-decorator';
+import autoBindMethods from 'class-autobind-decorator';;
 import { observer } from 'mobx-react';
 import { Icon } from 'antd';
 
 
-@autobind
+@autoBindMethods
 @observer
 class BoolButton extends Component {
   mark () {

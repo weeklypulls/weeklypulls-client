@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "engines": {
-    "node": "6.9.5"
-  },
   "scripts": {
     "heroku-postbuild": "yarn install && ./node_modules/webpack/bin/webpack.js -p",
     "prod": " node server.js",
@@ -13,7 +10,6 @@
   },
   "dependencies": {
     "antd": "^3.0.2",
-    "autobind-decorator": "^1.4.1",
     "axios": "^0.17.1",
     "babel-core": "^6.21.0",
     "babel-loader": "^7.1.2",
@@ -22,6 +18,7 @@
     "babel-preset-latest": "^6.24.1",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-1": "^6.24.1",
+    "class-autobind-decorator": "^3.0.1",
     "classnames": "^2.2.5",
     "css-loader": "^0.28.7",
     "eslint": "^4.14.0",
@@ -34,12 +31,13 @@
     "prop-types": "^15.5.10",
     "react": "16.2.0",
     "react-dom": "16.2.0",
+    "react-router": "^4.2.0",
     "store": "^2.0.12",
     "style-loader": "^0.19.1",
     "webpack": "^3.10.0"
   },
   "devDependencies": {
-    "babel-eslint": "^8.0.3",
+    "babel-eslint": "^8.1.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-react": "^7.5.1",
     "webpack-dev-server": "^2.3.0"

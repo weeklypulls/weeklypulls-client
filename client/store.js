@@ -1,4 +1,4 @@
-import autobind from 'autobind-decorator';
+import autoBindMethods from 'class-autobind-decorator';;
 import { observable, action } from 'mobx';
 import _ from 'lodash';
 import store from 'store';
@@ -11,7 +11,7 @@ const {
 } = consts;
 
 
-@autobind
+@autoBindMethods
 class Store {
   @observable isLoading = new Map();
   @observable pulls = new Map();
