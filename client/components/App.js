@@ -41,7 +41,7 @@ class App extends Component {
   render () {
     return (
       <Router history={this.history}>
-        <Layout>
+        <Layout style={{ minHeight: '100vh' }}>
           <Sider
             breakpoint='lg'
             trigger={null}

@@ -20,7 +20,6 @@ class Store {
 
   constructor () {
     this.client = new Client();
-    this.getAllSeries();
   }
 
   _firstUnreadWeek (serie) {

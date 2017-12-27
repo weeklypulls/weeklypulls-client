@@ -8,6 +8,20 @@ import Weeks from '../Weeks';
 @autoBindMethods
 @observer
 class ComicsListPage extends Component {
+  constructor (props) {
+    super(props);
+    this.getAllSeries();
+  }
+
+  async getAllSeries () {
+    try {
+      await this.props.store.getAllSeries();
+    }
+    catch (e) {
+      this.props.history.push('/login');
+    }
+  }
+
   render () {
     const { store } = this.props;
 
@@ -23,7 +37,8 @@ class ComicsListPage extends Component {
   }
 
   static propTypes = {
-    store: PropTypes.object,
+    history: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
   }
 }
 
