@@ -7,8 +7,9 @@ import autoBindMethods from 'class-autobind-decorator';
 import { Layout, Menu, Icon } from 'antd';
 import createBrowserHistory from 'history/createBrowserHistory'
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Route,
+  NavLink,
   Link
 } from 'react-router-dom'
 
@@ -21,15 +22,19 @@ const { Header, Sider, Content } = Layout;
 @autoBindMethods
 class App extends Component {
   @observable collapsed = false;
-  history = createBrowserHistory()
+  defaultSelectedKeys = []
 
+  constructor (props) {
+    super(props);
+    const key = '/' + window.location.pathname.substr(1,).split('/')[0];
+    this.defaultSelectedKeys.push(key);
+  }
 
   toggle () {
     this.collapsed = !this.collapsed;
   }
 
   render () {
-    console.log(this.history);
     return (
       <Router history={this.history}>
         <Layout>
@@ -40,24 +45,24 @@ class App extends Component {
             collapsed={this.collapsed}
           >
             <div className='logo' />
-            <Menu theme='dark' mode='inline' defaultSelectedKeys={['1']}>
+            <Menu theme='dark' mode='inline' defaultSelectedKeys={this.defaultSelectedKeys}>
               <Menu.Item key='home'>
-                <Link to="/">
+                <NavLink to="/">
                   <Icon type='home' />
                   <span>Comics</span>
-                </Link>
+                </NavLink>
               </Menu.Item>
-              <Menu.Item key='series'>
-                <Link to="/series">
+              <Menu.Item key='/series'>
+                <NavLink to="/series">
                   <Icon type='plus-circle-o' />
                   <span>Series</span>
-                </Link>
+                </NavLink>
               </Menu.Item>
-              <Menu.Item key='login'>
-                <Link to="/login">
+              <Menu.Item key='/login'>
+                <NavLink to="/login">
                   <Icon type='user' />
                   <span>Login</span>
-                </Link>
+                </NavLink>
               </Menu.Item>
             </Menu>
           </Sider>

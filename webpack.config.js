@@ -14,10 +14,12 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     port: 8080,
+    historyApiFallback: true,
   },
   output: {
     path: path.resolve('dist'),
     filename: 'index_bundle.js',
+    publicPath: '/'
   },
   module: {
     loaders: [
