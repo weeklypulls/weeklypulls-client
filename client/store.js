@@ -1,5 +1,5 @@
-import autoBindMethods from 'class-autobind-decorator';;
 import { observable, action } from 'mobx';
+import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 import store from 'store';
 

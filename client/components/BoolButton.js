@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import autoBindMethods from 'class-autobind-decorator';;
+import autoBindMethods from 'class-autobind-decorator';
 import { observer } from 'mobx-react';
 import { Icon } from 'antd';
 

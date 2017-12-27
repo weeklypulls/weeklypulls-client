@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { toJS, observable } from 'mobx';
 import { observer, propTypes } from 'mobx-react';
 
-import autoBindMethods from 'class-autobind-decorator';;
+import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 import cx from 'classnames';
 import { Table } from 'antd';
@@ -21,9 +21,9 @@ function stringSort (a, b, attrs) {
   return 0;
 }
 
-const titleSort =  (a, b) => stringSort(a, b, ['title', 'on_sale']);
-const onSaleSort =  (a, b) => stringSort(a, b, ['on_sale', 'title']);
-const seriesSort =  (a, b) => stringSort(a, b, ['series_id', 'on_sale']);
+const titleSort = (a, b) => stringSort(a, b, ['title', 'on_sale']);
+const onSaleSort = (a, b) => stringSort(a, b, ['on_sale', 'title']);
+const seriesSort = (a, b) => stringSort(a, b, ['series_id', 'on_sale']);
 
 
 const COLUMNS = [

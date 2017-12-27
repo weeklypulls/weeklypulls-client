@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
-import autoBindMethods from 'class-autobind-decorator';;
+import autoBindMethods from 'class-autobind-decorator';
 
 import Hover from './Hover';
 import Trigger from './Trigger';
