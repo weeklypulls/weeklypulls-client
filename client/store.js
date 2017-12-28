@@ -51,9 +51,7 @@ class Store {
 
   async updateSeries (series_id, data) {
     const response = await this.client.user.patch(`series/${series_id}/`, data);
-    this.series.set(response.data.series_id, response.data);
-    const seriesKey = `mapi_series_${series_id}`;
-    store.set(seriesKey, response.data);
+    this.pulls.set(response.data.series_id, response.data);
   }
 
   firstUnreadWeek (series) {
@@ -68,6 +66,7 @@ class Store {
     return {
       read: seriesPulls.read.includes(comic.id),
       skipped: seriesPulls.skipped.includes(comic.id),
+      pull_list_id: seriesPulls.pull_list_id,
     };
   }
 

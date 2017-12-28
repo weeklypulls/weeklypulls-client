@@ -12,6 +12,7 @@ import utils from '../utils';
 import readCell from './cells/readCell';
 import skippedCell from './cells/skippedCell';
 import imagesCell from './cells/imagesCell';
+import pullListCell from './cells/pullListCell';
 
 function stringSort (a, b, attrs) {
   for (const attr of attrs) {
@@ -56,6 +57,14 @@ const COLUMNS = [
     render: imagesCell,
   },
   {
+    title: 'List',
+    dataIndex: 'pull_list_id',
+    key: 'pull_list_id',
+    render: pullListCell,
+    filterMultiple: false,
+    filters: [],
+  },
+  {
     title: 'On Sale',
     dataIndex: 'on_sale',
     key: 'on_sale',
@@ -83,8 +92,18 @@ class Weeks extends Component {
 
   handleChange (pagination, filters, sorter) {
     Object.keys(filters || {}).forEach(key => {
-      this.filters.set(key, filters[key][0] === 'true');
+      this.filters.set(key, filters[key][0]);
     });
+  }
+
+  get columns () {
+    const columns = COLUMNS;
+    // eslint-disable-next-line no-magic-numbers
+    columns[3].filters = this.props.store.pullLists.map(pullList => ({
+      text: pullList.title,
+      value: pullList.id,
+    }));
+    return columns;
   }
 
   dataSource () {
@@ -110,11 +129,15 @@ class Weeks extends Component {
     }));
 
     if (this.filters.has('read')) {
-      comicsToShow = comicsToShow.filter(comic => comic.read === this.filters.get('read'));
+      comicsToShow = comicsToShow.filter(comic => comic.read === (this.filters.get('read') === 'true'));
     }
 
     if (this.filters.has('skipped')) {
-      comicsToShow = comicsToShow.filter(comic => comic.skipped === this.filters.get('skipped'));
+      comicsToShow = comicsToShow.filter(comic => comic.skipped === (this.filters.get('skipped') === 'true'));
+    }
+
+    if (this.filters.has('pull_list_id')) {
+      comicsToShow = comicsToShow.filter(comic => comic.pull_list_id === this.filters.get('pull_list_id'));
     }
 
     return comicsToShow.map(comic => ({
@@ -141,7 +164,7 @@ class Weeks extends Component {
     const { store } = this.props;
     return (
       <Table
-        columns={COLUMNS}
+        columns={this.columns}
         dataSource={this.dataSource()}
         loading={store.isLoading.get('app')}
         onChange={this.handleChange}
