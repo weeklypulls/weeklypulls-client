@@ -18,6 +18,8 @@ class ComicsListPage extends Component {
       await this.props.store.getAllSeries();
     }
     catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
       this.props.history.push('/login');
     }
   }

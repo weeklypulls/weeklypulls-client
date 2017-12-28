@@ -8,7 +8,7 @@ const FormItem = Form.Item;
 
 
 @autoBindMethods
-class NormalLoginForm extends Component {
+class LoginForm extends Component {
   handleSubmit (e) {
     e.preventDefault();
     this.props.form.validateFields(async (err, values) => {
@@ -69,6 +69,6 @@ class NormalLoginForm extends Component {
   }
 }
 
-const WrappedNormalLoginForm = Form.create()(NormalLoginForm);
+const WrappedLoginForm = Form.create()(LoginForm);
 
-export default WrappedNormalLoginForm;
+export default WrappedLoginForm;

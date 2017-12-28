@@ -17,9 +17,25 @@ class Store {
   @observable pulls = new Map();
   @observable series = new Map();
   @observable weeks = new Map();
+  @observable pullLists = [];
 
   constructor () {
     this.client = new Client();
+    this.getPullLists();
+  }
+
+  get pullsWithApi () {
+    return this.pulls.values().map(pull => ({
+      ...pull,
+      api: this.series.get(pull.series_id, {}),
+    }));
+  }
+
+  pullWithApi (series_id) {
+    return {
+      ...this.pulls.get(series_id),
+      api: this.series.get(series_id, {}),
+    };
   }
 
   _firstUnreadWeek (serie) {
@@ -31,6 +47,13 @@ class Store {
       ;
 
     return firstWeek;
+  }
+
+  async updateSeries (series_id, data) {
+    const response = await this.client.user.patch(`series/${series_id}/`, data);
+    this.series.set(response.data.series_id, response.data);
+    const seriesKey = `mapi_series_${series_id}`;
+    store.set(seriesKey, response.data);
   }
 
   firstUnreadWeek (series) {
@@ -53,6 +76,12 @@ class Store {
       this.weeks.set(week, []);
     }
     return this.weeks.get(week);
+  }
+
+  @action
+  async getPullLists () {
+    const response = await this.client.user.get('pull-lists/');
+    this.pullLists = response.data;
   }
 
   @action
