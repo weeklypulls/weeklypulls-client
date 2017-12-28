@@ -85,6 +85,10 @@ class Store {
 
   @action
   async getAllSeries () {
+    if (this.pulls.size > 0) {
+      return;
+    }
+
     this.isLoading.set('app', true);
     const response = await this.client.user.get('series/')
       , pulls = response.data;
