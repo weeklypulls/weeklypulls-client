@@ -14,7 +14,7 @@ class SeriesForm extends Component {
     e.preventDefault();
     form.validateFields(async (err, values) => {
       try {
-        await store.updateSeries(data.id, values);
+        await store.pulls.patch(data.id, values);
         message.success('Updated!');
       }
       catch (e) {
@@ -38,7 +38,7 @@ class SeriesForm extends Component {
 
           {form.getFieldDecorator('pull_list_id', { initialValue: data.pull_list_id })(
             <Select>
-              {store.pullLists.map(pullList => (
+              {store.pullLists.all.map(pullList => (
                 <Option key={pullList.id} value={pullList.id}>{pullList.title}</Option>
               ))}
             </Select>

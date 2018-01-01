@@ -9,10 +9,10 @@ const { ACTIONS } = consts;
 export default function readCell (text, record) {
   return (
     <BoolButton
-      actions={[ACTIONS.UNREAD, ACTIONS.READ]}
+      actions={[ACTIONS.READ, ACTIONS.UNREAD]}
       comic={record}
       icons={['check-square-o', 'close']}
-      langs={['Mark unread', 'Mark read']}
+      langs={['Mark read', 'Mark unread']}
       store={record.store}
       value={record.read}
     />
