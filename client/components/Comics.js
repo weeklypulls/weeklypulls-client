@@ -12,7 +12,7 @@ import { performance } from 'decorator-performance';
 import utils from '../utils';
 import COLUMNS from './ComicsColumns';
 
-
+const { future, stringSort } = utils;
 const readOrSkipped = (comic) => (comic.read || comic.skipped);
 
 
@@ -95,13 +95,13 @@ class Weeks extends Component {
         pull_id: pull.id,
         key: comic.id,
         store,
-      }));
+      })).filter(comic => !future(comic.on_sale));
 
       if (!comics.length || comics.every(readOrSkipped)) {
         return [];
       }
 
-      const unreadDate = comics.filter(_.negate(readOrSkipped)).map(c => c.on_sale).sort(utils.stringSort)[0];
+      const unreadDate = comics.filter(_.negate(readOrSkipped)).map(c => c.on_sale).sort(stringSort)[0];
 
       if (!earliestUnread || earliestUnread > unreadDate) {
         earliestUnread = unreadDate;

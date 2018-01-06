@@ -7,13 +7,18 @@ import httpStatus from 'http-status-codes';
 import _ from 'lodash';
 
 import { Link } from 'react-router-dom';
+import { Button } from 'antd';
 
+import utils from '../utils';
 import SeriesForm from './forms/seriesForm';
+
+const { ModalManager } = utils;
 
 @autoBindMethods
 @observer
 class Pull extends Component {
   @observable isLoading = true;
+  editModal = new ModalManager();
 
   constructor (props) {
     super(props);
@@ -52,7 +57,10 @@ class Pull extends Component {
 
         <h3>{series.api.title}</h3>
 
-        <SeriesForm data={series} store={store} />
+        <Button onClick={this.editModal.open}>Edit</Button>
+
+        {this.editModal.isShowing &&
+          <SeriesForm data={series} store={store} onClose={this.editModal.close} />}
       </div>
     );
   }

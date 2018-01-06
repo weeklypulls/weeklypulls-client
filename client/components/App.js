@@ -13,6 +13,7 @@ import {
 import ComicsListPage from './pages/ComicsListPage';
 import LoginPage from './pages/LoginPage';
 import SeriesListPage from './pages/SeriesListPage';
+import WeekPage from './pages/WeekPage';
 
 import 'antd/dist/antd.css';
 
@@ -22,7 +23,7 @@ const { Header, Sider, Content } = Layout;
 @observer
 class App extends Component {
   @observable collapsed = false;
-  defaultSelectedKeys = []
+  defaultSelectedKeys = [];
 
   constructor (props) {
     super(props);
@@ -36,6 +37,7 @@ class App extends Component {
 
   renderComicsListPage (props) { return <ComicsListPage {...props} {...this.props} />; }
   renderSeriesListPage (props) { return <SeriesListPage {...props} {...this.props} />; }
+  renderWeekPage (props) { return <WeekPage {...props} {...this.props} />; }
   renderLoginPage (props) { return <LoginPage {...props} {...this.props} />; }
 
   render () {
@@ -44,9 +46,9 @@ class App extends Component {
         <Layout style={{ minHeight: '100vh' }}>
           <Sider
             breakpoint='lg'
-            trigger={null}
-            collapsible
             collapsed={this.collapsed}
+            collapsible
+            trigger={null}
           >
             <div className='logo' />
             <Menu theme='dark' mode='inline' defaultSelectedKeys={this.defaultSelectedKeys}>
@@ -84,6 +86,7 @@ class App extends Component {
               <Route exact path='/' render={this.renderComicsListPage} />
               <Route path='/series' render={this.renderSeriesListPage} />
               <Route path='/login' render={this.renderLoginPage} />
+              <Route path='/weeks/:weekId' component={this.renderWeekPage} />
             </Content>
           </Layout>
         </Layout>

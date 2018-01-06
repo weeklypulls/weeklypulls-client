@@ -22,7 +22,7 @@ class Store {
     this.pullLists = new Resource(this.client.user, 'pull-lists');
 
     this.series = new Resource(this.client.marvel, 'series', 'series_id');
-    this.weeks = new Resource(this.client.marvel, 'weeks');
+    this.weeks = new Resource(this.client.marvel, 'weeks', 'week_of');
 
     this.pullLists.list();
   }

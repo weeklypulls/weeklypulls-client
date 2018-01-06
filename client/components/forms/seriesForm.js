@@ -1,31 +1,61 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { observable } from 'mobx';
+import { observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
+import _ from 'lodash';
 
-import { message, Form, Select, Button } from 'antd';
+import { message, Form, Select, Modal } from 'antd';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 @autoBindMethods
-class SeriesForm extends Component {
+@observer
+class SeriesFormModal extends Component {
+  @observable isSubmitting = false;
+
+  componentDidMount () {
+    this.fetchPullLists();
+  }
+
+  async fetchPullLists () {
+    await this.props.store.pullLists.list();
+    this.isLoading = false;
+  }
+
   handleSubmit (e) {
-    const { data, store, form } = this.props;
+    this.isSubmitting = true;
+    const { data, store, form, onClose } = this.props;
 
     e.preventDefault();
     form.validateFields(async (err, values) => {
       try {
-        await store.pulls.patch(data.id, values);
+        if (data.id) {
+          await store.pulls.patch(data.id, values);
+        }
+        else {
+          await store.pulls.post({ ...values, series_id: data.series_id });
+        }
+
         message.success('Updated!');
+        onClose();
       }
       catch (e) {
         message.error('Error. See console.');
         // eslint-disable-next-line no-console
         console.error(e);
       }
+      finally {
+        this.isSubmitting = false;
+      }
     });
   }
 
-  render () {
+  renderLoading () {
+    return 'Loading...';
+  }
+
+  renderForm () {
     const { form, store, data } = this.props;
 
     return (
@@ -45,21 +75,39 @@ class SeriesForm extends Component {
           )}
 
         </FormItem>
-
-        <FormItem wrapperCol={{ span: 12, offset: 5 }}>
-          <Button type='primary' htmlType='submit'>Submit</Button>
-        </FormItem>
       </Form>
     );
+  }
+
+  render () {
+    const { data, onClose } = this.props
+      , title = _.get(data, 'api.title', 'Pull');
+
+    return (
+      <Modal
+        title={`Editing ${title}`}
+        confirmLoading={this.isSubmitting}
+        onCancel={onClose}
+        onOk={this.handleSubmit}
+        visible
+      >
+        {this.isLoading ? this.renderLoading() : this.renderForm()}
+      </Modal>
+    );
+  }
+
+  static defaultProps = {
+    onClose: _.noop,
   }
 
   static propTypes = {
     data: PropTypes.object.isRequired,
     form: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
+    onClose: PropTypes.func,
   }
 }
 
-const WrappedSeriesForm = Form.create()(SeriesForm);
+const WrappedSeriesFormModal = Form.create()(SeriesFormModal);
 
-export default WrappedSeriesForm;
+export default WrappedSeriesFormModal;
