@@ -1,6 +1,7 @@
 import readCell from './cells/readCell';
 import skippedCell from './cells/skippedCell';
 import imagesCell from './cells/imagesCell';
+import weekCell from './cells/weekCell';
 import pullListCell from './cells/pullListCell';
 
 function stringAttrsSort (a, b, attrs) {
@@ -58,6 +59,7 @@ const COLUMNS = [
     key: 'on_sale',
     defaultSortOrder: 'ascend',
     sorter: onSaleSort,
+    render: weekCell,
   },
   {
     title: 'Series',
