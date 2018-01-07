@@ -11,7 +11,7 @@ const Option = Select.Option;
 
 @autoBindMethods
 @observer
-class SeriesFormModal extends Component {
+class PullFormModal extends Component {
   @observable isSubmitting = false;
 
   componentDidMount () {
@@ -108,6 +108,6 @@ class SeriesFormModal extends Component {
   }
 }
 
-const WrappedSeriesFormModal = Form.create()(SeriesFormModal);
+const WrappedPullFormModal = Form.create()(PullFormModal);
 
-export default WrappedSeriesFormModal;
+export default WrappedPullFormModal;

@@ -9,7 +9,7 @@ import cx from 'classnames';
 import { Table } from 'antd';
 
 import utils from '../../../utils';
-import COLUMNS from './ComicsColumns';
+import COLUMNS from './ComicsListColumns';
 
 const { future, stringSort } = utils;
 const readOrSkipped = (comic) => (comic.read || comic.skipped);
@@ -17,7 +17,7 @@ const readOrSkipped = (comic) => (comic.read || comic.skipped);
 
 @autoBindMethods
 @observer
-class Weeks extends Component {
+class ComicsList extends Component {
   componentDidMount () {
     this.getAllSeries();
   }
@@ -164,4 +164,4 @@ class Weeks extends Component {
   }
 }
 
-export default Weeks;
+export default ComicsList;

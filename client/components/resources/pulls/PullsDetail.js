@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { Button } from 'antd';
 
 import utils from '../../../utils';
-import SeriesFormModal from './SeriesFormModal';
+import PullFormModal from './PullFormModal';
 
 const { ModalManager } = utils;
 
@@ -57,7 +57,7 @@ class Pull extends Component {
         <Button onClick={this.editModal.open}>Edit</Button>
 
         {this.editModal.isShowing &&
-          <SeriesFormModal data={series} store={store} onClose={this.editModal.close} />}
+          <PullFormModal data={series} store={store} onClose={this.editModal.close} />}
       </div>
     );
   }

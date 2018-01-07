@@ -12,7 +12,7 @@ import {
 import ComicsListPage from './resources/series/ComicsListPage';
 import LoginPage from './login/LoginPage';
 import PullsListPage from './resources/pulls/PullsPages';
-import WeekPage from './resources/weeks/WeekPage';
+import WeekPage from './resources/weeks/WeeksDetailPage';
 
 import 'antd/dist/antd.css';
 

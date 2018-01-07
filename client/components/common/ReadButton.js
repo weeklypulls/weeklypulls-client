@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import autoBindMethods from 'class-autobind-decorator/build/index';
-import {observer} from 'mobx-react/index';
+import autoBindMethods from 'class-autobind-decorator';
+import {observer} from 'mobx-react';
 
 import consts from '../../consts';
 
@@ -35,4 +35,4 @@ class ReadButton extends Component {
   }
 }
 
-export default ReadButton;
+export default ReadButton

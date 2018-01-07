@@ -16,7 +16,7 @@ function pullCell (text, record) {
 
 @autoBindMethods
 @observer
-class WeekPage extends Component {
+class WeeksDetailPage extends Component {
   @observable weekId = null;
 
   componentDidMount () {
@@ -106,4 +106,4 @@ class WeekPage extends Component {
   }
 }
 
-export default WeekPage;
+export default WeeksDetailPage;
