@@ -21,7 +21,7 @@ class Store {
     this.pulls = new Resource(this.client.user, 'pulls', { minutes: 20 });
     this.pullLists = new Resource(this.client.user, 'pull-lists', { weeks: 1 });
 
-    this.series = new Resource(this.client.marvel, 'series', { weeks: 1 }, 'series_id');
+    this.series = new Resource(this.client.marvel, 'series', { weeks: 2 }, 'series_id');
     this.weeks = new Resource(this.client.marvel, 'weeks', { minutes: 20 }, 'week_of');
 
     this.pullLists.listIfCold();

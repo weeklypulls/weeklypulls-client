@@ -29,6 +29,11 @@ class Resource {
     return `pull-list-resource-${this.endpoint}`;
   }
 
+  setObject (id, value) {
+    this.objects.set(id, value);
+    this.fetchedOn.set(id, DateTime.utc().toISO());
+  }
+
   cacheTooCold (key) {
     const fetchedOn = this.fetchedOn.get(key);
 
@@ -87,11 +92,10 @@ class Resource {
 
     this.fetchedOn.set('list', DateTime.utc().toISO());
     for (const obj of objects) {
-      const objKey = obj[this.idKey];
-      this.objects.set(objKey, obj);
-      this.fetchedOn.set(objKey, DateTime.utc().toISO());
+      this.setObject(obj[this.idKey], obj);
     }
 
+    this.save();
     this.isLoading = false;
     return this.objects.values();
   }
@@ -119,15 +123,14 @@ class Resource {
     try {
       this.isLoading = true;
       const response = await this.client.get(`${this.endpoint}/${id}/`);
-      this.objects.set(id, response.data);
-      this.fetchedOn.set(id, DateTime.utc().toISO());
-      this.save();
+      this.setObject(id, response.data);
     }
     catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
     }
     finally {
+      this.save();
       this.isLoading = false;
     }
 
@@ -138,9 +141,9 @@ class Resource {
   async patch (id, data) {
     this.isLoading = true;
     const response = await this.client.patch(`${this.endpoint}/${id}/`, data);
-    this.objects.set(id, response.data);
-    this.save();
+    this.setObject(id, response.data);
 
+    this.save();
     this.isLoading = false;
     return response.data;
   }
@@ -151,9 +154,9 @@ class Resource {
     const response = await this.client.post(`${this.endpoint}/`, data)
       , id = response.data[this.idKey];
 
-    this.objects.set(id, response.data);
-    this.save();
+    this.setObject(id, response.data);
 
+    this.save();
     this.isLoading = false;
     return response.data;
   }

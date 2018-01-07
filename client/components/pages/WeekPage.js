@@ -13,8 +13,20 @@ import pullCell from '../cells/pullCell';
 @autoBindMethods
 @observer
 class WeekPage extends Component {
-  @observable isLoading = true;
   @observable weekId = null;
+
+  componentDidMount () {
+    this.fetch(this.props);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    this.fetch(nextProps);
+  }
+
+  fetch (props) {
+    const { store, match } = props;
+    store.weeks.fetchIfCold(match.params.weekId);
+  }
 
   get comics () {
     const { store, match } = this.props

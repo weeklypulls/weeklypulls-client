@@ -33,6 +33,7 @@ class App extends Component {
           <Header>
             <div className='logo' />
             <Menu
+              selectedKeys={[]}
               theme='dark'
               mode='horizontal'
               style={{ lineHeight: '64px' }}

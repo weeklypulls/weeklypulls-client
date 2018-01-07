@@ -53,7 +53,7 @@ class Weeks extends Component {
         }));
       }
 
-      column.filteredValue = _.get(filters, column.key, []);
+      column.filteredValue = toJS(_.get(filters, column.key, []));
 
       return column;
     });
