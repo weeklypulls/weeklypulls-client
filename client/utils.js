@@ -2,6 +2,7 @@ import { observable } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 import moment from 'moment';
 import { DateTime } from 'luxon';
+import _ from 'lodash';
 
 import consts from './consts';
 
@@ -54,8 +55,8 @@ function prevWeek (weekIso) {
 
 function stringAttrsSort (a, b, attrs) {
   for (const attr of attrs) {
-    if (a[attr] < b[attr]) { return -1; }
-    if (a[attr] > b[attr]) { return 1; }
+    if (_.get(a, attr) < _.get(b, attr)) { return -1; }
+    if (_.get(a, attr) > _.get(b, attr)) { return 1; }
   }
   return 0;
 }

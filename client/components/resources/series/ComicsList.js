@@ -12,7 +12,7 @@ import utils from '../../../utils';
 import COLUMNS from './ComicsListColumns';
 
 const { future, stringSort } = utils;
-const readOrSkipped = (comic) => (comic.read || comic.skipped);
+const readOrSkipped = (comicPair) => (comicPair.comic.read || comicPair.comic.skipped);
 
 
 @inject('store')
@@ -60,9 +60,9 @@ class ComicsList extends Component {
     });
   }
 
-  filterBy (key, comic) {
+  filterBy (key, record) {
     const filters = _.get(this.props.store.filters, key, [])
-      , value = comic[key].toString();
+      , value = _.get(record, key).toString();
 
     if (!filters.length) {
       return true;
@@ -84,51 +84,53 @@ class ComicsList extends Component {
         return [];
       }
 
-      const comics = _.get(series, 'comics', []).map(comic => ({
-        ...comic,
+      const comicPairs = _.get(series, 'comics', []).map(comic => ({
+        key: comic.id,
+        comic,
         read: pull.read.includes(comic.id),
         skipped: pull.skipped.includes(comic.id),
-        pull_list_id: pull.pull_list_id,
-        pull_id: pull.id,
-        key: comic.id,
-      })).filter(comic => !future(comic.on_sale));
+        pull,
+      })).filter(comicPair => !future(comicPair.comic.on_sale));
 
-      if (!comics.length || comics.every(readOrSkipped)) {
+      if (!comicPairs.length || comicPairs.every(readOrSkipped)) {
         return [];
       }
 
-      const unreadDate = comics.filter(_.negate(readOrSkipped)).map(c => c.on_sale).sort(stringSort)[0];
+      const unreadDate = comicPairs
+        .filter(_.negate(readOrSkipped))
+        .map(cp => cp.comic.on_sale)
+        .sort(stringSort)[0];
 
       if (!earliestUnread || earliestUnread > unreadDate) {
         earliestUnread = unreadDate;
       }
 
-      return comics;
+      return comicPairs;
     });
 
     // Filter out series
-    seriesComics = seriesComics.filter(comics => !comics.every(readOrSkipped));
+    seriesComics = seriesComics.filter(comicPair => !comicPair.every(readOrSkipped));
 
     // flatten list
-    const comics = seriesComics.reduce((flat, toFlatten) => {
+    const comicPairs = seriesComics.reduce((flat, toFlatten) => {
       return flat.concat(toJS(toFlatten));
     }, []);
 
-    const comicsFiltered = comics.filter(comic => {
+    const comicsPairsFiltered = comicPairs.filter(comicPair => {
       let filter = true;
 
-      if (comic.on_sale < earliestUnread) {
+      if (comicPair.comic.on_sale < earliestUnread) {
         return false;
       }
 
-      filter = filter && this.filterBy('read', comic);
-      filter = filter && this.filterBy('skipped', comic);
-      filter = filter && this.filterBy('pull_list_id', comic);
+      filter = filter && this.filterBy('read', comicPair);
+      filter = filter && this.filterBy('skipped', comicPair);
+      filter = filter && this.filterBy('pull.pull_list_id', comicPair);
 
       return filter;
     });
 
-    return comicsFiltered;
+    return comicsPairsFiltered;
   }
 
   rowClassName (record) {
@@ -148,7 +150,7 @@ class ComicsList extends Component {
         <Table
           columns={this.columns}
           dataSource={this.dataSource()}
-          loading={store.pulls.isLoading || store.series.isLoading}
+          loading={store.isLoading}
           onChange={this.handleChange}
           pagination={{ pageSize: 50 }}
           rowClassName={this.rowClassName}

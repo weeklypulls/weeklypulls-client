@@ -9,19 +9,19 @@ import PullListLink from '../../common/PullListLink';
 
 
 function pullListCell (text, record) {
-  return <PullListLink pullId={record.pull_id} pullListId={record.pull_list_id} />;
+  return <PullListLink pullId={record.pull.id} pullListId={record.pull.pull_list_id} />;
 }
 
 function imagesCell (text, record) {
-  return <Images images={record.images} />;
+  return <Images images={record.comic.images} />;
 }
 
 function pullLinkCell (text, record) {
-  return <Link to={`/pulls/${record.pull_id}`}>{text}</Link>;
+  return <Link to={`/pulls/${record.pull.id}`}>{text}</Link>;
 }
 
-const titleSort = (a, b) => utils.stringAttrsSort(a, b, ['title', 'series_id', 'on_sale']);
-const onSaleSort = (a, b) => utils.stringAttrsSort(a, b, ['on_sale', 'title']);
+const titleSort = (a, b) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id', 'comic.on_sale']);
+const onSaleSort = (a, b) => utils.stringAttrsSort(a, b, ['comic.on_sale', 'comic.title']);
 
 function weekCell (text, record) {
   return <Link to={`/weeks/${text}`}>{text}</Link>;
@@ -30,7 +30,7 @@ function weekCell (text, record) {
 function skippedCell (text, record) {
   return (
     <SkipButton
-      comic={record}
+      comic={record.comic}
       value={record.skipped}
     />
   );
@@ -39,7 +39,7 @@ function skippedCell (text, record) {
 function readCell (text, record) {
   return (
     <ReadButton
-      comic={record}
+      comic={record.comic}
       value={record.read}
     />
   );
@@ -70,30 +70,30 @@ const COLUMNS = [
   },
   {
     title: 'Covers',
-    dataIndex: 'images',
-    key: 'images',
+    dataIndex: 'comic.images',
+    key: 'comic.images',
     render: imagesCell,
   },
   {
     title: 'List',
-    dataIndex: 'pull_list_id',
-    key: 'pull_list_id',
+    dataIndex: 'pull_list.id',
+    key: 'pull_list.id',
     render: pullListCell,
     filterMultiple: false,
     filters: [],
   },
   {
     title: 'On Sale',
-    dataIndex: 'on_sale',
-    key: 'on_sale',
+    dataIndex: 'comic.on_sale',
+    key: 'comic.on_sale',
     defaultSortOrder: 'ascend',
     sorter: onSaleSort,
     render: weekCell,
   },
   {
     title: 'Title',
-    dataIndex: 'title',
-    key: 'title',
+    dataIndex: 'comic.title',
+    key: 'comic.title',
     sorter: titleSort,
     render: pullLinkCell,
   },

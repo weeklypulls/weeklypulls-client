@@ -6,10 +6,11 @@ import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
 import _ from 'lodash';
 
-import { Button } from 'antd';
+import { Button, Col, Icon, Row, Table } from 'antd';
 
 import utils from '../../../utils';
 import PullFormModal from './PullFormModal';
+import COLUMNS from './PullsDetailsColumns';
 
 const { ModalManager } = utils;
 
@@ -42,6 +43,14 @@ class Pull extends Component {
     }
   }
 
+  dataSource () {
+    const { match, store } = this.props
+      , pullId = match.params.pullId
+      , series = store.pullWithApi(pullId);
+
+    return series.api.comics.map(c => ({ ...c, key: c.id }));
+  }
+
   render () {
     if (this.isLoading) {
       return 'Loading...';
@@ -53,12 +62,25 @@ class Pull extends Component {
 
     return (
       <div>
-        <h2>{series.api.title}</h2>
-
-        <Button onClick={this.editModal.open}>Edit</Button>
+        <Row type='flex' justify='space-between' align='top'>
+          <Col span={8}><h2>{series.api.title}</h2></Col>
+          <Col span={8} style={{ textAlign: 'right' }}>
+            <Button type='primary' onClick={this.editModal.open}>
+              <Icon type='edit' />Edit
+            </Button>
+          </Col>
+        </Row>
 
         {this.editModal.isShowing &&
           <PullFormModal data={series} onClose={this.editModal.close} />}
+
+        <Table
+          columns={COLUMNS}
+          dataSource={this.dataSource()}
+          loading={store.isLoading}
+          pagination={{ pageSize: 50 }}
+          size='small'
+        />
       </div>
     );
   }
