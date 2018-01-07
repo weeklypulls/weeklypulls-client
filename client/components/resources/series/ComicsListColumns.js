@@ -76,8 +76,8 @@ const COLUMNS = [
   },
   {
     title: 'List',
-    dataIndex: 'pull_list.id',
-    key: 'pull_list.id',
+    dataIndex: 'pull.pull_list_id',
+    key: 'pull.pull_list_id',
     render: pullListCell,
     filterMultiple: false,
     filters: [],

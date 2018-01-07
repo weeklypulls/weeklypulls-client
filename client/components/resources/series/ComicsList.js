@@ -5,7 +5,6 @@ import { inject, observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
-import cx from 'classnames';
 import { Table } from 'antd';
 
 import utils from '../../../utils';
@@ -47,7 +46,7 @@ class ComicsList extends Component {
     const filters = this.props.store.filters;
 
     return COLUMNS.map(column => {
-      if (column.key === 'pull_list_id') {
+      if (column.key === 'pull.pull_list_id') {
         column.filters = this.props.store.pullLists.all.map(pullList => ({
           text: pullList.title,
           value: pullList.id,
