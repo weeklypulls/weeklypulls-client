@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import { observable } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
@@ -10,11 +10,10 @@ import { Table } from 'antd';
 
 import COLUMNS from './PullsListColumns';
 
+@inject('store')
 @autoBindMethods
 @observer
 class PullsList extends Component {
-  @observable isLoading = true;
-
   constructor (props) {
     super(props);
     this.getAllSeries();
@@ -23,7 +22,6 @@ class PullsList extends Component {
   async getAllSeries () {
     try {
       await this.props.store.getAllSeries();
-      this.isLoading = false;
     }
     catch (e) {
       if (_.get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
@@ -37,17 +35,11 @@ class PullsList extends Component {
     return store.pullsWithApi.map(pull => ({
       ...pull,
       key: pull.id,
-      store,
     }));
   }
 
   render () {
     const { store } = this.props;
-
-    if (this.isLoading) {
-      return `Loadin2g... ${this.isLoading}`;
-    }
-
     return (
       <div>
         <h2>Pulls</h2>

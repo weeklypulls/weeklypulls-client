@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import { observable } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
@@ -13,6 +13,7 @@ import PullFormModal from './PullFormModal';
 
 const { ModalManager } = utils;
 
+@inject('store')
 @autoBindMethods
 @observer
 class Pull extends Component {
@@ -57,7 +58,7 @@ class Pull extends Component {
         <Button onClick={this.editModal.open}>Edit</Button>
 
         {this.editModal.isShowing &&
-          <PullFormModal data={series} store={store} onClose={this.editModal.close} />}
+          <PullFormModal data={series} onClose={this.editModal.close} />}
       </div>
     );
   }

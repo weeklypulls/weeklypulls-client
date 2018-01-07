@@ -15,14 +15,13 @@ const {
 @observer
 class ReadButton extends Component {
   render () {
-    const { comic, store, value } = this.props;
+    const { comic, value } = this.props;
     return (
       <BoolButton
         actions={[ACTIONS.READ, ACTIONS.UNREAD]}
         comic={comic}
         icons={['check-square-o', 'close']}
         langs={['Mark read', 'Mark unread']}
-        store={store}
         value={value}
       />
     );
@@ -30,7 +29,6 @@ class ReadButton extends Component {
 
   static propTypes = {
     comic: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
     value: PropTypes.bool.isRequired,
   }
 }

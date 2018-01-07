@@ -5,12 +5,11 @@ import Images from '../../common/Images';
 import utils from '../../../utils';
 import ReadButton from '../../common/ReadButton';
 import SkipButton from '../../common/SkipButton';
+import PullListLink from '../../common/PullListLink';
 
 
 function pullListCell (text, record) {
-  const pullList = record.store.pullLists.get(record.pull_list_id);
-  if (!pullList) { return '--'; }
-  return <Link to={`/pulls/${record.pull_id}`}>{pullList.title}</Link>;
+  return <PullListLink pullId={record.pull_id} pullListId={record.pull_list_id} />;
 }
 
 function imagesCell (text, record) {
@@ -32,7 +31,6 @@ function skippedCell (text, record) {
   return (
     <SkipButton
       comic={record}
-      store={record.store}
       value={record.skipped}
     />
   );
@@ -42,7 +40,6 @@ function readCell (text, record) {
   return (
     <ReadButton
       comic={record}
-      store={record.store}
       value={record.read}
     />
   );

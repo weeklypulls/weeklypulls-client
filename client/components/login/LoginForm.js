@@ -4,13 +4,16 @@ import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 
 import { message, Form, Icon, Input, Button, Checkbox } from 'antd';
+import { inject } from 'mobx-react';
 const FormItem = Form.Item;
 
 
+@inject('store')
 @autoBindMethods
 class LoginForm extends Component {
   handleSubmit (e) {
     e.preventDefault();
+
     this.props.form.validateFields(async (err, values) => {
       if (!err) {
         try {

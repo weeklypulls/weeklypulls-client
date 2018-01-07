@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import utils from '../../../utils';
+import PullListLink from '../../common/PullListLink';
 
 const titleSort = (a, b) => utils.stringAttrsSort(a, b, ['title', 'series_id', 'on_sale']);
 
@@ -9,10 +10,7 @@ function pullLinkCell (text, record) {
 }
 
 function pullListCell (text, record) {
-  const pullList = record.store.pullLists.get(record.pull_list_id);
-  if (!pullList) { return '--'; }
-
-  return <Link to={`/pulls/${record.id}`}>{pullList.title}</Link>;
+  return <PullListLink pullListId={record.pull_list_id} pullId={record.id} />;
 }
 
 const COLUMNS = [

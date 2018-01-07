@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { toJS } from 'mobx';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
@@ -15,6 +15,7 @@ const { future, stringSort } = utils;
 const readOrSkipped = (comic) => (comic.read || comic.skipped);
 
 
+@inject('store')
 @autoBindMethods
 @observer
 class ComicsList extends Component {
@@ -90,7 +91,6 @@ class ComicsList extends Component {
         pull_list_id: pull.pull_list_id,
         pull_id: pull.id,
         key: comic.id,
-        store,
       })).filter(comic => !future(comic.on_sale));
 
       if (!comics.length || comics.every(readOrSkipped)) {

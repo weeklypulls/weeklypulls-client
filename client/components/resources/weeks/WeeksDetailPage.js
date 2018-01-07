@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { observable } from 'mobx';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import PropTypes from 'prop-types';
 import { Table, Button, Icon, Row, Col } from 'antd';
@@ -14,6 +14,7 @@ function pullCell (text, record) {
   return <PullButton text={text} record={record} />;
 }
 
+@inject('store')
 @autoBindMethods
 @observer
 class WeeksDetailPage extends Component {
@@ -43,7 +44,6 @@ class WeeksDetailPage extends Component {
     return this.comics.map(comic => ({
       ...comic,
       key: comic.id,
-      store: this.props.store,
     }));
   }
 

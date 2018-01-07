@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import { Icon } from 'antd';
 
 
+@inject('store')
 @autoBindMethods
 @observer
 class BoolButton extends Component {

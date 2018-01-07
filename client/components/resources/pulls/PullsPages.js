@@ -31,7 +31,6 @@ class SeriesListPage extends Component {
 
   static propTypes = {
     history: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
     match: PropTypes.object.isRequired,
   }
 }

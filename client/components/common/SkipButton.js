@@ -15,14 +15,13 @@ const {
 @observer
 class SkipButton extends Component {
   render () {
-    const { comic, store, value } = this.props;
+    const { comic, value } = this.props;
     return (
       <BoolButton
         actions={[ACTIONS.SKIP, ACTIONS.UNSKIP]}
         comic={comic}
         icons={['double-right', 'close']}
         langs={['Skip', 'Unskip']}
-        store={store}
         value={value}
       />
     );
@@ -30,7 +29,6 @@ class SkipButton extends Component {
 
   static propTypes = {
     comic: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
     value: PropTypes.bool.isRequired,
   }
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import { observable } from 'mobx';
 import _ from 'lodash';
 
@@ -10,6 +10,7 @@ import PullFormModal from '../resources/pulls/PullFormModal';
 
 const { ModalManager } = utils;
 
+@inject('store')
 @autoBindMethods
 @observer
 class PullButton extends Component {
@@ -17,8 +18,8 @@ class PullButton extends Component {
   @observable isSubmitting = false;
 
   render () {
-    const { record } = this.props
-      , { store, series_id } = record
+    const { record, store } = this.props
+      , { series_id } = record
       , pull = store.pulls.getBy('series_id', series_id);
 
     if (pull) {
@@ -28,7 +29,7 @@ class PullButton extends Component {
     return (
       <span>
         {this.pullModal.isShowing &&
-          <PullFormModal data={{ series_id, api: record }} store={store} onClose={this.pullModal.close} />}
+          <PullFormModal data={{ series_id, api: record }} onClose={this.pullModal.close} />}
 
         <a onClick={this.pullModal.open}>Pull</a>
       </span>
@@ -38,6 +39,7 @@ class PullButton extends Component {
   static propTypes = {
     text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     record: PropTypes.object.isRequired,
+    store: PropTypes.object.isRequired,
   }
 }
 

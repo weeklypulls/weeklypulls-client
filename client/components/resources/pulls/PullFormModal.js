@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { observable } from 'mobx';
-import { observer } from 'mobx-react';
+import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 
@@ -9,6 +9,7 @@ import { message, Form, Select, Modal } from 'antd';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+@inject('store')
 @autoBindMethods
 @observer
 class PullFormModal extends Component {
