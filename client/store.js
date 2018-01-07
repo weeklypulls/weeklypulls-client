@@ -52,18 +52,22 @@ class Store {
     return this._filters;
   }
 
-  get pullsWithApi () {
+  pullsWithSeries () {
     return this.pulls.all.map(pull => ({
-      ...pull,
-      api: this.series.get(pull.series_id),
+      pull,
+      series: this.series.get(pull.series_id),
+      pullList: this.pullLists.get(pull.pull_list_id),
+      key: pull.id,
     }));
   }
 
-  pullWithApi (id) {
+  pullWithSeries (id) {
     const pull = this.pulls.get(id);
     return {
-      ...pull,
-      api: this.series.get(pull.series_id),
+      pull,
+      series: this.series.get(pull.series_id),
+      pullList: this.pullLists.get(pull.pull_list_id),
+      key: pull.id,
     };
   }
 

@@ -32,10 +32,7 @@ class PullsList extends Component {
 
   dataSource () {
     const { store } = this.props;
-    return store.pullsWithApi.map(pull => ({
-      ...pull,
-      key: pull.id,
-    }));
+    return store.pullsWithSeries();
   }
 
   render () {

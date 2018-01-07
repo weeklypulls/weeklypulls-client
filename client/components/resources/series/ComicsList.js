@@ -133,15 +133,6 @@ class ComicsList extends Component {
     return comicsPairsFiltered;
   }
 
-  rowClassName (record) {
-    const { read, skipped } = record;
-    return cx({
-      'comic-read': read,
-      'comic-skipped': skipped,
-      'comic-toread': !read && !skipped,
-    });
-  }
-
   render () {
     const { store } = this.props;
     return (
@@ -153,7 +144,7 @@ class ComicsList extends Component {
           loading={store.isLoading}
           onChange={this.handleChange}
           pagination={{ pageSize: 50 }}
-          rowClassName={this.rowClassName}
+          rowClassName={utils.rowClassName}
           size='small'
         />
       </div>

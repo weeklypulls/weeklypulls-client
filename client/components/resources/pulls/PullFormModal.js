@@ -26,16 +26,16 @@ class PullFormModal extends Component {
 
   handleSubmit (e) {
     this.isSubmitting = true;
-    const { data, store, form, onClose } = this.props;
+    const { data: pull, store, form, onClose } = this.props;
 
     e.preventDefault();
     form.validateFields(async (err, values) => {
       try {
-        if (data.id) {
-          await store.pulls.patch(data.id, values);
+        if (pull.id) {
+          await store.pulls.patch(pull.id, values);
         }
         else {
-          await store.pulls.post({ ...values, series_id: data.series_id });
+          await store.pulls.post({ ...values, series_id: pull.series_id });
         }
 
         message.success('Updated!');
@@ -81,8 +81,8 @@ class PullFormModal extends Component {
   }
 
   render () {
-    const { data, onClose } = this.props
-      , title = _.get(data, 'api.title', 'Pull');
+    const { onClose, series } = this.props
+      , title = _.get(series, 'title', 'PullDetail');
 
     return (
       <Modal
@@ -102,7 +102,8 @@ class PullFormModal extends Component {
   }
 
   static propTypes = {
-    data: PropTypes.object.isRequired,
+    series: PropTypes.object.isRequired,
+    pull: PropTypes.object.isRequired,
     form: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
     onClose: PropTypes.func,

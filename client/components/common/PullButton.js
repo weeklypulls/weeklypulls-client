@@ -18,8 +18,8 @@ class PullButton extends Component {
   @observable isSubmitting = false;
 
   render () {
-    const { record, store } = this.props
-      , { series_id } = record
+    const { comic, series, store } = this.props
+      , { series_id } = comic
       , pull = store.pulls.getBy('series_id', series_id);
 
     if (pull) {
@@ -29,7 +29,11 @@ class PullButton extends Component {
     return (
       <span>
         {this.pullModal.isShowing &&
-          <PullFormModal data={{ series_id, api: record }} onClose={this.pullModal.close} />}
+          <PullFormModal
+            data={{ pull: { series_id } }}
+            series={series}
+            onClose={this.pullModal.close}
+          />}
 
         <a onClick={this.pullModal.open}>Pull</a>
       </span>
@@ -37,8 +41,8 @@ class PullButton extends Component {
   }
 
   static propTypes = {
-    text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    record: PropTypes.object.isRequired,
+    series: PropTypes.object.isRequired,
+    comic: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
   }
 }

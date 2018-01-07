@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import _ from 'lodash';
 
 import consts from './consts';
+import cx from 'classnames';
 
 @autoBindMethods
 class ModalManager {
@@ -61,7 +62,17 @@ function stringAttrsSort (a, b, attrs) {
   return 0;
 }
 
+function rowClassName (record) {
+  const { read, skipped } = record;
+  return cx({
+    'comic-read': read,
+    'comic-skipped': skipped,
+    'comic-toread': !read && !skipped,
+  });
+}
+
 export default {
+  rowClassName,
   stringAttrsSort,
   farFuture,
   future,

@@ -11,7 +11,7 @@ import utils from '../../../utils';
 import PullButton from '../../common/PullButton';
 
 function pullCell (text, record) {
-  return <PullButton text={text} record={record} />;
+  return <PullButton {...record} />;
 }
 
 @inject('store')
@@ -70,8 +70,8 @@ class WeeksDetailPage extends Component {
     return (
       <div>
         <Row type='flex' justify='space-between' align='top'>
-          <Col span={8}><h2>Week of {weekId}</h2></Col>
-          <Col span={8} style={{ textAlign: 'right' }}>
+          <Col span={12}><h2>Week of {weekId}</h2></Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
             <Button.Group>
               <Link to={`/weeks/${lastWeek}`}>
                 <Button type='primary'>
