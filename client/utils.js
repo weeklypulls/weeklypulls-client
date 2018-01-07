@@ -1,6 +1,7 @@
 import { observable } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 import moment from 'moment';
+import { DateTime } from 'luxon';
 
 import consts from './consts';
 
@@ -43,10 +44,20 @@ function farFuture (week) {
   return (date > tooFar);
 }
 
+function nextWeek (weekIso) {
+  return DateTime.fromISO(weekIso).plus({ weeks: 1 }).toISODate();
+}
+
+function prevWeek (weekIso) {
+  return DateTime.fromISO(weekIso).minus({ weeks: 1 }).toISODate();
+}
+
 export default {
   farFuture,
   future,
   ModalManager,
   nearFuture,
+  nextWeek,
+  prevWeek,
   stringSort,
 };

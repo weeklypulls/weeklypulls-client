@@ -147,15 +147,18 @@ class Weeks extends Component {
   render () {
     const { store } = this.props;
     return (
-      <Table
-        columns={this.columns}
-        dataSource={this.dataSource()}
-        loading={store.pulls.isLoading || store.series.isLoading}
-        onChange={this.handleChange}
-        pagination={{ pageSize: 50 }}
-        rowClassName={this.rowClassName}
-        size='small'
-      />
+      <div>
+        <h2>Comics</h2>
+        <Table
+          columns={this.columns}
+          dataSource={this.dataSource()}
+          loading={store.pulls.isLoading || store.series.isLoading}
+          onChange={this.handleChange}
+          pagination={{ pageSize: 50 }}
+          rowClassName={this.rowClassName}
+          size='small'
+        />
+      </div>
     );
   }
 

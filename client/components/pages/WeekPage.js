@@ -3,8 +3,11 @@ import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import PropTypes from 'prop-types';
-import { Spin, Table } from 'antd';
+import { Spin, Table, Button, Icon, Row, Col } from 'antd';
+import { Link } from 'react-router-dom';
+import _ from 'lodash';
 
+import utils from '../../utils';
 import pullCell from '../cells/pullCell';
 
 @autoBindMethods
@@ -12,21 +15,32 @@ import pullCell from '../cells/pullCell';
 class WeekPage extends Component {
   @observable comics = [];
   @observable isLoading = true;
+  @observable weekId = null;
 
   componentDidMount () {
-    this.fetch();
+    this.fetch(this.props.match.params.weekId);
   }
 
-  async fetch () {
-    const { match, store } = this.props
-      , id = match.params.weekId;
+  componentWillReceiveProps (nextProps) {
+    const current = this.props.match.params.weekId
+      , next = nextProps.match.params.weekId;
+
+    if (current !== next) {
+      this.fetch(next);
+    }
+  }
+
+  async fetch (weekId) {
+    this.isLoading = true;
+    this.comics = [];
+    const { store } = this.props;
 
     await Promise.all([
       store.pulls.list(),
       store.pullLists.list(),
     ]);
 
-    this.comics = (await store.weeks.fetch(id)).comics;
+    this.comics = (await store.weeks.fetch(weekId)).comics;
     this.isLoading = false;
   }
 
@@ -39,9 +53,9 @@ class WeekPage extends Component {
   }
 
   render () {
-    if (this.isLoading) {
-      return <Spin size='large' />;
-    }
+    const { weekId } = this.props.match.params
+      , nextWeek = utils.nextWeek(weekId)
+      , lastWeek = utils.prevWeek(weekId);
 
     const { store } = this.props
       , COLUMNS = [
@@ -59,13 +73,34 @@ class WeekPage extends Component {
       ];
 
     return (
-      <Table
-        columns={COLUMNS}
-        dataSource={this.dataSource()}
-        loading={this.isLoading || store.weeks.isLoading}
-        pagination={false}
-        size='small'
-      />
+      <div>
+        <Row type='flex' justify='space-between' align='top'>
+          <Col span={8}><h2>Week of {weekId}</h2></Col>
+          <Col span={8} style={{ textAlign: 'right' }}>
+            <Button.Group>
+              <Link to={`/weeks/${lastWeek}`}>
+                <Button type='primary'>
+                  <Icon type='left' />{lastWeek}
+                </Button>
+              </Link>
+              {' '}
+              <Link to={`/weeks/${nextWeek}`}>
+                <Button type='primary'>
+                  {nextWeek}<Icon type='right' />
+                </Button>
+              </Link>
+            </Button.Group>
+          </Col>
+        </Row>
+
+        <Table
+          columns={COLUMNS}
+          dataSource={this.dataSource()}
+          loading={this.isLoading || store.weeks.isLoading}
+          pagination={false}
+          size='small'
+        />
+      </div>
     );
   }
 

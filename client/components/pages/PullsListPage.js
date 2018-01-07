@@ -6,7 +6,7 @@ import autoBindMethods from 'class-autobind-decorator';
 import { Route } from 'react-router-dom';
 
 import Pull from '../Pull';
-import PullSelect from '../PullSelect';
+import PullsList from '../PullsList';
 
 @autoBindMethods
 @observer
@@ -16,7 +16,7 @@ class SeriesListPage extends Component {
   }
 
   renderPullSelect (props) {
-    return <PullSelect {...this.props} {...props} />;
+    return <PullsList {...this.props} {...props} />;
   }
 
   render () {

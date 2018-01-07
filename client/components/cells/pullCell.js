@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import { observable } from 'mobx';
 
 import utils from '../../utils';
-import SeriesForm from '../forms/seriesForm';
+import SeriesFormModal from '../forms/SeriesFormModal';
 
 const { ModalManager } = utils;
 
@@ -27,7 +27,7 @@ class PullButton extends Component {
     return (
       <span>
         {this.pullModal.isShowing &&
-          <SeriesForm data={{ series_id, api: record }} store={store} onClose={this.pullModal.close} />}
+          <SeriesFormModal data={{ series_id, api: record }} store={store} onClose={this.pullModal.close} />}
 
         <a onClick={this.pullModal.open}>Pull</a>
       </span>

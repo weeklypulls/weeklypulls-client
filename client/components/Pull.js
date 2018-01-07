@@ -6,11 +6,10 @@ import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
 import _ from 'lodash';
 
-import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 
 import utils from '../utils';
-import SeriesForm from './forms/seriesForm';
+import SeriesFormModal from './forms/SeriesFormModal';
 
 const { ModalManager } = utils;
 
@@ -53,14 +52,12 @@ class Pull extends Component {
 
     return (
       <div>
-        <Link to={'/series'}>Back</Link>
-
-        <h3>{series.api.title}</h3>
+        <h2>{series.api.title}</h2>
 
         <Button onClick={this.editModal.open}>Edit</Button>
 
         {this.editModal.isShowing &&
-          <SeriesForm data={series} store={store} onClose={this.editModal.close} />}
+          <SeriesFormModal data={series} store={store} onClose={this.editModal.close} />}
       </div>
     );
   }

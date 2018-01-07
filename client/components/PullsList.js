@@ -6,11 +6,13 @@ import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
 import _ from 'lodash';
 
-import { Link } from 'react-router-dom';
+import { Table } from 'antd';
+
+import COLUMNS from './PullsListColumns';
 
 @autoBindMethods
 @observer
-class PullSelect extends Component {
+class PullsList extends Component {
   @observable isLoading = true;
 
   constructor (props) {
@@ -30,8 +32,17 @@ class PullSelect extends Component {
     }
   }
 
+  dataSource () {
+    const { store } = this.props;
+    return store.pullsWithApi.map(pull => ({
+      ...pull,
+      key: pull.id,
+      store,
+    }));
+  }
+
   render () {
-    const { match, store } = this.props;
+    const { store } = this.props;
 
     if (this.isLoading) {
       return `Loadin2g... ${this.isLoading}`;
@@ -39,17 +50,14 @@ class PullSelect extends Component {
 
     return (
       <div>
-        <h3>Please select a series.</h3>
-
-        <ul>
-          {store.pullsWithApi.map(pull => (
-            <li key={pull.id}>
-              <Link to={`${match.url}/${pull.id}`}>
-                {pull.api.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <h2>Pulls</h2>
+        <Table
+          columns={COLUMNS}
+          dataSource={this.dataSource()}
+          loading={store.pullLists.isLoading || store.pulls.isLoading || store.series.isLoading}
+          pagination={false}
+          size='small'
+        />
       </div>
     );
   }
@@ -61,4 +69,4 @@ class PullSelect extends Component {
   }
 }
 
-export default PullSelect;
+export default PullsList;

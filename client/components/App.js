@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import { observable } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 
 import { Layout, Menu, Icon } from 'antd';
@@ -12,17 +11,16 @@ import {
 
 import ComicsListPage from './pages/ComicsListPage';
 import LoginPage from './pages/LoginPage';
-import SeriesListPage from './pages/SeriesListPage';
+import PullsListPage from './pages/PullsListPage';
 import WeekPage from './pages/WeekPage';
 
 import 'antd/dist/antd.css';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
 @autoBindMethods
 @observer
 class App extends Component {
-  @observable collapsed = false;
   defaultSelectedKeys = [];
 
   constructor (props) {
@@ -31,12 +29,8 @@ class App extends Component {
     this.defaultSelectedKeys.push(`/${key}`);
   }
 
-  toggle () {
-    this.collapsed = !this.collapsed;
-  }
-
   renderComicsListPage (props) { return <ComicsListPage {...props} {...this.props} />; }
-  renderSeriesListPage (props) { return <SeriesListPage {...props} {...this.props} />; }
+  renderPullsListPage (props) { return <PullsListPage {...props} {...this.props} />; }
   renderWeekPage (props) { return <WeekPage {...props} {...this.props} />; }
   renderLoginPage (props) { return <LoginPage {...props} {...this.props} />; }
 
@@ -44,24 +38,23 @@ class App extends Component {
     return (
       <Router history={this.history}>
         <Layout style={{ minHeight: '100vh' }}>
-          <Sider
-            breakpoint='lg'
-            collapsed={this.collapsed}
-            collapsible
-            trigger={null}
-          >
+          <Header>
             <div className='logo' />
-            <Menu theme='dark' mode='inline' defaultSelectedKeys={this.defaultSelectedKeys}>
+            <Menu
+              theme='dark'
+              mode='horizontal'
+              style={{ lineHeight: '64px' }}
+            >
               <Menu.Item key='home'>
                 <NavLink to='/'>
                   <Icon type='home' />
                   <span>Comics</span>
                 </NavLink>
               </Menu.Item>
-              <Menu.Item key='/series'>
-                <NavLink to='/series'>
+              <Menu.Item key='/pulls'>
+                <NavLink to='/pulls'>
                   <Icon type='plus-circle-o' />
-                  <span>Series</span>
+                  <span>Pulls</span>
                 </NavLink>
               </Menu.Item>
               <Menu.Item key='/login'>
@@ -71,23 +64,19 @@ class App extends Component {
                 </NavLink>
               </Menu.Item>
             </Menu>
-          </Sider>
+          </Header>
 
           <Layout>
-            <Header style={{ background: '#fff', padding: 0 }}>
-              <Icon
-                className='trigger'
-                type={this.collapsed ? 'menu-unfold' : 'menu-fold'}
-                onClick={this.toggle}
-              />
-            </Header>
-
-            <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>
+            <Content style={{ margin: '16px', padding: 24, background: '#fff', minHeight: 280 }}>
               <Route exact path='/' render={this.renderComicsListPage} />
-              <Route path='/series' render={this.renderSeriesListPage} />
+              <Route path='/pulls' render={this.renderPullsListPage} />
               <Route path='/login' render={this.renderLoginPage} />
               <Route path='/weeks/:weekId' component={this.renderWeekPage} />
             </Content>
+
+            <Footer style={{ textAlign: 'center' }}>
+              Read more comics
+            </Footer>
           </Layout>
         </Layout>
       </Router>

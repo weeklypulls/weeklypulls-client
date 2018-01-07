@@ -3,6 +3,7 @@ import skippedCell from './cells/skippedCell';
 import imagesCell from './cells/imagesCell';
 import weekCell from './cells/weekCell';
 import pullListCell from './cells/pullListCell';
+import pullLinkCell from './cells/pullLinkCell';
 
 function stringAttrsSort (a, b, attrs) {
   for (const attr of attrs) {
@@ -12,9 +13,8 @@ function stringAttrsSort (a, b, attrs) {
   return 0;
 }
 
-const titleSort = (a, b) => stringAttrsSort(a, b, ['title', 'on_sale']);
+const titleSort = (a, b) => stringAttrsSort(a, b, ['title', 'series_id', 'on_sale']);
 const onSaleSort = (a, b) => stringAttrsSort(a, b, ['on_sale', 'title']);
-const seriesSort = (a, b) => stringAttrsSort(a, b, ['series_id', 'on_sale']);
 
 const COLUMNS = [
   {
@@ -62,16 +62,11 @@ const COLUMNS = [
     render: weekCell,
   },
   {
-    title: 'Series',
-    dataIndex: 'series_id',
-    key: 'series_id',
-    sorter: seriesSort,
-  },
-  {
     title: 'Title',
     dataIndex: 'title',
     key: 'title',
     sorter: titleSort,
+    render: pullLinkCell,
   },
 ];
 
