@@ -3,7 +3,7 @@ import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import PropTypes from 'prop-types';
-import { Spin, Table, Button, Icon, Row, Col } from 'antd';
+import { Table, Button, Icon, Row, Col } from 'antd';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
@@ -13,35 +13,14 @@ import pullCell from '../cells/pullCell';
 @autoBindMethods
 @observer
 class WeekPage extends Component {
-  @observable comics = [];
   @observable isLoading = true;
   @observable weekId = null;
 
-  componentDidMount () {
-    this.fetch(this.props.match.params.weekId);
-  }
-
-  componentWillReceiveProps (nextProps) {
-    const current = this.props.match.params.weekId
-      , next = nextProps.match.params.weekId;
-
-    if (current !== next) {
-      this.fetch(next);
-    }
-  }
-
-  async fetch (weekId) {
-    this.isLoading = true;
-    this.comics = [];
-    const { store } = this.props;
-
-    await Promise.all([
-      store.pulls.list(),
-      store.pullLists.list(),
-    ]);
-
-    this.comics = (await store.weeks.fetch(weekId)).comics;
-    this.isLoading = false;
+  get comics () {
+    const { store, match } = this.props
+      , weekId = match.params.weekId
+      , week = store.weeks.get(weekId);
+    return _.get(week, 'comics', []);
   }
 
   dataSource () {
@@ -96,7 +75,7 @@ class WeekPage extends Component {
         <Table
           columns={COLUMNS}
           dataSource={this.dataSource()}
-          loading={this.isLoading || store.weeks.isLoading}
+          loading={store.isLoading}
           pagination={false}
           size='small'
         />

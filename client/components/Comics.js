@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { toJS, observable } from 'mobx';
+import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 import cx from 'classnames';
 import { Table } from 'antd';
-import { performance } from 'decorator-performance';
 
 import utils from '../utils';
 import COLUMNS from './ComicsColumns';
@@ -19,8 +18,6 @@ const readOrSkipped = (comic) => (comic.read || comic.skipped);
 @autoBindMethods
 @observer
 class Weeks extends Component {
-  @observable filters = new Map();
-
   componentDidMount () {
     this.getAllSeries();
   }
@@ -28,7 +25,7 @@ class Weeks extends Component {
   async getAllSeries () {
     try {
       await Promise.all([
-        this.props.store.pullLists.list(),
+        this.props.store.pullLists.listIfCold(),
         this.props.store.getAllSeries(),
       ]);
     }
@@ -73,7 +70,6 @@ class Weeks extends Component {
     return filters.includes(value);
   }
 
-  @performance
   dataSource () {
     const { store } = this.props
       , pulls = store.pulls.all;

@@ -19,7 +19,7 @@ class SeriesFormModal extends Component {
   }
 
   async fetchPullLists () {
-    await this.props.store.pullLists.list();
+    await this.props.store.pullLists.listIfCold();
     this.isLoading = false;
   }
 

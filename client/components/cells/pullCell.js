@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
+import _ from 'lodash';
 
 import utils from '../../utils';
 import SeriesFormModal from '../forms/SeriesFormModal';
@@ -21,7 +22,7 @@ class PullButton extends Component {
       , pull = store.pulls.getBy('series_id', series_id);
 
     if (pull) {
-      return store.pullLists.get(pull.pull_list_id).title;
+      return _.get(store.pullLists.get(pull.pull_list_id), 'title', '--')
     }
 
     return (

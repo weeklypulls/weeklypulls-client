@@ -18,13 +18,18 @@ class Store {
   constructor () {
     this.client = new Client();
 
-    this.pulls = new Resource(this.client.user, 'pulls');
-    this.pullLists = new Resource(this.client.user, 'pull-lists');
+    this.pulls = new Resource(this.client.user, 'pulls', { minutes: 20 });
+    this.pullLists = new Resource(this.client.user, 'pull-lists', { weeks: 1 });
 
-    this.series = new Resource(this.client.marvel, 'series', 'series_id');
-    this.weeks = new Resource(this.client.marvel, 'weeks', 'week_of');
+    this.series = new Resource(this.client.marvel, 'series', { weeks: 1 }, 'series_id');
+    this.weeks = new Resource(this.client.marvel, 'weeks', { minutes: 20 }, 'week_of');
 
-    this.pullLists.list();
+    this.pullLists.listIfCold();
+  }
+
+  get isLoading () {
+    const resources = ['pulls', 'pullLists', 'series', 'weeks'];
+    return resources.map(r => this[r].isLoading).some(x => x);
   }
 
   setFilters (filters) {
@@ -62,9 +67,9 @@ class Store {
     };
   }
 
-  _firstUnreadWeek (serie) {
-    const pull = this.pulls.getBy('series_id', serie.series_id)
-      , comics = serie.comics
+  _firstUnreadWeek (series) {
+    const pull = this.pulls.getBy('series_id', series.series_id)
+      , comics = series.comics
       , comicsUnread = comics.filter(comic => !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id)))
       , weeks = comicsUnread.map(comic => comic.on_sale)
       , firstWeek = weeks.sort()[0]
@@ -81,17 +86,11 @@ class Store {
 
   @action
   async getAllSeries () {
-    const pulls = await this.pulls.list();
+    const pulls = await this.pulls.listIfCold();
     for (const pull of pulls) {
-      await this.series.fetch(pull.series_id);
+      await this.series.fetchIfCold(pull.series_id);
     }
   }
-
-  // @action
-  // async pull (series_id) {
-  //   const pull = await this.pulls.post({ series_id });
-  //   return pull;
-  // }
 
   @action
   async mark (seriesId, issueId, action) {

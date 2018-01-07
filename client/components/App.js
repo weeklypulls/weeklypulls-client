@@ -21,14 +21,6 @@ const { Header, Content, Footer } = Layout;
 @autoBindMethods
 @observer
 class App extends Component {
-  defaultSelectedKeys = [];
-
-  constructor (props) {
-    super(props);
-    const key = window.location.pathname.substr(1,).split('/')[0];
-    this.defaultSelectedKeys.push(`/${key}`);
-  }
-
   renderComicsListPage (props) { return <ComicsListPage {...props} {...this.props} />; }
   renderPullsListPage (props) { return <PullsListPage {...props} {...this.props} />; }
   renderWeekPage (props) { return <WeekPage {...props} {...this.props} />; }
