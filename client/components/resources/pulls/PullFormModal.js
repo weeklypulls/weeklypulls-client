@@ -26,7 +26,7 @@ class PullFormModal extends Component {
 
   handleSubmit (e) {
     this.isSubmitting = true;
-    const { data: pull, store, form, onClose } = this.props;
+    const { pull, store, form, onClose } = this.props;
 
     e.preventDefault();
     form.validateFields(async (err, values) => {
@@ -57,7 +57,7 @@ class PullFormModal extends Component {
   }
 
   renderForm () {
-    const { form, store, data } = this.props;
+    const { form, store, pull } = this.props;
 
     return (
       <Form onSubmit={this.handleSubmit}>
@@ -67,7 +67,7 @@ class PullFormModal extends Component {
           wrapperCol={{ span: 12 }}
         >
 
-          {form.getFieldDecorator('pull_list_id', { initialValue: data.pull_list_id })(
+          {form.getFieldDecorator('pull_list_id', { initialValue: pull.pull_list_id })(
             <Select>
               {store.pullLists.all.map(pullList => (
                 <Option key={pullList.id} value={pullList.id}>{pullList.title}</Option>
@@ -81,8 +81,8 @@ class PullFormModal extends Component {
   }
 
   render () {
-    const { onClose, series } = this.props
-      , title = _.get(series, 'title', 'PullDetail');
+    const { onClose, pull, store } = this.props
+      , title = _.get(store.series.get(pull.series_id), 'title', 'PullDetail');
 
     return (
       <Modal
@@ -102,7 +102,6 @@ class PullFormModal extends Component {
   }
 
   static propTypes = {
-    series: PropTypes.object.isRequired,
     pull: PropTypes.object.isRequired,
     form: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,

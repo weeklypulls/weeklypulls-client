@@ -42,7 +42,7 @@ class WeeksDetailPage extends Component {
 
   dataSource () {
     return this.comics.map(comic => ({
-      ...comic,
+      comic,
       key: comic.id,
     }));
   }
@@ -56,13 +56,13 @@ class WeeksDetailPage extends Component {
       , COLUMNS = [
         {
           title: 'Title',
-          dataIndex: 'title',
-          key: 'title',
+          dataIndex: 'comic.title',
+          key: 'comic.title',
         },
         {
           title: 'Series',
-          dataIndex: 'series_id',
-          key: 'series_id',
+          dataIndex: 'comic.series_id',
+          key: 'comic.series_id',
           render: pullCell,
         },
       ];
