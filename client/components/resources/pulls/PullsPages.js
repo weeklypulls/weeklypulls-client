@@ -5,17 +5,17 @@ import autoBindMethods from 'class-autobind-decorator';
 
 import { Route } from 'react-router-dom';
 
-import Pull from '../Pull';
-import PullsList from '../PullsList';
+import PullsDetail from './PullsDetail';
+import PullsList from './PullsList';
 
 @autoBindMethods
 @observer
 class SeriesListPage extends Component {
   renderPull (props) {
-    return <Pull {...this.props} {...props} />;
+    return <PullsDetail {...this.props} {...props} />;
   }
 
-  renderPullSelect (props) {
+  renderPullsList (props) {
     return <PullsList {...this.props} {...props} />;
   }
 
@@ -24,7 +24,7 @@ class SeriesListPage extends Component {
     return (
       <div>
         <Route path={`${match.url}/:pullId`} component={this.renderPull} />
-        <Route exact path={match.url} render={this.renderPullSelect} />
+        <Route exact path={match.url} render={this.renderPullsList} />
       </div>
     );
   }

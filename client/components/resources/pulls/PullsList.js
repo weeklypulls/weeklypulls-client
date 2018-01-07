@@ -54,7 +54,7 @@ class PullsList extends Component {
         <Table
           columns={COLUMNS}
           dataSource={this.dataSource()}
-          loading={store.pullLists.isLoading || store.pulls.isLoading || store.series.isLoading}
+          loading={store.isLoading}
           pagination={false}
           size='small'
         />

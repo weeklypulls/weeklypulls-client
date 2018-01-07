@@ -6,7 +6,7 @@ import { observable } from 'mobx';
 import _ from 'lodash';
 
 import utils from '../../utils';
-import SeriesFormModal from '../forms/SeriesFormModal';
+import SeriesFormModal from '../resources/pulls/SeriesFormModal';
 
 const { ModalManager } = utils;
 
@@ -41,6 +41,4 @@ class PullButton extends Component {
   }
 }
 
-export default function pullListCell (text, record) {
-  return <PullButton text={text} record={record} />;
-}
+export default PullButton;

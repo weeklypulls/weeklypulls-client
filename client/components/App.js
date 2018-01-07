@@ -9,10 +9,10 @@ import {
   NavLink,
 } from 'react-router-dom';
 
-import ComicsListPage from './pages/ComicsListPage';
-import LoginPage from './pages/LoginPage';
-import PullsListPage from './pages/PullsListPage';
-import WeekPage from './pages/WeekPage';
+import ComicsListPage from './resources/series/ComicsListPage';
+import LoginPage from './login/LoginPage';
+import PullsListPage from './resources/pulls/PullsPages';
+import WeekPage from './resources/weeks/WeekPage';
 
 import 'antd/dist/antd.css';
 

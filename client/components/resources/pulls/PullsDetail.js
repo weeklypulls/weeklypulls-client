@@ -8,8 +8,8 @@ import _ from 'lodash';
 
 import { Button } from 'antd';
 
-import utils from '../utils';
-import SeriesFormModal from './forms/SeriesFormModal';
+import utils from '../../../utils';
+import SeriesFormModal from './SeriesFormModal';
 
 const { ModalManager } = utils;
 

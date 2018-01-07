@@ -8,7 +8,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { Table } from 'antd';
 
-import utils from '../utils';
+import utils from '../../../utils';
 import COLUMNS from './ComicsColumns';
 
 const { future, stringSort } = utils;

@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import utils from '../../../utils';
 
-function stringAttrsSort (a, b, attrs) {
-  for (const attr of attrs) {
-    if (a[attr] < b[attr]) { return -1; }
-    if (a[attr] > b[attr]) { return 1; }
-  }
-  return 0;
+const titleSort = (a, b) => utils.stringAttrsSort(a, b, ['title', 'series_id', 'on_sale']);
+
+function pullLinkCell (text, record) {
+  return <Link to={`/pulls/${record.id}`}>{text}</Link>;
 }
 
 function pullListCell (text, record) {
@@ -14,12 +13,6 @@ function pullListCell (text, record) {
   if (!pullList) { return '--'; }
 
   return <Link to={`/pulls/${record.id}`}>{pullList.title}</Link>;
-}
-
-const titleSort = (a, b) => stringAttrsSort(a, b, ['title', 'series_id', 'on_sale']);
-
-function pullLinkCell (text, record) {
-  return <Link to={`/pulls/${record.id}`}>{text}</Link>;
 }
 
 const COLUMNS = [

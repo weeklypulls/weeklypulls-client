@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 
-import Comics from '../Comics';
+import Comics from './Comics';
 
 @observer
 @autoBindMethods

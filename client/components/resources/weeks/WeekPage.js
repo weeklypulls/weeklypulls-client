@@ -7,8 +7,12 @@ import { Table, Button, Icon, Row, Col } from 'antd';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
-import utils from '../../utils';
-import pullCell from '../cells/pullCell';
+import utils from '../../../utils';
+import PullButton from '../../common/PullButton';
+
+function pullCell (text, record) {
+  return <PullButton text={text} record={record} />;
+}
 
 @autoBindMethods
 @observer

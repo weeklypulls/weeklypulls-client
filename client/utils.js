@@ -52,7 +52,16 @@ function prevWeek (weekIso) {
   return DateTime.fromISO(weekIso).minus({ weeks: 1 }).toISODate();
 }
 
+function stringAttrsSort (a, b, attrs) {
+  for (const attr of attrs) {
+    if (a[attr] < b[attr]) { return -1; }
+    if (a[attr] > b[attr]) { return 1; }
+  }
+  return 0;
+}
+
 export default {
+  stringAttrsSort,
   farFuture,
   future,
   ModalManager,
