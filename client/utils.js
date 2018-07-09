@@ -3,9 +3,9 @@ import autoBindMethods from 'class-autobind-decorator';
 import moment from 'moment';
 import { DateTime } from 'luxon';
 import _ from 'lodash';
+import cx from 'classnames';
 
 import consts from './consts';
-import cx from 'classnames';
 
 @autoBindMethods
 class ModalManager {

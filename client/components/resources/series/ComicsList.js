@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { toJS } from 'mobx';
+import { toJS, observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
-import { Table } from 'antd';
+import { Table, Button, Input } from 'antd';
 
 import utils from '../../../utils';
 import COLUMNS from './ComicsListColumns';
@@ -18,6 +18,9 @@ const readOrSkipped = (comicPair) => (comicPair.comic.read || comicPair.comic.sk
 @autoBindMethods
 @observer
 class ComicsList extends Component {
+  @observable searchText = '';
+  @observable filterDropdownVisible = false;
+
   componentDidMount () {
     this.getAllSeries();
   }
@@ -42,10 +45,43 @@ class ComicsList extends Component {
     this.props.store.setFilters(filters);
   }
 
+  onInputChange (event) {
+    this.searchText = event.target.value;
+  }
+
+  onFilterDropdownVisibleChange (visible) {
+    this.filterDropdownVisible = visible;
+  }
+
+  onSearch () {
+    const { store } = this.props;
+
+    store.setFilters({
+      ...toJS(store.filters),
+      'comic.title': [this.searchText],
+    });
+
+    this.filterDropdownVisible = false;
+  }
+
+  onClear () {
+    const { store } = this.props;
+
+    this.searchText = '';
+    store.setFilters({
+      ...toJS(store.filters),
+      'comic.title': [],
+    });
+
+    this.filterDropdownVisible = false;
+  }
+
   get columns () {
     const filters = this.props.store.filters;
 
     return COLUMNS.map(column => {
+      column.filteredValue = toJS(_.get(filters, column.key, []));
+
       if (column.key === 'pull.pull_list_id') {
         column.filters = this.props.store.pullLists.all.map(pullList => ({
           text: pullList.title,
@@ -53,10 +89,40 @@ class ComicsList extends Component {
         }));
       }
 
-      column.filteredValue = toJS(_.get(filters, column.key, []));
+      if (column.key === 'comic.title') {
+        column.onFilterDropdownVisibleChange = this.onFilterDropdownVisibleChange;
+        column.filterDropdownVisible = this.filterDropdownVisible;
+        column.filtered = !!column.filteredValue.length;
+        column.filterDropdown = (
+          <div className='custom-filter-dropdown'>
+            <Input
+              onChange={this.onInputChange}
+              onPressEnter={this.onSearch}
+              placeholder='Search name'
+              value={this.searchText}
+            />
+            <Button type='primary' onClick={this.onSearch}>Search</Button>
+            <Button onClick={this.onClear}>Clear</Button>
+          </div>
+        );
+      }
 
       return column;
     });
+  }
+
+  filterByRegex (key, record) {
+    const filters = _.get(this.props.store.filters, key, [])
+      , value = _.get(record, key).toString();
+
+    if (!filters.length) {
+      return true;
+    }
+
+    const filter = filters[0]
+      , reg = new RegExp(filter, 'gi');
+
+    return !!value.match(reg);
   }
 
   filterBy (key, record) {
@@ -125,6 +191,7 @@ class ComicsList extends Component {
       filter = filter && this.filterBy('read', comicPair);
       filter = filter && this.filterBy('skipped', comicPair);
       filter = filter && this.filterBy('pull.pull_list_id', comicPair);
+      filter = filter && this.filterByRegex('comic.title', comicPair);
 
       return filter;
     });

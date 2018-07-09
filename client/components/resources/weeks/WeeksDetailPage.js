@@ -53,11 +53,13 @@ class WeeksDetailPage extends Component {
       , lastWeek = utils.prevWeek(weekId);
 
     const { store } = this.props
+      , titleSort = (a, b) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id'])
       , COLUMNS = [
         {
-          title: 'Title',
           dataIndex: 'comic.title',
           key: 'comic.title',
+          sorter: titleSort,
+          title: 'Title',
         },
         {
           title: 'Series',
