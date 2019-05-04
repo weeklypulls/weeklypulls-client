@@ -20,7 +20,7 @@ class ReadButton extends Component<any> {
       <BoolButton
         actions={[ACTIONS.READ, ACTIONS.UNREAD]}
         comic={comic}
-        icons={['check-square-o', 'close']}
+        icons={['check', 'close']}
         langs={['Mark read', 'Mark unread']}
         value={value}
       />

@@ -10,20 +10,19 @@ class Images extends Component<any> {
   render () {
     const { images } = this.props;
 
-
-
-
     return images.map(image => (
       <Popover
-        content={<img className='cover' src={image} />}
+        content={<img className='cover' alt='Cover' src={image} />}
         key={image}
         placement='bottom'
       >
         <a
+          title={image}
           className='action-button'
           href={image}
-          target='_blank'
+          rel='noopener noreferrer'
           style={{ marginLeft: '2px' }}
+          target='_blank'
         >
           <Icon type='picture' />
         </a>

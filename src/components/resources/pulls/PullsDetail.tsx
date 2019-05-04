@@ -20,10 +20,6 @@ const { ModalManager } = utils;
 class PullDetail extends Component<any> {
   editModal = new ModalManager();
 
-  constructor (props) {
-    super(props);
-  }
-
   componentWillMount () {
     this.getSeries();
   }

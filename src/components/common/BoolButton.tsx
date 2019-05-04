@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
 import { inject, observer } from 'mobx-react';
-import { Icon } from 'antd';
+import { Button, Icon } from 'antd';
 
 
 @inject('store')
@@ -27,9 +27,9 @@ class BoolButton extends Component<any> {
       , lang = langs[value ? 1 : 0];
 
     return (
-      <a className='action-button' onClick={this.mark}>
+      <Button className='action-button' onClick={this.mark}>
         <Icon type={icon} title={lang} />
-      </a>
+      </Button>
     );
   }
 
