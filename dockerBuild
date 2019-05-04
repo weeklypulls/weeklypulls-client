@@ -1,0 +1,8 @@
+docker build -t weeklypulls_frontend .
+docker rm wp_front
+docker run \
+  -t \
+  -i \
+  -p 8080:8080 \
+  --name wp_front \
+  weeklypulls_frontend
