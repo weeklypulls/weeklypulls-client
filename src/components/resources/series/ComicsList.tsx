@@ -133,7 +133,7 @@ class ComicsList extends Component<any> {
       return true;
     }
 
-    return filters.includes(value);
+    return filters.map(f => f.toString()).includes(value);
   }
 
   dataSource () {
