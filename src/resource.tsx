@@ -40,7 +40,6 @@ class Resource {
 
     if (!fetchedOn) { return true; }
 
-    // console.log('fetchedOn', fetchedOn, this.maxCache);
     if (DateTime.fromISO(fetchedOn).plus(this.maxCache) < DateTime.utc()) {
       return true;
     }
@@ -50,8 +49,8 @@ class Resource {
 
   save () {
     store.set(this.cacheKey, {
-      objects: this.objects.entries(),
-      fetchedOn: this.fetchedOn.entries(),
+      objects: Array.from(this.objects.entries()),
+      fetchedOn: Array.from(this.fetchedOn.entries()),
     });
   }
 
@@ -72,7 +71,7 @@ class Resource {
   }
 
   get all (): any[] {
-    return this.objects.values() as unknown as any[];
+    return Array.from(this.objects.values());
   }
 
   @action
@@ -82,7 +81,7 @@ class Resource {
       console.log(`Triggered cache-based refresh of ${this.endpoint} list`);
       return (await this.list());
     }
-    return this.all as any[];
+    return this.all;
   }
 
   @action
@@ -98,7 +97,7 @@ class Resource {
 
     this.save();
     this.isLoading = false;
-    return this.objects.values();
+    return this.all;
   }
 
   getBy (key, value) {

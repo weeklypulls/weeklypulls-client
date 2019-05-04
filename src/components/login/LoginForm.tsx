@@ -55,11 +55,11 @@ class LoginForm extends Component<any> {
           })(
             <Checkbox>Remember me</Checkbox>
           )}
-          <a className='login-form-forgot' href=''>Forgot password</a>
+          <Button className='login-form-forgot' size='small'>Forgot password</Button>
           <Button type='primary' htmlType='submit' className='login-form-button'>
             Log in
           </Button>
-          Or <a href=''>register now!</a>
+          Or <Button size='small' href=''>register now!</Button>
         </FormItem>
       </Form>
     );

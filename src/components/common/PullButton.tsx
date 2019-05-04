@@ -7,6 +7,7 @@ import _ from 'lodash';
 
 import utils from '../../utils';
 import PullFormModal from '../resources/pulls/PullFormModal';
+import { Button } from 'antd';
 
 const { ModalManager } = utils;
 
@@ -34,7 +35,7 @@ class PullButton extends Component<any> {
             onClose={this.pullModal.close}
           />}
 
-        <a onClick={this.pullModal.open}>Pull</a>
+        <Button onClick={this.pullModal.open}>Pull</Button>
       </span>
     );
   }

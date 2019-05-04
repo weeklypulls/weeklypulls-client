@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { inject, observer } from 'mobx-react';
-import { observable } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
-import _ from 'lodash';
+import { get } from 'lodash';
 
 import { Table } from 'antd';
 
@@ -24,7 +23,7 @@ class PullsList extends Component<any> {
       await this.props.store.getAllSeries();
     }
     catch (e) {
-      if (_.get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
+      if (get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
         this.props.history.push('/login');
       }
     }
