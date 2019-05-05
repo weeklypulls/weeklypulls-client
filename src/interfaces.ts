@@ -15,7 +15,9 @@ export interface ISeries {
 export interface IPull {
   id: string;
   pull_list_id: string;
+  read: string[];
   series_id: string;
+  skipped: string[];
 }
 
 export interface IPullList {

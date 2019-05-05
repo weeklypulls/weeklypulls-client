@@ -35,7 +35,7 @@ class App extends Component<IProps> {
 
   public render () {
     return (
-      <Provider store={this.props.store}>
+      <Provider store={this.props.store} getOptions={null}>
         <Router>
           <Layout style={{ minHeight: '100vh' }}>
             <Header>

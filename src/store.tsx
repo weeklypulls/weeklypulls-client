@@ -5,7 +5,7 @@ import store from 'store';
 import consts from './consts';
 import Client from './client';
 import Resource from './resource';
-import { ISeries } from './interfaces';
+import { IPullSeriesPair, ISeries } from './interfaces';
 
 const {
   ACTIONS,
@@ -71,7 +71,7 @@ class Store {
     }));
   }
 
-  public pullWithSeries (id: string) {
+  public pullWithSeries (id: string): IPullSeriesPair {
     const pull = this.pulls.get(id);
     return {
       key: pull.id,
