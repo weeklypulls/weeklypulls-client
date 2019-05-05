@@ -28,17 +28,17 @@ interface IInjected extends IProps {
 @autoBindMethods
 @observer
 class PullDetail extends Component<IProps> {
-  editModal = new ModalManager();
+  public editModal = new ModalManager();
 
   private get injected () {
     return this.props as IInjected;
   }
 
-  componentWillMount () {
+  public componentWillMount () {
     this.getSeries();
   }
 
-  async getSeries () {
+  public async getSeries () {
     const { match, store } = this.injected
       , pullId = match.params.pullId;
 
@@ -50,7 +50,7 @@ class PullDetail extends Component<IProps> {
       ]);
     }
     catch (e) {
-      // eslint-disable-next-line no-console
+      // tslint:disable-next-line no-console
       console.error(e);
       if (_.get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
         this.props.history.push('/login');
@@ -58,31 +58,34 @@ class PullDetail extends Component<IProps> {
     }
   }
 
-  dataSource () {
+  public dataSource () {
     const { match, store } = this.injected
       , pullId = match.params.pullId
       , { series, pull } = store.pullWithSeries(pullId);
 
     return series.comics.map((comic: IComic) => ({
       comic,
-      read: pull.read.includes(comic.id),
-      skipped: pull.skipped.includes(comic.id),
-      series,
-      pull,
       key: comic.id,
+      pull,
+      read: pull.read.includes(comic.id),
+      series,
+      skipped: pull.skipped.includes(comic.id),
     }));
   }
 
-  render () {
+  public render () {
     const { match, store } = this.injected
       , pullId = match.params.pullId
-      , record = store.pullWithSeries(pullId);
+      , record = store.pullWithSeries(pullId)
+      , COL_SPAN_TITLE = 20
+      , COL_SPAN_BUTTON = 4
+      ;
 
     return (
       <div>
         <Row type='flex' justify='space-between' align='top'>
-          <Col span={20}><h2>{record.series.title}</h2></Col>
-          <Col span={4} style={{ textAlign: 'right' }}>
+          <Col span={COL_SPAN_TITLE}><h2>{record.series.title}</h2></Col>
+          <Col span={COL_SPAN_BUTTON} style={{ textAlign: 'right' }}>
             <Button type='primary' onClick={this.editModal.open}>
               <Icon type='edit' />Edit
             </Button>
@@ -96,8 +99,8 @@ class PullDetail extends Component<IProps> {
           columns={COLUMNS as any}
           dataSource={this.dataSource()}
           loading={store.isLoading}
-          rowClassName={utils.rowClassName}
           pagination={{ pageSize: 50 }}
+          rowClassName={utils.rowClassName}
           size='small'
         />
       </div>

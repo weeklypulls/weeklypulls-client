@@ -1,3 +1,4 @@
+// tslint:disable max-classes-per-file
 import React, { Component } from 'react';
 import { observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
@@ -28,14 +29,14 @@ interface IInjected extends IWrappedProps {
 @autoBindMethods
 @observer
 class UnwrappedPullFormModal extends Component<IWrappedProps> {
-  @observable isSubmitting = false;
+  @observable public isSubmitting = false;
   private isLoading = false;
 
   public static defaultProps = {
     onClose: _.noop,
   };
 
-  componentDidMount () {
+  public componentDidMount () {
     this.fetchPullLists();
   }
 
@@ -43,12 +44,12 @@ class UnwrappedPullFormModal extends Component<IWrappedProps> {
     return this.props as IInjected;
   }
 
-  async fetchPullLists () {
+  public async fetchPullLists () {
     await this.injected.store.pullLists.listIfCold();
     this.isLoading = false;
   }
 
-  handleSubmit (e: any) {
+  public handleSubmit (e: any) {
     this.isSubmitting = true;
     const { pull, store, form, onClose } = this.injected;
 
@@ -67,7 +68,7 @@ class UnwrappedPullFormModal extends Component<IWrappedProps> {
       }
       catch (e) {
         message.error('Error. See console.');
-        // eslint-disable-next-line no-console
+        // tslint:disable-next-line no-console
         console.error(e);
       }
       finally {
@@ -76,11 +77,11 @@ class UnwrappedPullFormModal extends Component<IWrappedProps> {
     });
   }
 
-  renderLoading () {
+  public renderLoading () {
     return 'Loading...';
   }
 
-  renderForm () {
+  public renderForm () {
     const { form, store, pull } = this.injected;
 
     return (
@@ -96,7 +97,7 @@ class UnwrappedPullFormModal extends Component<IWrappedProps> {
               {store.pullLists.all.map(pullList => (
                 <Option key={pullList.id} value={pullList.id}>{pullList.title}</Option>
               ))}
-            </Select>
+            </Select>,
           )}
 
         </FormItem>
@@ -104,7 +105,7 @@ class UnwrappedPullFormModal extends Component<IWrappedProps> {
     );
   }
 
-  render () {
+  public render () {
     const { onClose, pull, store } = this.injected
       , title = _.get(store.series.get(pull.series_id), 'title', 'PullDetail');
 
@@ -124,7 +125,6 @@ class UnwrappedPullFormModal extends Component<IWrappedProps> {
 
 const WrappedPullFormModal = Form.create()(UnwrappedPullFormModal);
 
-
 @autoBindMethods
 @observer
 export class PullFormModal extends Component<IProps> {
@@ -132,6 +132,5 @@ export class PullFormModal extends Component<IProps> {
     return <WrappedPullFormModal {...this.props} />;
   }
 }
-
 
 export default PullFormModal;

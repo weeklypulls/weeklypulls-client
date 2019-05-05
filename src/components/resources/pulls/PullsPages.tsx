@@ -13,15 +13,15 @@ interface IProps extends RouteComponentProps {
 @autoBindMethods
 @observer
 class SeriesListPage extends Component<IProps> {
-  renderPull (props: IProps) {
+  public renderPull (props: IProps) {
     return <PullsDetail {...this.props} {...props} />;
   }
 
-  renderPullsList (props: IProps) {
+  public renderPullsList (props: IProps) {
     return <PullsList {...this.props} {...props} />;
   }
 
-  render () {
+  public render () {
     const { match } = this.props;
     return (
       <div>

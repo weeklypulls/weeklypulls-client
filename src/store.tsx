@@ -10,10 +10,9 @@ const {
   ACTIONS,
 } = consts;
 
-
 @autoBindMethods
 class Store {
-  @observable _filters = {};
+  @observable public _filters = {};
   public client: Client;
 
   public pullLists: Resource;
@@ -21,7 +20,7 @@ class Store {
   public series: Resource;
   public weeks: Resource;
 
-  constructor () {
+  public constructor () {
     this.client = new Client();
 
     this.pulls = new Resource(this.client.user, 'pulls', { minutes: 20 });
@@ -33,17 +32,17 @@ class Store {
     this.pullLists.listIfCold();
   }
 
-  get isLoading () {
+  public get isLoading () {
     const resources = [this.pulls, this.pullLists, this.series, this.weeks];
     return resources.map(r => r.isLoading).some(x => x);
   }
 
-  setFilters (filters: object) {
+  public setFilters (filters: object) {
     this._filters = filters;
     store.set('filters', filters);
   }
 
-  get filters () {
+  public get filters () {
     if (this._filters) {
       return this._filters;
     }
@@ -58,26 +57,26 @@ class Store {
     return this._filters;
   }
 
-  pullsWithSeries () {
+  public pullsWithSeries () {
     return this.pulls.all.map(pull => ({
-      pull,
-      series: this.series.get(pull.series_id),
-      pullList: this.pullLists.get(pull.pull_list_id),
       key: pull.id,
+      pull,
+      pullList: this.pullLists.get(pull.pull_list_id),
+      series: this.series.get(pull.series_id),
     }));
   }
 
-  pullWithSeries (id: string) {
+  public pullWithSeries (id: string) {
     const pull = this.pulls.get(id);
     return {
-      pull,
-      series: this.series.get(pull.series_id),
-      pullList: this.pullLists.get(pull.pull_list_id),
       key: pull.id,
+      pull,
+      pullList: this.pullLists.get(pull.pull_list_id),
+      series: this.series.get(pull.series_id),
     };
   }
 
-  _firstUnreadWeek (series: any) {
+  public _firstUnreadWeek (series: any) {
     const pull = this.pulls.getBy('series_id', series.series_id)
       , comics = series.comics
       , comicsUnread = comics.filter((comic: any) => !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id)))
@@ -88,14 +87,14 @@ class Store {
     return firstWeek;
   }
 
-  firstUnreadWeek (series: any[]) {
+  public firstUnreadWeek (series: any[]) {
     const allStartWeeks = series.map(serie => this._firstUnreadWeek(serie))
       , lastStartWeek = allStartWeeks.filter(s => s).sort()[0];
     return lastStartWeek;
   }
 
   @action
-  async getAllSeries () {
+  public async getAllSeries () {
     const pulls = await this.pulls.listIfCold();
     for (const pull of pulls as any[]) {
       await this.series.fetchIfCold(pull.series_id);
@@ -103,7 +102,7 @@ class Store {
   }
 
   @action
-  async mark (seriesId: any, issueId: any, action: any) {
+  public async mark (seriesId: any, issueId: any, actionKey: any) {
     const pull = this.pulls.getBy('series_id', seriesId)
       , data: any = {}
       , actions = {
@@ -114,8 +113,8 @@ class Store {
       }
       ;
 
-    const [verb, noun] = actions[action]
-      , set: any = new Set(pull[noun]);
+    const [verb, noun] = actions[actionKey]
+      , set: any = new Set<any>(pull[noun]);
     set[verb](issueId);
     data[noun] = Array.from(set);
 

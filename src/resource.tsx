@@ -7,17 +7,17 @@ import { AxiosInstance } from 'axios';
 
 @autoBindMethods
 class Resource {
-  client: AxiosInstance;
-  endpoint: string;
-  idKey: string;
+  public client: AxiosInstance;
+  public endpoint: string;
+  public idKey: string;
 
-  @observable objects = new Map();
-  @observable isLoading = true;
+  @observable public objects = new Map();
+  @observable public isLoading = true;
 
-  @observable fetchedOn = new Map();
+  @observable public fetchedOn = new Map();
   private maxCache: any;
 
-  constructor (client: AxiosInstance, endpoint: string, maxCache: any, idKey = 'id') {
+  public constructor (client: AxiosInstance, endpoint: string, maxCache: any, idKey = 'id') {
     this.client = client;
     this.endpoint = endpoint;
     this.maxCache = maxCache;
@@ -26,16 +26,16 @@ class Resource {
     this.load();
   }
 
-  get cacheKey () {
+  public get cacheKey () {
     return `pull-list-resource-${this.endpoint}`;
   }
 
-  setObject (id: string, value: object) {
+  public setObject (id: string, value: object) {
     this.objects.set(id, value);
     this.fetchedOn.set(id, DateTime.utc().toISO());
   }
 
-  cacheTooCold (key: string) {
+  public cacheTooCold (key: string) {
     const fetchedOn = this.fetchedOn.get(key);
 
     if (!fetchedOn) { return true; }
@@ -47,14 +47,14 @@ class Resource {
     return false;
   }
 
-  save () {
+  public save () {
     store.set(this.cacheKey, {
-      objects: Array.from(this.objects.entries()),
       fetchedOn: Array.from(this.fetchedOn.entries()),
+      objects: Array.from(this.objects.entries()),
     });
   }
 
-  load () {
+  public load () {
     const cache = store.get(this.cacheKey)
       , objects = _.get(cache, 'objects', [])
       , fetchedOn = _.get(cache, 'fetchedOn', []);
@@ -77,7 +77,7 @@ class Resource {
   @action
   public async listIfCold () {
     if (this.cacheTooCold('list')) {
-      // eslint-disable-next-line no-console
+      // tslint:disable-next-line no-console
       console.log(`Triggered cache-based refresh of ${this.endpoint} list`);
       return (await this.list());
     }
@@ -109,9 +109,9 @@ class Resource {
   }
 
   @action
-  async fetchIfCold (id: string) {
+  public async fetchIfCold (id: string) {
     if (this.cacheTooCold(id)) {
-      // eslint-disable-next-line no-console
+      // tslint:disable-next-line no-console
       console.log(`Triggered cache-based refresh of ${this.endpoint} ${id}`);
       return (await this.fetch(id));
     }
@@ -119,14 +119,14 @@ class Resource {
   }
 
   @action
-  async fetch (id: string) {
+  public async fetch (id: string) {
     try {
       this.isLoading = true;
       const response = await this.client.get(`${this.endpoint}/${id}/`);
       this.setObject(id, response.data);
     }
     catch (e) {
-      // eslint-disable-next-line no-console
+      // tslint:disable-next-line no-console
       console.error(e);
     }
     finally {
@@ -138,7 +138,7 @@ class Resource {
   }
 
   @action
-  async patch (id: string, data: object) {
+  public async patch (id: string, data: object) {
     this.isLoading = true;
     const response = await this.client.patch(`${this.endpoint}/${id}/`, data);
     this.setObject(id, response.data);
@@ -149,7 +149,7 @@ class Resource {
   }
 
   @action
-  async post (data: object) {
+  public async post (data: object) {
     this.isLoading = true;
     const response = await this.client.post(`${this.endpoint}/`, data)
       , id = response.data[this.idKey];

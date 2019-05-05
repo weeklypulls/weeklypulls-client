@@ -11,18 +11,15 @@ import Store from '../../../store';
 
 import COLUMNS from './PullsListColumns';
 
-interface IProps extends RouteComponentProps {
-}
-
-interface IInjected extends IProps {
+interface IInjected extends RouteComponentProps {
   store: Store;
 }
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullsList extends Component<IProps> {
-  constructor (props: IProps) {
+class PullsList extends Component<RouteComponentProps> {
+  public constructor (props: RouteComponentProps) {
     super(props);
     this.getAllSeries();
   }
@@ -31,7 +28,7 @@ class PullsList extends Component<IProps> {
     return this.props as IInjected;
   }
 
-  async getAllSeries () {
+  public async getAllSeries () {
     try {
       await this.injected.store.getAllSeries();
     }
@@ -42,12 +39,12 @@ class PullsList extends Component<IProps> {
     }
   }
 
-  dataSource () {
+  public dataSource () {
     const { store } = this.injected;
     return store.pullsWithSeries();
   }
 
-  render () {
+  public render () {
     const { store } = this.injected;
     return (
       <div>

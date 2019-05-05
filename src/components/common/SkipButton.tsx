@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import autoBindMethods from 'class-autobind-decorator/build/index';
-import {observer} from 'mobx-react/index';
+import { observer } from 'mobx-react/index';
 
 import consts from '../../consts';
 import { IComic } from '../../interfaces';
@@ -19,7 +19,7 @@ interface IProps {
 @autoBindMethods
 @observer
 class SkipButton extends Component<IProps> {
-  render () {
+  public render () {
     const { comic, value } = this.props;
     return (
       <BoolButton

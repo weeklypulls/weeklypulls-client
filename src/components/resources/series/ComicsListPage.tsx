@@ -5,13 +5,10 @@ import { RouteComponentProps } from 'react-router';
 
 import Comics from './ComicsList';
 
-interface IProps extends RouteComponentProps {
-}
-
 @observer
 @autoBindMethods
-class ComicsListPage extends Component<IProps> {
-  render () {
+class ComicsListPage extends Component<RouteComponentProps> {
+  public render () {
     return <Comics {...this.props} />;
   }
 }

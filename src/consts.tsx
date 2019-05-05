@@ -1,8 +1,8 @@
 export const ACTIONS = {
-  'READ': 'READ',
-  'UNREAD': 'UNREAD',
-  'SKIP': 'SKIP',
-  'UNSKIP': 'UNSKIP',
+  READ: 'READ',
+  SKIP: 'SKIP',
+  UNREAD: 'UNREAD',
+  UNSKIP: 'UNSKIP',
 };
 
 export const DATE_FORMAT = 'YYYY-MM-DD';

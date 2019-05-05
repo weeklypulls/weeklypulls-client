@@ -22,7 +22,7 @@ class PullListLink extends Component<IProps> {
     return this.props as IInjected;
   }
 
-  render () {
+  public render () {
     const { store, pullListId, pullId } = this.injected
       , pullList = store.pullLists.get(pullListId);
 

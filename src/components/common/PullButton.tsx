@@ -22,16 +22,16 @@ interface IProps {
 @autoBindMethods
 @observer
 class PullButton extends Component<IProps> {
-  pullModal = new ModalManager();
-  @observable isSubmitting = false;
+  public pullModal = new ModalManager();
+  @observable public isSubmitting = false;
 
-  render () {
+  public render () {
     const { comic, store } = this.props
       , { series_id } = comic
       , pull = store.pulls.getBy('series_id', series_id);
 
     if (pull) {
-      return _.get(store.pullLists.get(pull.pull_list_id), 'title', '--')
+      return _.get(store.pullLists.get(pull.pull_list_id), 'title', '--');
     }
 
     return (

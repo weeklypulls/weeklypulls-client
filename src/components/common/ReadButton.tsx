@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import autoBindMethods from 'class-autobind-decorator';
-import {observer} from 'mobx-react';
+import { observer } from 'mobx-react';
 
 import consts from '../../consts';
 import { IComic } from '../../interfaces';
@@ -19,7 +19,7 @@ interface IProps {
 @autoBindMethods
 @observer
 class ReadButton extends Component<IProps> {
-  render () {
+  public render () {
     const { comic, value } = this.props;
     return (
       <BoolButton
@@ -33,4 +33,4 @@ class ReadButton extends Component<IProps> {
   }
 }
 
-export default ReadButton
+export default ReadButton;

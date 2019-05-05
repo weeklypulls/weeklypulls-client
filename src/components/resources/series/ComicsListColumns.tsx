@@ -7,7 +7,6 @@ import ReadButton from '../../common/ReadButton';
 import SkipButton from '../../common/SkipButton';
 import PullListLink from '../../common/PullListLink';
 
-
 function pullListCell (_text: string, record: any) {
   return <PullListLink pullId={record.pull.id} pullListId={record.pull.pull_list_id} />;
 }
@@ -47,55 +46,55 @@ function readCell (text: string, record: any) {
 
 const COLUMNS = [
   {
-    title: 'Read',
     dataIndex: 'read',
-    key: 'read',
-    render: readCell,
     filterMultiple: false,
     filters: [
       { text: 'Read', value: true },
       { text: 'Unread', value: false },
     ],
+    key: 'read',
+    render: readCell,
+    title: 'Read',
   },
   {
-    title: 'Skip',
     dataIndex: 'skipped',
-    key: 'skipped',
-    render: skippedCell,
     filterMultiple: false,
     filters: [
       { text: 'Skipped', value: true },
       { text: 'Unskipped', value: false },
     ],
+    key: 'skipped',
+    render: skippedCell,
+    title: 'Skip',
   },
   {
-    title: 'Covers',
     dataIndex: 'comic.images',
     key: 'comic.images',
     render: imagesCell,
+    title: 'Covers',
   },
   {
-    title: 'List',
     dataIndex: 'pull.pull_list_id',
-    key: 'pull.pull_list_id',
-    render: pullListCell,
     filterMultiple: true,
     filters: [],
+    key: 'pull.pull_list_id',
+    render: pullListCell,
+    title: 'List',
   },
   {
-    title: 'On Sale',
     dataIndex: 'comic.on_sale',
-    key: 'comic.on_sale',
     defaultSortOrder: 'ascend',
-    sorter: onSaleSort,
+    key: 'comic.on_sale',
     render: weekCell,
+    sorter: onSaleSort,
+    title: 'On Sale',
   },
   {
-    title: 'Title',
     dataIndex: 'comic.title',
     key: 'comic.title',
-    sorter: titleSort,
     render: pullLinkCell,
+    sorter: titleSort,
+    title: 'Title',
   },
 ];
 

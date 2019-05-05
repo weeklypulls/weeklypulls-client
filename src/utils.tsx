@@ -9,10 +9,10 @@ import consts from './consts';
 
 @autoBindMethods
 class ModalManager {
-  @observable isShowing = false;
+  @observable public isShowing = false;
 
-  open () { this.isShowing = true; }
-  close () { this.isShowing = false; }
+  public open () { this.isShowing = true; }
+  public close () { this.isShowing = false; }
 }
 
 function stringSort (a: string, b: string) {
@@ -72,13 +72,13 @@ function rowClassName (record: any) {
 }
 
 export default {
-  rowClassName,
-  stringAttrsSort,
   farFuture,
   future,
   ModalManager,
   nearFuture,
   nextWeek,
   prevWeek,
+  rowClassName,
+  stringAttrsSort,
   stringSort,
 };

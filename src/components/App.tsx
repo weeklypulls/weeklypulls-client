@@ -27,12 +27,12 @@ interface IProps {
 @autoBindMethods
 @observer
 class App extends Component<IProps> {
-  renderComicsListPage (props: any) { return <ComicsListPage {...props} {...this.props} />; }
-  renderPullsListPage (props: any) { return <PullsListPage {...props} {...this.props} />; }
-  renderWeekPage (props: any) { return <WeekPage {...props} {...this.props} />; }
-  renderLoginPage (props: any) { return <LoginPage {...props} {...this.props} />; }
+  public renderComicsListPage (props: any) { return <ComicsListPage {...props} {...this.props} />; }
+  public renderPullsListPage (props: any) { return <PullsListPage {...props} {...this.props} />; }
+  public renderWeekPage (props: any) { return <WeekPage {...props} {...this.props} />; }
+  public renderLoginPage (props: any) { return <LoginPage {...props} {...this.props} />; }
 
-  render () {
+  public render () {
     return (
       <Provider store={this.props.store}>
         <Router>

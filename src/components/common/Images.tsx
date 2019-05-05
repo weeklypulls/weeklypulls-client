@@ -4,13 +4,13 @@ import { observer } from 'mobx-react';
 import { Icon, Popover } from 'antd';
 
 interface IProps {
-  images: any[],
+  images: any[];
 }
 
 @autoBindMethods
 @observer
 class Images extends Component<IProps> {
-  render () {
+  public render () {
     const { images } = this.props;
 
     return images.map(image => (

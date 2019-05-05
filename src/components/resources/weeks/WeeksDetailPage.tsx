@@ -23,36 +23,36 @@ interface IProps extends RouteComponentProps {
 @autoBindMethods
 @observer
 class WeeksDetailPage extends Component<IProps> {
-  @observable weekId = null;
+  @observable public weekId = null;
 
-  componentDidMount () {
+  public componentDidMount () {
     this.fetch(this.props);
   }
 
-  componentWillReceiveProps (nextProps: IProps) {
+  public componentWillReceiveProps (nextProps: IProps) {
     this.fetch(nextProps);
   }
 
-  fetch (props: IProps) {
+  public fetch (props: IProps) {
     const { store, match } = props;
     store.weeks.fetchIfCold(match.params.weekId);
   }
 
-  get comics () {
+  public get comics () {
     const { store, match } = this.props
       , weekId = match.params.weekId
       , week = store.weeks.get(weekId);
     return _.get(week, 'comics', []);
   }
 
-  dataSource () {
+  public dataSource () {
     return this.comics.map((comic: any) => ({
       comic,
       key: comic.id,
     }));
   }
 
-  render () {
+  public render () {
     const { weekId } = this.props.match.params
       , nextWeek = utils.nextWeek(weekId)
       , lastWeek = utils.prevWeek(weekId);
@@ -67,10 +67,10 @@ class WeeksDetailPage extends Component<IProps> {
           title: 'Title',
         },
         {
-          title: 'Series',
           dataIndex: 'comic.series_id',
           key: 'comic.series_id',
           render: pullCell,
+          title: 'Series',
         },
       ];
 

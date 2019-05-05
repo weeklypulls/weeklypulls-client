@@ -26,7 +26,7 @@ class BoolButton extends Component<IProps> {
     return this.props as IInjected;
   }
 
-  mark () {
+  public mark () {
     const {
         actions,
         comic: { id, series_id },
@@ -38,7 +38,7 @@ class BoolButton extends Component<IProps> {
     store.mark(series_id, id, action);
   }
 
-  render () {
+  public render () {
     const { value, langs, icons } = this.props
       , icon = icons[value ? 1 : 0]
       , lang = langs[value ? 1 : 0];

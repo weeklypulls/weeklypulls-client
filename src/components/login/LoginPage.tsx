@@ -7,7 +7,7 @@ import LoginForm from './LoginForm';
 @autoBindMethods
 @observer
 class LoginPage extends Component<any> {
-  render () {
+  public render () {
     return <LoginForm {...this.props} />;
   }
 }

@@ -15,17 +15,17 @@ function pullListCell (_text: string, record: any) {
 
 const COLUMNS = [
   {
-    title: 'Title',
     dataIndex: 'series.title',
     key: 'api_title',
-    sorter: titleSort,
     render: pullLinkCell,
+    sorter: titleSort,
+    title: 'Title',
   },
   {
-    title: 'List',
     dataIndex: 'pull.pull_list_id',
     key: 'pull_list_id',
     render: pullListCell,
+    title: 'List',
   },
 ];
 

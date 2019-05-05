@@ -10,7 +10,6 @@ import Store from '../../store';
 
 const FormItem = Form.Item;
 
-
 interface IProps extends RouteComponentProps {
   form: any;
   store: Store;
@@ -19,7 +18,7 @@ interface IProps extends RouteComponentProps {
 @inject('store')
 @autoBindMethods
 class LoginForm extends Component<IProps> {
-  handleSubmit (e: any) {
+  public handleSubmit (e: any) {
     e.preventDefault();
 
     this.props.form.validateFields(async (err: any, values: any) => {
@@ -37,7 +36,7 @@ class LoginForm extends Component<IProps> {
     });
   }
 
-  render () {
+  public render () {
     const { getFieldDecorator } = this.props.form;
     return (
       <Form onSubmit={this.handleSubmit} className='login-form'>
@@ -46,22 +45,26 @@ class LoginForm extends Component<IProps> {
           {getFieldDecorator('userName', {
             rules: [{ required: true, message: 'Please input your username!' }],
           })(
-            <Input prefix={<Icon type='user' style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder='Username' />
+            <Input prefix={<Icon type='user' style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder='Username' />,
           )}
         </FormItem>
         <FormItem>
           {getFieldDecorator('password', {
             rules: [{ required: true, message: 'Please input your Password!' }],
           })(
-            <Input prefix={<Icon type='lock' style={{ color: 'rgba(0,0,0,.25)' }} />} type='password' placeholder='Password' />
+            <Input
+              placeholder='Password'
+              prefix={<Icon type='lock' style={{ color: 'rgba(0,0,0,.25)' }} />}
+              type='password'
+            />,
           )}
         </FormItem>
         <FormItem>
           {getFieldDecorator('remember', {
-            valuePropName: 'checked',
             initialValue: true,
+            valuePropName: 'checked',
           })(
-            <Checkbox>Remember me</Checkbox>
+            <Checkbox>Remember me</Checkbox>,
           )}
           <Button className='login-form-forgot' size='small'>Forgot password</Button>
           <Button type='primary' htmlType='submit' className='login-form-button'>
