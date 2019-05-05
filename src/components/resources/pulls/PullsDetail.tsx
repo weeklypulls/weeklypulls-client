@@ -106,7 +106,7 @@ class PullDetail extends Component<RouteComponentProps> {
             fieldSets={[[
               {
                 field: 'pull_list_id',
-                options: store.pullLists.all.map(pullList => ({ value: pullList.id, name: pullList.title })),
+                optionType: 'pullLists',
                 type: 'optionSelect',
               },
             ]]}
