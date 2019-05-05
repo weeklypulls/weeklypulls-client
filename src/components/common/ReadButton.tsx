@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
-import {observer} from 'mobx-react';
+import { observer } from 'mobx-react';
 
 import consts from '../../consts';
+import { IComic } from '../../interfaces';
 
 import BoolButton from './BoolButton';
 
@@ -11,10 +11,15 @@ const {
   ACTIONS,
 } = consts;
 
+interface IProps {
+  comic: IComic;
+  value: boolean;
+}
+
 @autoBindMethods
 @observer
-class ReadButton extends Component<any> {
-  render () {
+class ReadButton extends Component<IProps> {
+  public render () {
     const { comic, value } = this.props;
     return (
       <BoolButton
@@ -26,11 +31,6 @@ class ReadButton extends Component<any> {
       />
     );
   }
-
-  static propTypes = {
-    comic: PropTypes.object.isRequired,
-    value: PropTypes.bool.isRequired,
-  }
 }
 
-export default ReadButton
+export default ReadButton;

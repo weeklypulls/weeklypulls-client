@@ -1,25 +1,27 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
-
-import { Route } from 'react-router-dom';
+import { Route, RouteComponentProps } from 'react-router-dom';
 
 import PullsDetail from './PullsDetail';
 import PullsList from './PullsList';
 
+interface IProps extends RouteComponentProps {
+  match: any;
+}
+
 @autoBindMethods
 @observer
-class SeriesListPage extends Component<any> {
-  renderPull (props) {
+class SeriesListPage extends Component<IProps> {
+  public renderPull (props: IProps) {
     return <PullsDetail {...this.props} {...props} />;
   }
 
-  renderPullsList (props) {
+  public renderPullsList (props: IProps) {
     return <PullsList {...this.props} {...props} />;
   }
 
-  render () {
+  public render () {
     const { match } = this.props;
     return (
       <div>
@@ -27,11 +29,6 @@ class SeriesListPage extends Component<any> {
         <Route exact path={match.url} render={this.renderPullsList} />
       </div>
     );
-  }
-
-  static propTypes = {
-    history: PropTypes.object.isRequired,
-    match: PropTypes.object.isRequired,
   }
 }
 

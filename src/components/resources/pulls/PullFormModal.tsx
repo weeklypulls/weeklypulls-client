@@ -1,36 +1,60 @@
+// tslint:disable max-classes-per-file
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 
 import { message, Form, Select, Modal } from 'antd';
+
+import Store from '../../../store';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
+
+interface IProps {
+  pull: any;
+  onClose: () => void;
+}
+
+interface IWrappedProps extends IProps {
+  form: any;
+}
+
+interface IInjected extends IWrappedProps {
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullFormModal extends Component<any> {
-  @observable isSubmitting = false;
-  private isLoading: boolean;
+class UnwrappedPullFormModal extends Component<IWrappedProps> {
+  @observable public isSubmitting = false;
+  private isLoading = false;
 
-  componentDidMount () {
+  public static defaultProps = {
+    onClose: _.noop,
+  };
+
+  public componentDidMount () {
     this.fetchPullLists();
   }
 
-  async fetchPullLists () {
-    await this.props.store.pullLists.listIfCold();
+  private get injected () {
+    return this.props as IInjected;
+  }
+
+  public async fetchPullLists () {
+    await this.injected.store.pullLists.listIfCold();
     this.isLoading = false;
   }
 
-  handleSubmit (e) {
+  public handleSubmit (e: any) {
     this.isSubmitting = true;
-    const { pull, store, form, onClose } = this.props;
+    const { pull, store, form, onClose } = this.injected;
 
     e.preventDefault();
-    form.validateFields(async (err, values) => {
+    form.validateFields(async (err: any, values: any) => {
       try {
         if (pull.id) {
           await store.pulls.patch(pull.id, values);
@@ -44,7 +68,7 @@ class PullFormModal extends Component<any> {
       }
       catch (e) {
         message.error('Error. See console.');
-        // eslint-disable-next-line no-console
+        // tslint:disable-next-line no-console
         console.error(e);
       }
       finally {
@@ -53,12 +77,12 @@ class PullFormModal extends Component<any> {
     });
   }
 
-  renderLoading () {
+  public renderLoading () {
     return 'Loading...';
   }
 
-  renderForm () {
-    const { form, store, pull } = this.props;
+  public renderForm () {
+    const { form, store, pull } = this.injected;
 
     return (
       <Form onSubmit={this.handleSubmit}>
@@ -73,7 +97,7 @@ class PullFormModal extends Component<any> {
               {store.pullLists.all.map(pullList => (
                 <Option key={pullList.id} value={pullList.id}>{pullList.title}</Option>
               ))}
-            </Select>
+            </Select>,
           )}
 
         </FormItem>
@@ -81,8 +105,8 @@ class PullFormModal extends Component<any> {
     );
   }
 
-  render () {
-    const { onClose, pull, store } = this.props
+  public render () {
+    const { onClose, pull, store } = this.injected
       , title = _.get(store.series.get(pull.series_id), 'title', 'PullDetail');
 
     return (
@@ -97,19 +121,16 @@ class PullFormModal extends Component<any> {
       </Modal>
     );
   }
+}
 
-  static defaultProps = {
-    onClose: _.noop,
-  }
+const WrappedPullFormModal = Form.create()(UnwrappedPullFormModal);
 
-  static propTypes = {
-    pull: PropTypes.object.isRequired,
-    form: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
-    onClose: PropTypes.func,
+@autoBindMethods
+@observer
+export class PullFormModal extends Component<IProps> {
+  public render () {
+    return <WrappedPullFormModal {...this.props} />;
   }
 }
 
-const WrappedPullFormModal = Form.create()(PullFormModal);
-
-export default WrappedPullFormModal;
+export default PullFormModal;

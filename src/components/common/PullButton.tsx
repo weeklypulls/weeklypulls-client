@@ -1,30 +1,37 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
 import { inject, observer } from 'mobx-react';
 import { observable } from 'mobx';
 import _ from 'lodash';
 
-import utils from '../../utils';
-import PullFormModal from '../resources/pulls/PullFormModal';
 import { Button } from 'antd';
 
+import utils from '../../utils';
+import PullFormModal from '../resources/pulls/PullFormModal';
+import Store from '../../store';
+import { IComic } from '../../interfaces';
+
 const { ModalManager } = utils;
+
+interface IProps {
+  comic: IComic;
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullButton extends Component<any> {
-  pullModal = new ModalManager();
-  @observable isSubmitting = false;
+class PullButton extends Component<IProps> {
+  public pullModal = new ModalManager();
+  @observable public isSubmitting = false;
 
-  render () {
+  public render () {
     const { comic, store } = this.props
       , { series_id } = comic
       , pull = store.pulls.getBy('series_id', series_id);
 
     if (pull) {
-      return _.get(store.pullLists.get(pull.pull_list_id), 'title', '--')
+      return _.get(store.pullLists.get(pull.pull_list_id), 'title', '--');
     }
 
     return (
@@ -38,11 +45,6 @@ class PullButton extends Component<any> {
         <Button onClick={this.pullModal.open}>Pull</Button>
       </span>
     );
-  }
-
-  static propTypes = {
-    comic: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
   }
 }
 

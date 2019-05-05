@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { observer, Provider } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 
@@ -10,6 +9,8 @@ import {
   NavLink,
 } from 'react-router-dom';
 
+import Store from '../store';
+
 import ComicsListPage from './resources/series/ComicsListPage';
 import LoginPage from './login/LoginPage';
 import PullsListPage from './resources/pulls/PullsPages';
@@ -19,20 +20,22 @@ import 'antd/dist/antd.css';
 
 const { Header, Content, Footer } = Layout;
 
+interface IProps {
+  store: Store;
+}
+
 @autoBindMethods
 @observer
-class App extends Component<any> {
-  public history: any;
+class App extends Component<IProps> {
+  public renderComicsListPage (props: any) { return <ComicsListPage {...props} {...this.props} />; }
+  public renderPullsListPage (props: any) { return <PullsListPage {...props} {...this.props} />; }
+  public renderWeekPage (props: any) { return <WeekPage {...props} {...this.props} />; }
+  public renderLoginPage (props: any) { return <LoginPage {...props} {...this.props} />; }
 
-  renderComicsListPage (props) { return <ComicsListPage {...props} {...this.props} />; }
-  renderPullsListPage (props) { return <PullsListPage {...props} {...this.props} />; }
-  renderWeekPage (props) { return <WeekPage {...props} {...this.props} />; }
-  renderLoginPage (props) { return <LoginPage {...props} {...this.props} />; }
-
-  render () {
+  public render () {
     return (
       <Provider store={this.props.store}>
-        <Router history={this.history}>
+        <Router>
           <Layout style={{ minHeight: '100vh' }}>
             <Header>
               <div className='logo' />
@@ -79,10 +82,6 @@ class App extends Component<any> {
         </Router>
       </Provider>
     );
-  }
-
-  static propTypes = {
-    store: PropTypes.object.isRequired,
   }
 }
 

@@ -1,39 +1,48 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { toJS, observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
 import { Table, Button, Input } from 'antd';
+import { RouteComponentProps } from 'react-router';
 
 import utils from '../../../utils';
+import Store from '../../../store';
+
 import COLUMNS from './ComicsListColumns';
 
 const { future, stringSort } = utils;
-const readOrSkipped = (comicPair) => (comicPair.comic.read || comicPair.comic.skipped);
+const readOrSkipped = (comicPair: any) => (comicPair.comic.read || comicPair.comic.skipped);
 
+interface IInjected extends RouteComponentProps {
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class ComicsList extends Component<any> {
-  @observable searchText = '';
-  @observable filterDropdownVisible = false;
+class ComicsList extends Component<RouteComponentProps> {
+  @observable public searchText = '';
+  @observable public filterDropdownVisible = false;
 
-  componentDidMount () {
+  private get injected () {
+    return this.props as IInjected;
+  }
+
+  public componentDidMount () {
     this.getAllSeries();
   }
 
-  async getAllSeries () {
+  public async getAllSeries () {
     try {
       await Promise.all([
-        this.props.store.pullLists.listIfCold(),
-        this.props.store.getAllSeries(),
+        this.injected.store.pullLists.listIfCold(),
+        this.injected.store.getAllSeries(),
       ]);
     }
     catch (e) {
-      // eslint-disable-next-line no-console
+      // tslint:disable-next-line no-console
       console.error(e);
       if (_.get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
         this.props.history.push('/login');
@@ -41,49 +50,49 @@ class ComicsList extends Component<any> {
     }
   }
 
-  handleChange (pagination, filters, sorter) {
-    this.props.store.setFilters(filters);
+  public handleChange (pagination: any, filters: any, sorter: any) {
+    this.injected.store.setFilters(filters);
   }
 
-  onInputChange (event) {
+  public onInputChange (event: any) {
     this.searchText = event.target.value;
   }
 
-  onFilterDropdownVisibleChange (visible) {
+  public onFilterDropdownVisibleChange (visible: any) {
     this.filterDropdownVisible = visible;
   }
 
-  onSearch () {
-    const { store } = this.props;
+  public onSearch () {
+    const { store } = this.injected;
 
     store.setFilters({
-      ...toJS(store.filters),
+      ...toJS<any>(store.filters),
       'comic.title': [this.searchText],
     });
 
     this.filterDropdownVisible = false;
   }
 
-  onClear () {
-    const { store } = this.props;
+  public onClear () {
+    const { store } = this.injected;
 
     this.searchText = '';
     store.setFilters({
-      ...toJS(store.filters),
+      ...toJS<any>(store.filters),
       'comic.title': [],
     });
 
     this.filterDropdownVisible = false;
   }
 
-  get columns () {
-    const filters = this.props.store.filters;
+  public get columns () {
+    const filters = this.injected.store.filters;
 
     return COLUMNS.map((column: any) => {
       column.filteredValue = toJS(_.get(filters, column.key, []));
 
       if (column.key === 'pull.pull_list_id') {
-        column.filters = this.props.store.pullLists.all.map(pullList => ({
+        column.filters = this.injected.store.pullLists.all.map(pullList => ({
           text: pullList.title,
           value: pullList.id,
         }));
@@ -111,8 +120,8 @@ class ComicsList extends Component<any> {
     });
   }
 
-  filterByRegex (key, record) {
-    const filters = _.get(this.props.store.filters, key, [])
+  public filterByRegex (key: string, record: any) {
+    const filters = _.get(this.injected.store.filters, key, [])
       , value = _.get(record, key).toString();
 
     if (!filters.length) {
@@ -125,19 +134,19 @@ class ComicsList extends Component<any> {
     return !!value.match(reg);
   }
 
-  filterBy (key, record) {
-    const filters = _.get(this.props.store.filters, key, [])
+  public filterBy (key: string, record: any) {
+    const filters = _.get(this.injected.store.filters, key, [])
       , value = _.get(record, key).toString();
 
     if (!filters.length) {
       return true;
     }
 
-    return filters.map(f => f.toString()).includes(value);
+    return filters.map((f: any) => f.toString()).includes(value);
   }
 
-  dataSource () {
-    const { store } = this.props
+  public dataSource () {
+    const { store } = this.injected
       , pulls = store.pulls.all;
 
     // Build out data
@@ -149,39 +158,38 @@ class ComicsList extends Component<any> {
         return [];
       }
 
-      const comicPairs = _.get(series, 'comics', []).map(comic => ({
-        key: comic.id,
+      const pullComicPairs = _.get(series, 'comics', []).map((comic: any) => ({
         comic,
+        key: comic.id,
+        pull,
         read: pull.read.includes(comic.id),
         skipped: pull.skipped.includes(comic.id),
-        pull,
-      })).filter(comicPair => !future(comicPair.comic.on_sale));
+      })).filter((comicPair: any) => !future(comicPair.comic.on_sale));
 
-      if (!comicPairs.length || comicPairs.every(readOrSkipped)) {
+      if (!pullComicPairs.length || pullComicPairs.every(readOrSkipped)) {
         return [];
       }
 
-      const unreadDate = comicPairs
+      const unreadDate = pullComicPairs
         .filter(_.negate(readOrSkipped))
-        .map(cp => cp.comic.on_sale)
+        .map((cp: any) => cp.comic.on_sale)
         .sort(stringSort)[0];
 
       if (!earliestUnread || earliestUnread > unreadDate) {
         earliestUnread = unreadDate;
       }
 
-      return comicPairs;
+      return pullComicPairs;
     });
 
     // Filter out series
     seriesComics = seriesComics.filter(comicPair => !comicPair.every(readOrSkipped));
 
     // flatten list
-    const comicPairs = seriesComics.reduce((flat, toFlatten) => {
-      return flat.concat(toJS(toFlatten));
-    }, []);
+    const comicPairs = seriesComics.reduce((flat, toFlatten) =>
+      flat.concat(toJS(toFlatten)), []);
 
-    const comicsPairsFiltered = comicPairs.filter(comicPair => {
+    const comicsPairsFiltered = comicPairs.filter((comicPair: any) => {
       let filter = true;
 
       if (comicPair.comic.on_sale < earliestUnread) {
@@ -199,8 +207,8 @@ class ComicsList extends Component<any> {
     return comicsPairsFiltered;
   }
 
-  render () {
-    const { store } = this.props;
+  public render () {
+    const { store } = this.injected;
     return (
       <div>
         <h2>Comics</h2>
@@ -215,11 +223,6 @@ class ComicsList extends Component<any> {
         />
       </div>
     );
-  }
-
-  static propTypes = {
-    history: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
   }
 }
 

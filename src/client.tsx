@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import store from 'store';
 
 const URL_DATA = 'https://weeklypulls-data.herokuapp.com/'
@@ -10,10 +10,10 @@ const URL_DATA = 'https://weeklypulls-data.herokuapp.com/'
   ;
 
 class Client {
-  public user: any;
-  public marvel: any;
+  public user: AxiosInstance;
+  public marvel: AxiosInstance;
 
-  constructor () {
+  public constructor () {
     this.user = axios.create({
       baseURL: URL_DATA,
       headers: JSON_HEADERS,
@@ -26,21 +26,21 @@ class Client {
     });
   }
 
-  async login (username, password) {
+  public async login (username: string, password: string) {
     const response = await axios.post(`${URL_DATA}api-token-auth/`, {username, password});
     store.set('api-token', `TOKEN ${response.data.token}`);
     axios.defaults.headers.common.Authorization = this.token;
   }
 
-  logout () {
+  public logout () {
     store.remove('api-token');
   }
 
-  get token () {
+  public get token () {
     return store.get('api-token');
   }
 
-  get hasToken () {
+  public get hasToken () {
     return !!this.token;
   }
 }
