@@ -1,64 +1,69 @@
 import React, { Component } from 'react';
-import { observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import { Table, Button, Icon, Row, Col } from 'antd';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import _ from 'lodash';
+import { get } from 'lodash';
 
 import utils from '../../../utils';
 import PullButton from '../../common/PullButton';
 import Store from '../../../store';
+import { IComic } from '../../../interfaces';
 
-function pullCell (_text: string, record: any) {
+function pullCell (_text: string, record: { comic: IComic, store: Store }) {
   return <PullButton {...record} />;
 }
 
-interface IProps extends RouteComponentProps {
-  match: any;
+interface IInjected extends RouteComponentProps {
   store: Store;
 }
 
 @inject('store')
 @autoBindMethods
 @observer
-class WeeksDetailPage extends Component<IProps> {
-  @observable public weekId = null;
-
-  public componentDidMount () {
-    this.fetch(this.props);
+class WeeksDetailPage extends Component<RouteComponentProps> {
+  private get injected () {
+    return this.props as IInjected;
   }
 
-  public componentWillReceiveProps (nextProps: IProps) {
+  private get weekId (): string {
+    return get(this.injected.match.params, 'weekId', '');
+  }
+
+  public componentDidMount () {
+    this.fetch(this.injected);
+  }
+
+  public componentWillReceiveProps (nextProps: IInjected) {
     this.fetch(nextProps);
   }
 
-  public fetch (props: IProps) {
-    const { store, match } = props;
-    store.weeks.fetchIfCold(match.params.weekId);
+  public fetch (props: IInjected) {
+    const { store } = props;
+    store.weeks.fetchIfCold(this.weekId);
   }
 
   public get comics () {
-    const { store, match } = this.props
-      , weekId = match.params.weekId
-      , week = store.weeks.get(weekId);
-    return _.get(week, 'comics', []);
+    const { store } = this.injected
+      , week = store.weeks.get(this.weekId);
+    return get(week, 'comics', []);
   }
 
   public dataSource () {
-    return this.comics.map((comic: any) => ({
+    return this.comics.map((comic: IComic) => ({
       comic,
       key: comic.id,
     }));
   }
 
   public render () {
-    const { weekId } = this.props.match.params
+    const weekId = this.weekId
       , nextWeek = utils.nextWeek(weekId)
       , lastWeek = utils.prevWeek(weekId);
 
-    const { store } = this.props
-      , titleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id'])
+    const { store } = this.injected
+      , titleSort = (a: { comic: IComic }, b: { comic: IComic }) =>
+          utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id'])
       , COLUMNS = [
         {
           dataIndex: 'comic.title',

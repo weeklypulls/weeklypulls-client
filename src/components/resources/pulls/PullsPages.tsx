@@ -6,18 +6,14 @@ import { Route, RouteComponentProps } from 'react-router-dom';
 import PullsDetail from './PullsDetail';
 import PullsList from './PullsList';
 
-interface IProps extends RouteComponentProps {
-  match: any;
-}
-
 @autoBindMethods
 @observer
-class SeriesListPage extends Component<IProps> {
-  public renderPull (props: IProps) {
+class SeriesListPage extends Component<RouteComponentProps> {
+  public renderPull (props: RouteComponentProps) {
     return <PullsDetail {...this.props} {...props} />;
   }
 
-  public renderPullsList (props: IProps) {
+  public renderPullsList (props: RouteComponentProps) {
     return <PullsList {...this.props} {...props} />;
   }
 

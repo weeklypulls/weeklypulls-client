@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import { Icon, Popover } from 'antd';
 
 interface IProps {
-  images: any[];
+  images: string[];
 }
 
 @autoBindMethods

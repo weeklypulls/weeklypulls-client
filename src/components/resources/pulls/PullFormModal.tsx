@@ -8,13 +8,14 @@ import _ from 'lodash';
 import { message, Form, Select, Modal } from 'antd';
 
 import Store from '../../../store';
+import { IPull } from '../../../interfaces';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 interface IProps {
-  pull: any;
   onClose: () => void;
+  pull: Partial<IPull> & { series_id: string };
 }
 
 interface IWrappedProps extends IProps {

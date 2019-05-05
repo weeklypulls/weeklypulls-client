@@ -5,14 +5,19 @@ import store from 'store';
 import consts from './consts';
 import Client from './client';
 import Resource from './resource';
+import { ISeries } from './interfaces';
 
 const {
   ACTIONS,
 } = consts;
 
+export interface IFilters {
+  [key: string]: string[];
+}
+
 @autoBindMethods
 class Store {
-  @observable public _filters = {};
+  @observable public _filters: IFilters = {};
   public client: Client;
 
   public pullLists: Resource;
@@ -37,7 +42,7 @@ class Store {
     return resources.map(r => r.isLoading).some(x => x);
   }
 
-  public setFilters (filters: object) {
+  public setFilters (filters: IFilters) {
     this._filters = filters;
     store.set('filters', filters);
   }
@@ -76,7 +81,7 @@ class Store {
     };
   }
 
-  public _firstUnreadWeek (series: any) {
+  public _firstUnreadWeek (series: ISeries) {
     const pull = this.pulls.getBy('series_id', series.series_id)
       , comics = series.comics
       , comicsUnread = comics.filter((comic: any) => !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id)))
@@ -87,7 +92,7 @@ class Store {
     return firstWeek;
   }
 
-  public firstUnreadWeek (series: any[]) {
+  public firstUnreadWeek (series: ISeries[]) {
     const allStartWeeks = series.map(serie => this._firstUnreadWeek(serie))
       , lastStartWeek = allStartWeeks.filter(s => s).sort()[0];
     return lastStartWeek;
@@ -102,21 +107,26 @@ class Store {
   }
 
   @action
-  public async mark (seriesId: any, issueId: any, actionKey: any) {
+  public async mark (seriesId: string, issueId: string, actionKey: string) {
     const pull = this.pulls.getBy('series_id', seriesId)
-      , data: any = {}
-      , actions = {
-        [ACTIONS.READ]: ['add', 'read'],
-        [ACTIONS.UNREAD]: ['delete', 'read'],
-        [ACTIONS.SKIP]: ['add', 'skipped'],
-        [ACTIONS.UNSKIP]: ['delete', 'skipped'],
-      }
+      , noun = {
+        [ACTIONS.READ]: 'read',
+        [ACTIONS.SKIP]: 'skipped',
+        [ACTIONS.UNREAD]: 'read',
+        [ACTIONS.UNSKIP]: 'skipped',
+      }[actionKey]
+      , set = new Set<string>(pull[noun])
+      , verb = {
+        [ACTIONS.READ]: set.add,
+        [ACTIONS.SKIP]: set.add,
+        [ACTIONS.UNREAD]: set.delete,
+        [ACTIONS.UNSKIP]: set.delete,
+      }[actionKey]
       ;
 
-    const [verb, noun] = actions[actionKey]
-      , set: any = new Set<any>(pull[noun]);
-    set[verb](issueId);
-    data[noun] = Array.from(set);
+    verb(issueId);
+
+    const data = { [noun]: Array.from(set) };
 
     await this.pulls.patch(pull.id, data);
   }

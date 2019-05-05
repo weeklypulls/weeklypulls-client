@@ -6,6 +6,7 @@ import _ from 'lodash';
 import cx from 'classnames';
 
 import consts from './consts';
+import { IComicPullPair } from './interfaces';
 
 @autoBindMethods
 class ModalManager {
@@ -62,7 +63,7 @@ function stringAttrsSort (a: object, b: object, attrs: string[]) {
   return 0;
 }
 
-function rowClassName (record: any) {
+function rowClassName (record: IComicPullPair) {
   const { read, skipped } = record;
   return cx({
     'comic-read': read,

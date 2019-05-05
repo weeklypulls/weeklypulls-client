@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
-import _ from 'lodash';
+import { get } from 'lodash';
 import { RouteComponentProps } from 'react-router';
 
 import { Button, Col, Icon, Row, Table } from 'antd';
@@ -16,22 +16,22 @@ import { IComic } from '../../../interfaces';
 
 const { ModalManager } = utils;
 
-interface IProps extends RouteComponentProps {
-  match: any;
-}
-
-interface IInjected extends IProps {
+interface IInjected extends RouteComponentProps {
   store: Store;
 }
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullDetail extends Component<IProps> {
+class PullDetail extends Component<RouteComponentProps> {
   public editModal = new ModalManager();
 
   private get injected () {
     return this.props as IInjected;
+  }
+
+  private get pullId (): string {
+    return get(this.injected.match.params, 'pullId', '');
   }
 
   public componentWillMount () {
@@ -39,11 +39,10 @@ class PullDetail extends Component<IProps> {
   }
 
   public async getSeries () {
-    const { match, store } = this.injected
-      , pullId = match.params.pullId;
+    const { store } = this.injected;
 
     try {
-      const pull = await store.pulls.fetchIfCold(pullId);
+      const pull = await store.pulls.fetchIfCold(this.pullId);
       await Promise.all([
         store.pullLists.fetchIfCold(pull.pull_list_id),
         store.series.fetchIfCold(pull.series_id),
@@ -52,16 +51,15 @@ class PullDetail extends Component<IProps> {
     catch (e) {
       // tslint:disable-next-line no-console
       console.error(e);
-      if (_.get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
+      if (get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
         this.props.history.push('/login');
       }
     }
   }
 
   public dataSource () {
-    const { match, store } = this.injected
-      , pullId = match.params.pullId
-      , { series, pull } = store.pullWithSeries(pullId);
+    const { store } = this.injected
+      , { series, pull } = store.pullWithSeries(this.pullId);
 
     return series.comics.map((comic: IComic) => ({
       comic,
@@ -74,9 +72,8 @@ class PullDetail extends Component<IProps> {
   }
 
   public render () {
-    const { match, store } = this.injected
-      , pullId = match.params.pullId
-      , record = store.pullWithSeries(pullId)
+    const { store } = this.injected
+      , record = store.pullWithSeries(this.pullId)
       , COL_SPAN_TITLE = 20
       , COL_SPAN_BUTTON = 4
       ;
