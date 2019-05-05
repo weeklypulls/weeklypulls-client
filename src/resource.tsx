@@ -2,7 +2,7 @@ import { observable, action } from 'mobx';
 import autoBindMethods from 'class-autobind-decorator';
 import store from 'store';
 import _ from 'lodash';
-import { DateTime } from 'luxon';
+import { DateTime, DurationObject } from 'luxon';
 import { AxiosInstance } from 'axios';
 
 @autoBindMethods
@@ -15,9 +15,9 @@ class Resource {
   @observable public isLoading = true;
 
   @observable public fetchedOn = new Map();
-  private maxCache: any;
+  private maxCache: DurationObject;
 
-  public constructor (client: AxiosInstance, endpoint: string, maxCache: any, idKey = 'id') {
+  public constructor (client: AxiosInstance, endpoint: string, maxCache: DurationObject, idKey = 'id') {
     this.client = client;
     this.endpoint = endpoint;
     this.maxCache = maxCache;

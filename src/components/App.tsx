@@ -5,8 +5,9 @@ import autoBindMethods from 'class-autobind-decorator';
 import { Layout, Menu, Icon } from 'antd';
 import {
   BrowserRouter as Router,
-  Route,
   NavLink,
+  Route,
+  RouteComponentProps,
 } from 'react-router-dom';
 
 import Store from '../store';
@@ -27,10 +28,10 @@ interface IProps {
 @autoBindMethods
 @observer
 class App extends Component<IProps> {
-  public renderComicsListPage (props: any) { return <ComicsListPage {...props} {...this.props} />; }
-  public renderPullsListPage (props: any) { return <PullsListPage {...props} {...this.props} />; }
-  public renderWeekPage (props: any) { return <WeekPage {...props} {...this.props} />; }
-  public renderLoginPage (props: any) { return <LoginPage {...props} {...this.props} />; }
+  public renderComicsListPage (props: RouteComponentProps) { return <ComicsListPage {...props} {...this.props} />; }
+  public renderPullsListPage (props: RouteComponentProps) { return <PullsListPage {...props} {...this.props} />; }
+  public renderWeekPage (props: RouteComponentProps) { return <WeekPage {...props} {...this.props} />; }
+  public renderLoginPage (props: RouteComponentProps) { return <LoginPage {...props} {...this.props} />; }
 
   public render () {
     return (

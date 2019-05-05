@@ -7,10 +7,10 @@ import Store from '../../store';
 import { IComic } from '../../interfaces';
 
 interface IProps {
-  actions: any[];
+  actions: [string, string];
   comic: IComic;
-  icons: any[];
-  langs: any[];
+  icons: [string, string];
+  langs: [string, string];
   value: boolean;
 }
 
@@ -41,10 +41,11 @@ class BoolButton extends Component<IProps> {
   public render () {
     const { value, langs, icons } = this.props
       , icon = icons[value ? 1 : 0]
-      , lang = langs[value ? 1 : 0];
+      , lang = langs[value ? 1 : 0]
+      ;
 
     return (
-      <Button className='action-button' onClick={this.mark}>
+      <Button className='action-button' size='small' onClick={this.mark}>
         <Icon type={icon} title={lang} />
       </Button>
     );

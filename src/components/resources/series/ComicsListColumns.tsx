@@ -6,27 +6,32 @@ import utils from '../../../utils';
 import ReadButton from '../../common/ReadButton';
 import SkipButton from '../../common/SkipButton';
 import PullListLink from '../../common/PullListLink';
+import { IComicPullPair } from '../../../interfaces';
+import { ColumnProps } from 'antd/lib/table';
 
-function pullListCell (_text: string, record: any) {
+function pullListCell (_text: string, record: IComicPullPair) {
   return <PullListLink pullId={record.pull.id} pullListId={record.pull.pull_list_id} />;
 }
 
-function imagesCell (_text: string, record: any) {
+function imagesCell (_text: string, record: IComicPullPair) {
   return <Images images={record.comic.images} />;
 }
 
-function pullLinkCell (text: string, record: any) {
+function pullLinkCell (text: string, record: IComicPullPair) {
   return <Link to={`/pulls/${record.pull.id}`}>{text}</Link>;
 }
 
-const titleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id', 'comic.on_sale']);
-const onSaleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['comic.on_sale', 'comic.title']);
+const titleSort = (a: IComicPullPair, b: IComicPullPair) =>
+  utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id', 'comic.on_sale']);
 
-function weekCell (text: string, _record: any) {
+const onSaleSort = (a: IComicPullPair, b: IComicPullPair) =>
+  utils.stringAttrsSort(a, b, ['comic.on_sale', 'comic.title']);
+
+function weekCell (text: string, _record: IComicPullPair) {
   return <Link to={`/weeks/${text}`}>{text}</Link>;
 }
 
-function skippedCell (text: string, record: any) {
+function skippedCell (text: string, record: IComicPullPair) {
   return (
     <SkipButton
       comic={record.comic}
@@ -35,7 +40,7 @@ function skippedCell (text: string, record: any) {
   );
 }
 
-function readCell (text: string, record: any) {
+function readCell (text: string, record: IComicPullPair) {
   return (
     <ReadButton
       comic={record.comic}
@@ -44,13 +49,13 @@ function readCell (text: string, record: any) {
   );
 }
 
-const COLUMNS = [
+const COLUMNS: Array<ColumnProps<IComicPullPair>> = [
   {
     dataIndex: 'read',
     filterMultiple: false,
     filters: [
-      { text: 'Read', value: true },
-      { text: 'Unread', value: false },
+      { text: 'Read', value: 'true' },
+      { text: 'Unread', value: 'false' },
     ],
     key: 'read',
     render: readCell,
@@ -60,8 +65,8 @@ const COLUMNS = [
     dataIndex: 'skipped',
     filterMultiple: false,
     filters: [
-      { text: 'Skipped', value: true },
-      { text: 'Unskipped', value: false },
+      { text: 'Skipped', value: 'true' },
+      { text: 'Unskipped', value: 'false' },
     ],
     key: 'skipped',
     render: skippedCell,

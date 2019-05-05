@@ -3,17 +3,22 @@ import { toJS, observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
-import _ from 'lodash';
+import { get, negate } from 'lodash';
 import { Table, Button, Input } from 'antd';
 import { RouteComponentProps } from 'react-router';
 
+import { PaginationConfig } from 'antd/lib/pagination';
+import { ColumnProps } from 'antd/lib/table';
+
 import utils from '../../../utils';
-import Store from '../../../store';
+import Store, { IFilters } from '../../../store';
+import { IComic, IComicPullPair } from '../../../interfaces';
 
 import COLUMNS from './ComicsListColumns';
 
 const { future, stringSort } = utils;
-const readOrSkipped = (comicPair: any) => (comicPair.comic.read || comicPair.comic.skipped);
+
+const readOrSkipped = (comicPair: IComicPullPair) => (comicPair.read || comicPair.skipped);
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -44,13 +49,13 @@ class ComicsList extends Component<RouteComponentProps> {
     catch (e) {
       // tslint:disable-next-line no-console
       console.error(e);
-      if (_.get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
+      if (get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
         this.props.history.push('/login');
       }
     }
   }
 
-  public handleChange (pagination: any, filters: any, sorter: any) {
+  public handleChange (pagination: PaginationConfig, filters: IFilters) {
     this.injected.store.setFilters(filters);
   }
 
@@ -58,7 +63,7 @@ class ComicsList extends Component<RouteComponentProps> {
     this.searchText = event.target.value;
   }
 
-  public onFilterDropdownVisibleChange (visible: any) {
+  public onFilterDropdownVisibleChange (visible: boolean) {
     this.filterDropdownVisible = visible;
   }
 
@@ -85,11 +90,11 @@ class ComicsList extends Component<RouteComponentProps> {
     this.filterDropdownVisible = false;
   }
 
-  public get columns () {
+  public get columns (): Array<ColumnProps<IComicPullPair>> {
     const filters = this.injected.store.filters;
 
-    return COLUMNS.map((column: any) => {
-      column.filteredValue = toJS(_.get(filters, column.key, []));
+    return COLUMNS.map(column => {
+      column.filteredValue = toJS(get(filters, column.key || '', []));
 
       if (column.key === 'pull.pull_list_id') {
         column.filters = this.injected.store.pullLists.all.map(pullList => ({
@@ -101,7 +106,6 @@ class ComicsList extends Component<RouteComponentProps> {
       if (column.key === 'comic.title') {
         column.onFilterDropdownVisibleChange = this.onFilterDropdownVisibleChange;
         column.filterDropdownVisible = this.filterDropdownVisible;
-        column.filtered = !!column.filteredValue.length;
         column.filterDropdown = (
           <div className='custom-filter-dropdown'>
             <Input
@@ -120,9 +124,9 @@ class ComicsList extends Component<RouteComponentProps> {
     });
   }
 
-  public filterByRegex (key: string, record: any) {
-    const filters = _.get(this.injected.store.filters, key, [])
-      , value = _.get(record, key).toString();
+  public filterByRegex (key: string, record: IComicPullPair) {
+    const filters = get(this.injected.store.filters, key, [])
+      , value = get(record, key).toString();
 
     if (!filters.length) {
       return true;
@@ -134,15 +138,15 @@ class ComicsList extends Component<RouteComponentProps> {
     return !!value.match(reg);
   }
 
-  public filterBy (key: string, record: any) {
-    const filters = _.get(this.injected.store.filters, key, [])
-      , value = _.get(record, key).toString();
+  public filterBy (key: string, record: IComicPullPair) {
+    const filters = get(this.injected.store.filters, key, []) as string[]
+      , value = get(record, key).toString();
 
     if (!filters.length) {
       return true;
     }
 
-    return filters.map((f: any) => f.toString()).includes(value);
+    return filters.includes(value);
   }
 
   public dataSource () {
@@ -158,21 +162,23 @@ class ComicsList extends Component<RouteComponentProps> {
         return [];
       }
 
-      const pullComicPairs = _.get(series, 'comics', []).map((comic: any) => ({
-        comic,
-        key: comic.id,
-        pull,
-        read: pull.read.includes(comic.id),
-        skipped: pull.skipped.includes(comic.id),
-      })).filter((comicPair: any) => !future(comicPair.comic.on_sale));
+      const pullComicPairs = get(series, 'comics', [])
+        .map((comic: IComic) => ({
+          comic,
+          key: comic.id,
+          pull,
+          read: pull.read.includes(comic.id),
+          skipped: pull.skipped.includes(comic.id),
+        }))
+        .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
 
       if (!pullComicPairs.length || pullComicPairs.every(readOrSkipped)) {
         return [];
       }
 
       const unreadDate = pullComicPairs
-        .filter(_.negate(readOrSkipped))
-        .map((cp: any) => cp.comic.on_sale)
+        .filter(negate(readOrSkipped))
+        .map((cp: IComicPullPair) => cp.comic.on_sale)
         .sort(stringSort)[0];
 
       if (!earliestUnread || earliestUnread > unreadDate) {
@@ -186,23 +192,24 @@ class ComicsList extends Component<RouteComponentProps> {
     seriesComics = seriesComics.filter(comicPair => !comicPair.every(readOrSkipped));
 
     // flatten list
-    const comicPairs = seriesComics.reduce((flat, toFlatten) =>
-      flat.concat(toJS(toFlatten)), []);
+    const comicPairs = seriesComics
+      .reduce((flat, toFlatten) => flat.concat(toJS(toFlatten)), []);
 
-    const comicsPairsFiltered = comicPairs.filter((comicPair: any) => {
-      let filter = true;
+    const comicsPairsFiltered = comicPairs
+      .filter((comicPair: IComicPullPair) => {
+        let filter = true;
 
-      if (comicPair.comic.on_sale < earliestUnread) {
-        return false;
-      }
+        if (comicPair.comic.on_sale < earliestUnread) {
+          return false;
+        }
 
-      filter = filter && this.filterBy('read', comicPair);
-      filter = filter && this.filterBy('skipped', comicPair);
-      filter = filter && this.filterBy('pull.pull_list_id', comicPair);
-      filter = filter && this.filterByRegex('comic.title', comicPair);
+        filter = filter && this.filterBy('read', comicPair);
+        filter = filter && this.filterBy('skipped', comicPair);
+        filter = filter && this.filterBy('pull.pull_list_id', comicPair);
+        filter = filter && this.filterByRegex('comic.title', comicPair);
 
-      return filter;
-    });
+        return filter;
+      });
 
     return comicsPairsFiltered;
   }
