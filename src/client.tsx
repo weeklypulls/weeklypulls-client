@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import store from 'store';
 
 const URL_DATA = 'https://weeklypulls-data.herokuapp.com/'
@@ -10,8 +10,8 @@ const URL_DATA = 'https://weeklypulls-data.herokuapp.com/'
   ;
 
 class Client {
-  public user: any;
-  public marvel: any;
+  public user: AxiosInstance;
+  public marvel: AxiosInstance;
 
   constructor () {
     this.user = axios.create({
@@ -26,7 +26,7 @@ class Client {
     });
   }
 
-  async login (username, password) {
+  async login (username: string, password: string) {
     const response = await axios.post(`${URL_DATA}api-token-auth/`, {username, password});
     store.set('api-token', `TOKEN ${response.data.token}`);
     axios.defaults.headers.common.Authorization = this.token;

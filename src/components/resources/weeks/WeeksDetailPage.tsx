@@ -2,33 +2,38 @@ import React, { Component } from 'react';
 import { observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
-import PropTypes from 'prop-types';
 import { Table, Button, Icon, Row, Col } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
 import _ from 'lodash';
 
 import utils from '../../../utils';
 import PullButton from '../../common/PullButton';
+import Store from '../../../store';
 
-function pullCell (text, record) {
+function pullCell (_text: string, record: any) {
   return <PullButton {...record} />;
+}
+
+interface IProps extends RouteComponentProps {
+  match: any;
+  store: Store;
 }
 
 @inject('store')
 @autoBindMethods
 @observer
-class WeeksDetailPage extends Component<any> {
+class WeeksDetailPage extends Component<IProps> {
   @observable weekId = null;
 
   componentDidMount () {
     this.fetch(this.props);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps (nextProps: IProps) {
     this.fetch(nextProps);
   }
 
-  fetch (props) {
+  fetch (props: IProps) {
     const { store, match } = props;
     store.weeks.fetchIfCold(match.params.weekId);
   }
@@ -41,7 +46,7 @@ class WeeksDetailPage extends Component<any> {
   }
 
   dataSource () {
-    return this.comics.map(comic => ({
+    return this.comics.map((comic: any) => ({
       comic,
       key: comic.id,
     }));
@@ -53,7 +58,7 @@ class WeeksDetailPage extends Component<any> {
       , lastWeek = utils.prevWeek(weekId);
 
     const { store } = this.props
-      , titleSort = (a, b) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id'])
+      , titleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id'])
       , COLUMNS = [
         {
           dataIndex: 'comic.title',
@@ -99,12 +104,6 @@ class WeeksDetailPage extends Component<any> {
         />
       </div>
     );
-  }
-
-  static propTypes = {
-    history: PropTypes.object.isRequired,
-    match: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
   }
 }
 

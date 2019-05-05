@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import autoBindMethods from 'class-autobind-decorator';
-import { observer, propTypes } from 'mobx-react';
+import { observer } from 'mobx-react';
 import { Icon, Popover } from 'antd';
 
+interface IProps {
+  images: any[],
+}
 
 @autoBindMethods
 @observer
-class Images extends Component<any> {
+class Images extends Component<IProps> {
   render () {
     const { images } = this.props;
 
@@ -28,10 +31,6 @@ class Images extends Component<any> {
         </a>
       </Popover>
     ));
-  }
-
-  static propTypes = {
-    images: propTypes.arrayOrObservableArray.isRequired,
   }
 }
 

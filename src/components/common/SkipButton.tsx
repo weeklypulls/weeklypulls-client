@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator/build/index';
 import {observer} from 'mobx-react/index';
 
 import consts from '../../consts';
+import { IComic } from '../../interfaces';
 
 import BoolButton from './BoolButton';
 
@@ -11,9 +11,14 @@ const {
   ACTIONS,
 } = consts;
 
+interface IProps {
+  comic: IComic;
+  value: boolean;
+}
+
 @autoBindMethods
 @observer
-class SkipButton extends Component<any> {
+class SkipButton extends Component<IProps> {
   render () {
     const { comic, value } = this.props;
     return (
@@ -25,11 +30,6 @@ class SkipButton extends Component<any> {
         value={value}
       />
     );
-  }
-
-  static propTypes = {
-    comic: PropTypes.object.isRequired,
-    value: PropTypes.bool.isRequired,
   }
 }
 

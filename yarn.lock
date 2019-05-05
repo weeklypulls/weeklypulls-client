@@ -1252,6 +1252,16 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/classnames@^2.2.7":
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.7.tgz#fb68cc9be8487e6ea5b13700e759bfbab7e0fefd"
+  integrity sha512-rzOhiQ55WzAiFgXRtitP/ZUT8iVNyllEpylJ5zHzR4vArUvMB39GTk+Zon/uAM0JxEFAWnwsxC2gH8s+tZ3Myg==
+
+"@types/history@*":
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.2.tgz#0e670ea254d559241b6eeb3894f8754991e73220"
+  integrity sha512-ui3WwXmjTaY73fOQ3/m3nnajU/Orhi6cEu5rzX+BrAAJxa3eITXZ5ch9suPqtM03OWhAHhPSyBGCN4UKoxO20Q==
+
 "@types/hoist-non-react-statics@^3.3.1":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.1.tgz#1124aafe5118cb591977aeb1ceaaed1070eb039f"
@@ -1264,6 +1274,16 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.1.tgz#42995b446db9a48a11a07ec083499a860e9138ff"
   integrity sha512-hRJD2ahnnpLgsj6KWMYSrmXkM3rm2Dl1qkx6IOFD5FnuNPXJIG5L0dhgKXCYTRMGzU4n0wImQ/xfmRc4POUFlg==
+
+"@types/lodash@^4.14.123":
+  version "4.14.123"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.123.tgz#39be5d211478c8dd3bdae98ee75bb7efe4abfe4d"
+  integrity sha512-pQvPkc4Nltyx7G1Ww45OjVqUsJP4UsZm+GWJpigXgkikZqJgRm4c48g027o6tdgubWHwFRF15iFd+Y4Pmqv6+Q==
+
+"@types/luxon@^1.12.0":
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-1.12.0.tgz#acf14294d18e6eba427a5e5d7dfce0f5cd2a9400"
+  integrity sha512-+UzPmwHSEEyv7aGlNkVpuFxp/BirXgl8NnPGCtmyx2KXIzAapoW3IqSVk87/Z3PUk8vEL8Pe1HXEMJbNBOQgtg==
 
 "@types/node@*", "@types/node@^12.0.0":
   version "12.0.0"
@@ -1285,6 +1305,23 @@
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.8.4.tgz#7fb7ba368857c7aa0f4e4511c4710ca2c5a12a88"
   integrity sha512-eIRpEW73DCzPIMaNBDP5pPIpK1KXyZwNgfxiVagb5iGiz6da+9A5hslSX6GAQKdO7SayVCS/Fr2kjqprgAvkfA==
   dependencies:
+    "@types/react" "*"
+
+"@types/react-router-dom@^4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.3.2.tgz#52c17c3682597638f31c17c42620403dc5c2a3f5"
+  integrity sha512-biesHodFxPgDxku2m08XwPeAfUYBcxAnrQG7pwFikuA3L2e3u2OKAb+Sb16bJuU3L5CTHd+Ivap+ke4mmGsHqQ==
+  dependencies:
+    "@types/history" "*"
+    "@types/react" "*"
+    "@types/react-router" "*"
+
+"@types/react-router@*":
+  version "4.4.5"
+  resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-4.4.5.tgz#1166997dc7eef2917b5ebce890ebecb32ee5c1b3"
+  integrity sha512-12+VOu1+xiC8RPc9yrgHCyLI79VswjtuqeS2gPrMcywH6tkc8rGIUhs4LaL3AJPqo5d+RPnfRpNKiJ7MK2Qhcg==
+  dependencies:
+    "@types/history" "*"
     "@types/react" "*"
 
 "@types/react-slick@^0.23.3":
@@ -8144,7 +8181,7 @@ prompts@^2.0.1:
     kleur "^3.0.2"
     sisteransi "^1.0.0"
 
-prop-types@15.x, prop-types@^15.5.0, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@15.x, prop-types@^15.5.0, prop-types@^15.5.10, prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@^15.5.9, prop-types@^15.6.0, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==

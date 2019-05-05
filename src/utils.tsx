@@ -15,13 +15,13 @@ class ModalManager {
   close () { this.isShowing = false; }
 }
 
-function stringSort (a, b) {
+function stringSort (a: string, b: string) {
   if (a < b) { return -1; }
   if (a > b) { return 1; }
   return 0;
 }
 
-function future (week) {
+function future (week: string) {
   const date = moment(week, consts.DATE_FORMAT)
     , now = moment()
     ;
@@ -29,7 +29,7 @@ function future (week) {
   return (date > now);
 }
 
-function nearFuture (week) {
+function nearFuture (week: string) {
   const date = moment(week, consts.DATE_FORMAT)
     , now = moment()
     , tooFar = moment().add(1, 'week')
@@ -38,7 +38,7 @@ function nearFuture (week) {
   return (date > now) && (date < tooFar);
 }
 
-function farFuture (week) {
+function farFuture (week: string) {
   const date = moment(week, consts.DATE_FORMAT)
     , tooFar = moment().add(1, 'week')
     ;
@@ -46,15 +46,15 @@ function farFuture (week) {
   return (date > tooFar);
 }
 
-function nextWeek (weekIso) {
+function nextWeek (weekIso: string) {
   return DateTime.fromISO(weekIso).plus({ weeks: 1 }).toISODate();
 }
 
-function prevWeek (weekIso) {
+function prevWeek (weekIso: string) {
   return DateTime.fromISO(weekIso).minus({ weeks: 1 }).toISODate();
 }
 
-function stringAttrsSort (a, b, attrs) {
+function stringAttrsSort (a: object, b: object, attrs: string[]) {
   for (const attr of attrs) {
     if (_.get(a, attr) < _.get(b, attr)) { return -1; }
     if (_.get(a, attr) > _.get(b, attr)) { return 1; }
@@ -62,7 +62,7 @@ function stringAttrsSort (a, b, attrs) {
   return 0;
 }
 
-function rowClassName (record) {
+function rowClassName (record: any) {
   const { read, skipped } = record;
   return cx({
     'comic-read': read,

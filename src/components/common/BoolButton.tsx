@@ -1,21 +1,38 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
 import { inject, observer } from 'mobx-react';
 import { Button, Icon } from 'antd';
 
+import Store from '../../store';
+import { IComic } from '../../interfaces';
+
+interface IProps {
+  actions: any[];
+  comic: IComic;
+  icons: any[];
+  langs: any[];
+  value: boolean;
+}
+
+interface IInjected extends IProps {
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class BoolButton extends Component<any> {
+class BoolButton extends Component<IProps> {
+  private get injected () {
+    return this.props as IInjected;
+  }
+
   mark () {
     const {
         actions,
         comic: { id, series_id },
         store,
         value,
-      } = this.props
+      } = this.injected
       , action = actions[value ? 1 : 0];
 
     store.mark(series_id, id, action);
@@ -31,15 +48,6 @@ class BoolButton extends Component<any> {
         <Icon type={icon} title={lang} />
       </Button>
     );
-  }
-
-  static propTypes = {
-    actions: PropTypes.array.isRequired,
-    comic: PropTypes.object.isRequired,
-    icons: PropTypes.array.isRequired,
-    langs: PropTypes.array.isRequired,
-    store: PropTypes.object.isRequired,
-    value: PropTypes.bool.isRequired,
   }
 }
 

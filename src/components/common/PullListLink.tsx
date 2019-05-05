@@ -1,16 +1,29 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
 import { observer, inject } from 'mobx-react';
 import { Link } from 'react-router-dom';
 
+import Store from '../../store';
+
+interface IProps {
+  pullId: string;
+  pullListId: string;
+}
+
+interface IInjected extends IProps {
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullListLink extends Component<any> {
+class PullListLink extends Component<IProps> {
+  private get injected () {
+    return this.props as IInjected;
+  }
+
   render () {
-    const { store, pullListId, pullId } = this.props
+    const { store, pullListId, pullId } = this.injected
       , pullList = store.pullLists.get(pullListId);
 
     if (!pullList) { return '--'; }
@@ -18,11 +31,6 @@ class PullListLink extends Component<any> {
     return <Link to={`/pulls/${pullId}`}>{pullList.title}</Link>;
   }
 
-  static propTypes = {
-    store: PropTypes.object.isRequired,
-    pullId: PropTypes.string.isRequired,
-    pullListId: PropTypes.string.isRequired,
-  }
 }
 
 export default PullListLink;

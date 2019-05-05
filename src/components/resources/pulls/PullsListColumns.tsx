@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import utils from '../../../utils';
 import PullListLink from '../../common/PullListLink';
 
-const titleSort = (a, b) => utils.stringAttrsSort(a, b, ['series.title', 'pull.series_id']);
+const titleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['series.title', 'pull.series_id']);
 
-function pullLinkCell (text, record) {
+function pullLinkCell (text: string, record: any) {
   return <Link to={`/pulls/${record.pull.id}`}>{text}</Link>;
 }
 
-function pullListCell (text, record) {
+function pullListCell (_text: string, record: any) {
   return <PullListLink pullListId={record.pull.pull_list_id} pullId={record.pull.id} />;
 }
 

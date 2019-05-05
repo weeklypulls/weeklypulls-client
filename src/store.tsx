@@ -13,13 +13,13 @@ const {
 
 @autoBindMethods
 class Store {
-  @observable _filters = null;
-  private client: Client;
+  @observable _filters = {};
+  public client: Client;
 
-  private pullLists: Resource;
-  private pulls: Resource;
-  private series: Resource;
-  private weeks: Resource;
+  public pullLists: Resource;
+  public pulls: Resource;
+  public series: Resource;
+  public weeks: Resource;
 
   constructor () {
     this.client = new Client();
@@ -34,11 +34,11 @@ class Store {
   }
 
   get isLoading () {
-    const resources = ['pulls', 'pullLists', 'series', 'weeks'];
-    return resources.map(r => this[r].isLoading).some(x => x);
+    const resources = [this.pulls, this.pullLists, this.series, this.weeks];
+    return resources.map(r => r.isLoading).some(x => x);
   }
 
-  setFilters (filters) {
+  setFilters (filters: object) {
     this._filters = filters;
     store.set('filters', filters);
   }
@@ -67,7 +67,7 @@ class Store {
     }));
   }
 
-  pullWithSeries (id) {
+  pullWithSeries (id: string) {
     const pull = this.pulls.get(id);
     return {
       pull,
@@ -77,18 +77,18 @@ class Store {
     };
   }
 
-  _firstUnreadWeek (series) {
+  _firstUnreadWeek (series: any) {
     const pull = this.pulls.getBy('series_id', series.series_id)
       , comics = series.comics
-      , comicsUnread = comics.filter(comic => !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id)))
-      , weeks = comicsUnread.map(comic => comic.on_sale)
+      , comicsUnread = comics.filter((comic: any) => !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id)))
+      , weeks = comicsUnread.map((comic: any) => comic.on_sale)
       , firstWeek = weeks.sort()[0]
       ;
 
     return firstWeek;
   }
 
-  firstUnreadWeek (series) {
+  firstUnreadWeek (series: any[]) {
     const allStartWeeks = series.map(serie => this._firstUnreadWeek(serie))
       , lastStartWeek = allStartWeeks.filter(s => s).sort()[0];
     return lastStartWeek;
@@ -103,9 +103,9 @@ class Store {
   }
 
   @action
-  async mark (seriesId, issueId, action) {
+  async mark (seriesId: any, issueId: any, action: any) {
     const pull = this.pulls.getBy('series_id', seriesId)
-      , data = {}
+      , data: any = {}
       , actions = {
         [ACTIONS.READ]: ['add', 'read'],
         [ACTIONS.UNREAD]: ['delete', 'read'],
@@ -115,7 +115,7 @@ class Store {
       ;
 
     const [verb, noun] = actions[action]
-      , set = new Set(pull[noun]);
+      , set: any = new Set(pull[noun]);
     set[verb](issueId);
     data[noun] = Array.from(set);
 

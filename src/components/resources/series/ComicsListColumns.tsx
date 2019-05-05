@@ -8,26 +8,26 @@ import SkipButton from '../../common/SkipButton';
 import PullListLink from '../../common/PullListLink';
 
 
-function pullListCell (text, record) {
+function pullListCell (_text: string, record: any) {
   return <PullListLink pullId={record.pull.id} pullListId={record.pull.pull_list_id} />;
 }
 
-function imagesCell (text, record) {
+function imagesCell (_text: string, record: any) {
   return <Images images={record.comic.images} />;
 }
 
-function pullLinkCell (text, record) {
+function pullLinkCell (text: string, record: any) {
   return <Link to={`/pulls/${record.pull.id}`}>{text}</Link>;
 }
 
-const titleSort = (a, b) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id', 'comic.on_sale']);
-const onSaleSort = (a, b) => utils.stringAttrsSort(a, b, ['comic.on_sale', 'comic.title']);
+const titleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id', 'comic.on_sale']);
+const onSaleSort = (a: any, b: any) => utils.stringAttrsSort(a, b, ['comic.on_sale', 'comic.title']);
 
-function weekCell (text, record) {
+function weekCell (text: string, _record: any) {
   return <Link to={`/weeks/${text}`}>{text}</Link>;
 }
 
-function skippedCell (text, record) {
+function skippedCell (text: string, record: any) {
   return (
     <SkipButton
       comic={record.comic}
@@ -36,7 +36,7 @@ function skippedCell (text, record) {
   );
 }
 
-function readCell (text, record) {
+function readCell (text: string, record: any) {
   return (
     <ReadButton
       comic={record.comic}

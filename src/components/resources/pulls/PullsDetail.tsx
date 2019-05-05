@@ -1,31 +1,45 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
 import _ from 'lodash';
+import { RouteComponentProps } from 'react-router';
 
 import { Button, Col, Icon, Row, Table } from 'antd';
 
 import utils from '../../../utils';
 import COLUMNS from '../series/ComicsListColumns';
+import Store from '../../../store';
 
 import PullFormModal from './PullFormModal';
+import { IComic } from '../../../interfaces';
 
 const { ModalManager } = utils;
+
+interface IProps extends RouteComponentProps {
+  match: any;
+}
+
+interface IInjected extends IProps {
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullDetail extends Component<any> {
+class PullDetail extends Component<IProps> {
   editModal = new ModalManager();
+
+  private get injected () {
+    return this.props as IInjected;
+  }
 
   componentWillMount () {
     this.getSeries();
   }
 
   async getSeries () {
-    const { match, store } = this.props
+    const { match, store } = this.injected
       , pullId = match.params.pullId;
 
     try {
@@ -45,11 +59,11 @@ class PullDetail extends Component<any> {
   }
 
   dataSource () {
-    const { match, store } = this.props
+    const { match, store } = this.injected
       , pullId = match.params.pullId
       , { series, pull } = store.pullWithSeries(pullId);
 
-    return series.comics.map(comic => ({
+    return series.comics.map((comic: IComic) => ({
       comic,
       read: pull.read.includes(comic.id),
       skipped: pull.skipped.includes(comic.id),
@@ -60,7 +74,7 @@ class PullDetail extends Component<any> {
   }
 
   render () {
-    const { match, store } = this.props
+    const { match, store } = this.injected
       , pullId = match.params.pullId
       , record = store.pullWithSeries(pullId);
 
@@ -88,12 +102,6 @@ class PullDetail extends Component<any> {
         />
       </div>
     );
-  }
-
-  static propTypes = {
-    match: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
   }
 }
 

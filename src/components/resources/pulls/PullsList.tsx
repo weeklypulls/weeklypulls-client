@@ -1,26 +1,39 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
 import { get } from 'lodash';
+import { RouteComponentProps } from 'react-router-dom';
 
 import { Table } from 'antd';
 
+import Store from '../../../store';
+
 import COLUMNS from './PullsListColumns';
+
+interface IProps extends RouteComponentProps {
+}
+
+interface IInjected extends IProps {
+  store: Store;
+}
 
 @inject('store')
 @autoBindMethods
 @observer
-class PullsList extends Component<any> {
-  constructor (props) {
+class PullsList extends Component<IProps> {
+  constructor (props: IProps) {
     super(props);
     this.getAllSeries();
   }
 
+  private get injected () {
+    return this.props as IInjected;
+  }
+
   async getAllSeries () {
     try {
-      await this.props.store.getAllSeries();
+      await this.injected.store.getAllSeries();
     }
     catch (e) {
       if (get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
@@ -30,12 +43,12 @@ class PullsList extends Component<any> {
   }
 
   dataSource () {
-    const { store } = this.props;
+    const { store } = this.injected;
     return store.pullsWithSeries();
   }
 
   render () {
-    const { store } = this.props;
+    const { store } = this.injected;
     return (
       <div>
         <h2>Pulls</h2>
@@ -48,12 +61,6 @@ class PullsList extends Component<any> {
         />
       </div>
     );
-  }
-
-  static propTypes = {
-    history: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
-    match: PropTypes.object.isRequired,
   }
 }
 

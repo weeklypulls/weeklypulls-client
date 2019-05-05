@@ -1,20 +1,28 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import autoBindMethods from 'class-autobind-decorator';
 import _ from 'lodash';
+import { inject } from 'mobx-react';
+import { RouteComponentProps } from 'react-router';
 
 import { message, Form, Icon, Input, Button, Checkbox } from 'antd';
-import { inject } from 'mobx-react';
+
+import Store from '../../store';
+
 const FormItem = Form.Item;
 
 
+interface IProps extends RouteComponentProps {
+  form: any;
+  store: Store;
+}
+
 @inject('store')
 @autoBindMethods
-class LoginForm extends Component<any> {
-  handleSubmit (e) {
+class LoginForm extends Component<IProps> {
+  handleSubmit (e: any) {
     e.preventDefault();
 
-    this.props.form.validateFields(async (err, values) => {
+    this.props.form.validateFields(async (err: any, values: any) => {
       if (!err) {
         try {
           await this.props.store.client.login(values.userName, values.password);
@@ -63,12 +71,6 @@ class LoginForm extends Component<any> {
         </FormItem>
       </Form>
     );
-  }
-
-  static propTypes = {
-    history: PropTypes.object.isRequired,
-    form: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
   }
 }
 
