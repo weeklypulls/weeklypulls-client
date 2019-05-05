@@ -11,8 +11,8 @@ import utils from '../../../utils';
 import COLUMNS from '../series/ComicsListColumns';
 import Store from '../../../store';
 
-import PullFormModal from './PullFormModal';
 import { IComic } from '../../../interfaces';
+import { FormModal } from '@mighty-justice/fields-ant';
 
 const { ModalManager } = utils;
 
@@ -71,9 +71,21 @@ class PullDetail extends Component<RouteComponentProps> {
     }));
   }
 
+  public async onSave (model: any) {
+    const { store } = this.injected
+      , { pull } = store.pullWithSeries(this.pullId);
+
+    if (pull.id) {
+      await store.pulls.patch(pull.id, model);
+    }
+    else {
+      await store.pulls.post({ ...model, series_id: pull.series_id });
+    }
+  }
+
   public render () {
     const { store } = this.injected
-      , record = store.pullWithSeries(this.pullId)
+      , pullSeriesPair = store.pullWithSeries(this.pullId)
       , COL_SPAN_TITLE = 20
       , COL_SPAN_BUTTON = 4
       ;
@@ -81,7 +93,7 @@ class PullDetail extends Component<RouteComponentProps> {
     return (
       <div>
         <Row type='flex' justify='space-between' align='top'>
-          <Col span={COL_SPAN_TITLE}><h2>{record.series.title}</h2></Col>
+          <Col span={COL_SPAN_TITLE}><h2>{pullSeriesPair.series.title}</h2></Col>
           <Col span={COL_SPAN_BUTTON} style={{ textAlign: 'right' }}>
             <Button type='primary' onClick={this.editModal.open}>
               <Icon type='edit' />Edit
@@ -90,7 +102,19 @@ class PullDetail extends Component<RouteComponentProps> {
         </Row>
 
         {this.editModal.isShowing &&
-          <PullFormModal {...record} onClose={this.editModal.close} />}
+          <FormModal
+            fieldSets={[[
+              {
+                field: 'pull_list_id',
+                options: store.pullLists.all.map(pullList => ({ value: pullList.id, name: pullList.title })),
+                type: 'optionSelect',
+              },
+            ]]}
+            model={pullSeriesPair.pull}
+            onCancel={this.editModal.close}
+            onSave={this.onSave}
+            title={pullSeriesPair.series.title}
+          />}
 
         <Table
           columns={COLUMNS as any}

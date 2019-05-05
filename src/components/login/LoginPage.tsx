@@ -5,21 +5,16 @@ import { RouteComponentProps } from 'react-router';
 
 import { FormCard } from '@mighty-justice/fields-ant';
 
-import LoginForm from './LoginForm';
-import { message } from 'antd';
 import Store from '../../store';
 
-
 interface IProps extends RouteComponentProps {
-  form: any;
   store: Store;
 }
 
 @inject('store')
-
 @autoBindMethods
 @observer
-class LoginPage extends Component<any> {
+class LoginPage extends Component<IProps> {
   private async onSave (model: any) {
     await this.props.store.client.login(model.username, model.password);
     this.props.history.push('/');
