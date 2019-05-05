@@ -37,6 +37,15 @@ class Store {
     this.pullLists.listIfCold();
   }
 
+  public getOptions (optionType: string) {
+    if (optionType === 'pullLists') {
+      return this.pullLists.all
+        .map(pullList => ({ value: pullList.id, name: pullList.title }));
+    }
+
+    throw new Error(`Missing optionType in Store.getOptions: ${optionType}`);
+  }
+
   public get isLoading () {
     const resources = [this.pulls, this.pullLists, this.series, this.weeks];
     return resources.map(r => r.isLoading).some(x => x);
