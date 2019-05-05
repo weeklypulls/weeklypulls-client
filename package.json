@@ -12,6 +12,7 @@
     "test": "react-scripts test --env=jsdom"
   },
   "dependencies": {
+    "@mighty-justice/fields-ant": "^0.1.5",
     "@mighty-justice/tslint-config": "^0.3.0",
     "@types/classnames": "^2.2.7",
     "@types/lodash": "^4.14.123",
