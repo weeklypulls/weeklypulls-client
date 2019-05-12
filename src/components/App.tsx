@@ -6,20 +6,39 @@ import { Layout, Menu, Icon } from 'antd';
 import {
   BrowserRouter as Router,
   NavLink,
+  Redirect,
   Route,
   RouteComponentProps,
+  RouteProps,
 } from 'react-router-dom';
 
 import Store from '../store';
 
 import ComicsListPage from './resources/series/ComicsListPage';
-import LoginPage from './login/LoginPage';
+import PageLogin from './page-login/PageLogin';
 import PullsListPage from './resources/pulls/PullsPages';
 import WeekPage from './resources/weeks/WeeksDetailPage';
 
 import 'antd/dist/antd.css';
+import PageLogout from './page-logout/PageLogout';
 
 const { Header, Content, Footer } = Layout;
+
+const PrivateRoute = ({ component, isAuthenticated, ...rest }: RouteProps & { isAuthenticated: boolean }) => {
+  if (!component) {
+    throw Error('component is undefined');
+  }
+
+  const PageComponent = component; // JSX Elements have to be uppercase.
+  const render = (props: RouteComponentProps<any>): React.ReactNode => {
+    if (isAuthenticated) {
+      return <PageComponent {...props} />;
+    }
+    return <Redirect to={{ pathname: '/login' }} />;
+  };
+
+  return (<Route {...rest} render={render} />);
+};
 
 interface IProps {
   store: Store;
@@ -28,23 +47,23 @@ interface IProps {
 @autoBindMethods
 @observer
 class App extends Component<IProps> {
-  public renderComicsListPage (props: RouteComponentProps) { return <ComicsListPage {...props} {...this.props} />; }
-  public renderPullsListPage (props: RouteComponentProps) { return <PullsListPage {...props} {...this.props} />; }
-  public renderWeekPage (props: RouteComponentProps) { return <WeekPage {...props} {...this.props} />; }
-  public renderLoginPage (props: RouteComponentProps) { return <LoginPage {...props} {...this.props} />; }
+  public renderLoginPage (props: RouteComponentProps) { return <PageLogin {...props} {...this.props} />; }
 
   public render () {
+    const { store } = this.props
+      , { getOptions, isAuthenticated } = store;
+
     return (
-      <Provider store={this.props.store} getOptions={this.props.store.getOptions}>
+      <Provider store={store} getOptions={getOptions}>
         <Router>
           <Layout style={{ minHeight: '100vh' }}>
             <Header>
               <div className='logo' />
               <Menu
-                selectedKeys={[]}
-                theme='dark'
                 mode='horizontal'
+                selectedKeys={[]}
                 style={{ lineHeight: '64px' }}
+                theme='dark'
               >
                 <Menu.Item key='home'>
                   <NavLink to='/'>
@@ -58,10 +77,10 @@ class App extends Component<IProps> {
                     <span>Pulls</span>
                   </NavLink>
                 </Menu.Item>
-                <Menu.Item key='/login'>
-                  <NavLink to='/login'>
+                <Menu.Item key='/logout'>
+                  <NavLink to='/logout'>
                     <Icon type='user' />
-                    <span>Login</span>
+                    <span>Logout</span>
                   </NavLink>
                 </Menu.Item>
               </Menu>
@@ -69,10 +88,11 @@ class App extends Component<IProps> {
 
             <Layout>
               <Content style={{ margin: '16px', padding: 24, background: '#fff', minHeight: 280 }}>
-                <Route exact path='/' render={this.renderComicsListPage} />
-                <Route path='/pulls' render={this.renderPullsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} exact path='/' component={ComicsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeekPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/logout' component={PageLogout} />
                 <Route path='/login' render={this.renderLoginPage} />
-                <Route path='/weeks/:weekId' component={this.renderWeekPage} />
               </Content>
 
               <Footer style={{ textAlign: 'center' }}>

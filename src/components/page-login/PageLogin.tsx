@@ -14,13 +14,17 @@ interface IProps extends RouteComponentProps {
 @inject('store')
 @autoBindMethods
 @observer
-class LoginPage extends Component<IProps> {
+class PageLogin extends Component<IProps> {
   private async onSave (model: any) {
-    await this.props.store.client.login(model.username, model.password);
+    await this.props.store.login(model.username, model.password);
     this.props.history.push('/');
   }
 
   public render () {
+    if (this.props.store.isAuthenticated) {
+      this.props.history.push('/');
+    }
+
     return (
       <div className='login-form'>
         <FormCard
@@ -28,14 +32,14 @@ class LoginPage extends Component<IProps> {
             {field: 'username', required: true},
             {field: 'password', required: true},
           ]]}
-          title='Log in'
-          onSave={this.onSave}
           blockSubmit
+          onSave={this.onSave}
           saveText='Submit'
+          title='Log in'
         />
       </div>
     );
   }
 }
 
-export default LoginPage;
+export default PageLogin;

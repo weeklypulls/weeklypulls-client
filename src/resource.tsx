@@ -47,6 +47,10 @@ class Resource {
     return false;
   }
 
+  public clear () {
+    store.remove(this.cacheKey);
+  }
+
   public save () {
     store.set(this.cacheKey, {
       fetchedOn: Array.from(this.fetchedOn.entries()),
