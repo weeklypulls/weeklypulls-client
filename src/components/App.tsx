@@ -8,7 +8,8 @@ import {
   NavLink,
   Redirect,
   Route,
-  RouteComponentProps, RouteProps,
+  RouteComponentProps,
+  RouteProps,
 } from 'react-router-dom';
 
 import Store from '../store';
