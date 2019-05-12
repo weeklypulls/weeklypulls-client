@@ -37,13 +37,13 @@ class Store {
     this.pullLists.listIfCold();
   }
 
-  public get resources () {
-    return [
-      this.pullLists,
-      this.pulls,
-      this.series,
-      this.weeks,
-    ];
+  public get resources (): { [key: string]: Resource } {
+    return {
+      pullLists: this.pullLists,
+      pulls: this.pulls,
+      series: this.series,
+      weeks: this.weeks,
+    };
   }
 
   public get isAuthenticated () {
@@ -51,14 +51,14 @@ class Store {
   }
 
   public async login (username: string, password: string) {
-    this.resources.forEach(resource => {
+    Object.values(this.resources).forEach(resource => {
       resource.clear();
     });
     await this.client.login(username, password);
   }
 
   public logout () {
-    this.resources.forEach(resource => {
+    Object.values(this.resources).forEach(resource => {
       resource.clear();
     });
     this.client.logout();
@@ -74,8 +74,7 @@ class Store {
   }
 
   public get isLoading () {
-    const resources = [this.pulls, this.pullLists, this.series, this.weeks];
-    return resources.map(r => r.isLoading).some(x => x);
+    return Object.values(this.resources).map(r => r.isLoading).some(x => x);
   }
 
   public setFilters (filters: IFilters) {

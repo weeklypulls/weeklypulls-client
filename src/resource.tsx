@@ -48,6 +48,8 @@ class Resource {
   }
 
   public clear () {
+    this.fetchedOn.clear();
+    this.objects.clear();
     store.remove(this.cacheKey);
   }
 

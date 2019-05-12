@@ -18,9 +18,10 @@ import ComicsListPage from './resources/series/ComicsListPage';
 import PageLogin from './page-login/PageLogin';
 import PullsListPage from './resources/pulls/PullsPages';
 import WeekPage from './resources/weeks/WeeksDetailPage';
+import PageLogout from './page-logout/PageLogout';
+import PageResources from './page-resources/PageResources';
 
 import 'antd/dist/antd.css';
-import PageLogout from './page-logout/PageLogout';
 
 const { Header, Content, Footer } = Layout;
 
@@ -77,6 +78,11 @@ class App extends Component<IProps> {
                     <span>Pulls</span>
                   </NavLink>
                 </Menu.Item>
+                <Menu.Item key='/resources'>
+                  <NavLink to='/resources'>
+                    <span>Resources</span>
+                  </NavLink>
+                </Menu.Item>
                 <Menu.Item key='/logout'>
                   <NavLink to='/logout'>
                     <Icon type='user' />
@@ -91,6 +97,7 @@ class App extends Component<IProps> {
                 <PrivateRoute isAuthenticated={isAuthenticated} exact path='/' component={ComicsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeekPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/resources' component={PageResources} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/logout' component={PageLogout} />
                 <Route path='/login' render={this.renderLoginPage} />
               </Content>
