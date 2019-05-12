@@ -37,8 +37,31 @@ class Store {
     this.pullLists.listIfCold();
   }
 
+  public get resources () {
+    return [
+      this.pullLists,
+      this.pulls,
+      this.series,
+      this.weeks,
+    ];
+  }
+
   public get isAuthenticated () {
     return this.client.hasToken;
+  }
+
+  public async login (username: string, password: string) {
+    this.resources.forEach(resource => {
+      resource.clear();
+    });
+    await this.client.login(username, password);
+  }
+
+  public logout () {
+    this.resources.forEach(resource => {
+      resource.clear();
+    });
+    this.client.logout();
   }
 
   public getOptions (optionType: string) {

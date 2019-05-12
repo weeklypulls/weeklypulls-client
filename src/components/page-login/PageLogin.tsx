@@ -14,9 +14,10 @@ interface IProps extends RouteComponentProps {
 @inject('store')
 @autoBindMethods
 @observer
-class LoginPage extends Component<IProps> {
+class PageLogin extends Component<IProps> {
   private async onSave (model: any) {
-    await this.props.store.client.login(model.username, model.password);
+    await this.props.store.login(model.username, model.password);
+    this.props.history.push('/');
   }
 
   public render () {
@@ -41,4 +42,4 @@ class LoginPage extends Component<IProps> {
   }
 }
 
-export default LoginPage;
+export default PageLogin;

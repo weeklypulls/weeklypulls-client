@@ -14,11 +14,12 @@ import {
 import Store from '../store';
 
 import ComicsListPage from './resources/series/ComicsListPage';
-import LoginPage from './login/LoginPage';
+import PageLogin from './page-login/PageLogin';
 import PullsListPage from './resources/pulls/PullsPages';
 import WeekPage from './resources/weeks/WeeksDetailPage';
 
 import 'antd/dist/antd.css';
+import PageLogout from './page-logout/PageLogout';
 
 const { Header, Content, Footer } = Layout;
 
@@ -32,7 +33,7 @@ const PrivateRoute = ({ component, isAuthenticated, ...rest }: RouteProps & { is
     if (isAuthenticated) {
       return <PageComponent {...props} />;
     }
-    return <Redirect to={{ pathname: '/login' }} />
+    return <Redirect to={{ pathname: '/login' }} />;
   };
 
   return (<Route {...rest} render={render} />);
@@ -45,11 +46,7 @@ interface IProps {
 @autoBindMethods
 @observer
 class App extends Component<IProps> {
-  public renderLoginPage (props: RouteComponentProps) { return <LoginPage {...props} {...this.props} />; }
-
-  private logOut () {
-
-  }
+  public renderLoginPage (props: RouteComponentProps) { return <PageLogin {...props} {...this.props} />; }
 
   public render () {
     const { store } = this.props
@@ -93,7 +90,7 @@ class App extends Component<IProps> {
                 <PrivateRoute isAuthenticated={isAuthenticated} exact path='/' component={ComicsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeekPage} />
-                <Route path='/login' render={this.renderLoginPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/logout' component={PageLogout} />
                 <Route path='/login' render={this.renderLoginPage} />
               </Content>
 
