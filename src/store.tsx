@@ -37,6 +37,10 @@ class Store {
     this.pullLists.listIfCold();
   }
 
+  public get isAuthenticated () {
+    return this.client.hasToken;
+  }
+
   public getOptions (optionType: string) {
     if (optionType === 'pullLists') {
       return this.pullLists.all
