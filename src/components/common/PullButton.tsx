@@ -5,12 +5,11 @@ import _ from 'lodash';
 
 import { Button } from 'antd';
 
-import utils from '../../utils';
+import { FormModal } from '@mighty-justice/fields-ant';
+import SmartBool from '@mighty-justice/smart-bool';
+
 import Store from '../../store';
 import { IComic } from '../../interfaces';
-import { FormModal } from '@mighty-justice/fields-ant';
-
-const { ModalManager } = utils;
 
 interface IProps {
   comic: IComic;
@@ -24,7 +23,7 @@ interface IInjected extends IProps {
 @autoBindMethods
 @observer
 class PullButton extends Component<IProps> {
-  public pullModal = new ModalManager();
+  public pullModal = new SmartBool();
 
   private get injected () {
     return this.props as IInjected;
@@ -41,26 +40,25 @@ class PullButton extends Component<IProps> {
 
     return (
       <span>
-        {this.pullModal.isShowing &&
-          <FormModal
-            fieldSets={[[
-              {
-                field: 'pull_list_id',
-                optionType: 'pullLists',
-                type: 'optionSelect',
-              },
-              {
-                field: 'series_id',
-                type: 'hidden',
-              },
-            ]]}
-            model={{ series_id }}
-            onCancel={this.pullModal.close}
-            onSave={store.pulls.post}
-            title='Add to pull list'
-          />}
+        <FormModal
+          isVisible={this.pullModal}
+          fieldSets={[[
+            {
+              field: 'pull_list_id',
+              optionType: 'pullLists',
+              type: 'optionSelect',
+            },
+            {
+              field: 'series_id',
+              type: 'hidden',
+            },
+          ]]}
+          model={{ series_id }}
+          onSave={store.pulls.post}
+          title='Add to pull list'
+        />
 
-        <Button onClick={this.pullModal.open}>Pull</Button>
+        <Button onClick={this.pullModal.setTrue}>Pull</Button>
       </span>
     );
   }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observer, Provider } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
 
-import { Layout, Menu, Icon } from 'antd';
+import { Layout, Menu } from 'antd';
 import {
   BrowserRouter as Router,
   NavLink,
@@ -22,6 +22,7 @@ import PageLogout from './page-logout/PageLogout';
 import PageResources from './page-resources/PageResources';
 
 import 'antd/dist/antd.css';
+import PagePullLists from './page-pull-lists/PagePullLists';
 
 const { Header, Content, Footer } = Layout;
 
@@ -50,6 +51,16 @@ interface IProps {
 class App extends Component<IProps> {
   public renderLoginPage (props: RouteComponentProps) { return <PageLogin {...props} {...this.props} />; }
 
+  private renderNavLink (to: string, label: string) {
+    return (
+      <Menu.Item key={to}>
+        <NavLink to={to}>
+          <span>{label}</span>
+        </NavLink>
+      </Menu.Item>
+    );
+  }
+
   public render () {
     const { store } = this.props
       , { getOptions, isAuthenticated } = store;
@@ -66,35 +77,18 @@ class App extends Component<IProps> {
                 style={{ lineHeight: '64px' }}
                 theme='dark'
               >
-                <Menu.Item key='home'>
-                  <NavLink to='/'>
-                    <Icon type='home' />
-                    <span>Comics</span>
-                  </NavLink>
-                </Menu.Item>
-                <Menu.Item key='/pulls'>
-                  <NavLink to='/pulls'>
-                    <Icon type='plus-circle-o' />
-                    <span>Pulls</span>
-                  </NavLink>
-                </Menu.Item>
-                <Menu.Item key='/resources'>
-                  <NavLink to='/resources'>
-                    <span>Resources</span>
-                  </NavLink>
-                </Menu.Item>
-                <Menu.Item key='/logout'>
-                  <NavLink to='/logout'>
-                    <Icon type='user' />
-                    <span>Logout</span>
-                  </NavLink>
-                </Menu.Item>
+                {this.renderNavLink('/', 'Comics')}
+                {this.renderNavLink('/pull-lists', 'Pull Lists')}
+                {this.renderNavLink('/pulls', 'Pulls')}
+                {this.renderNavLink('/resources', 'Resources')}
+                {this.renderNavLink('/logout', 'Logout')}
               </Menu>
             </Header>
 
             <Layout>
               <Content style={{ margin: '16px', padding: 24, background: '#fff', minHeight: 280 }}>
                 <PrivateRoute isAuthenticated={isAuthenticated} exact path='/' component={ComicsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/pull-lists' component={PagePullLists} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeekPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/resources' component={PageResources} />

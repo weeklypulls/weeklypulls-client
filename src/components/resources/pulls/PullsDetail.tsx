@@ -5,16 +5,17 @@ import httpStatus from 'http-status-codes';
 import { get } from 'lodash';
 import { RouteComponentProps } from 'react-router';
 
-import { Button, Col, Icon, Row, Table } from 'antd';
+import { Button, Icon, Table } from 'antd';
 
 import utils from '../../../utils';
 import COLUMNS from '../series/ComicsListColumns';
 import Store from '../../../store';
 
-import { IComic } from '../../../interfaces';
+import { IComic, IComicPullSeriesPair } from '../../../interfaces';
 import { FormModal } from '@mighty-justice/fields-ant';
-
-const { ModalManager } = utils;
+import Title from '../../common/Title';
+import SmartBool from '@mighty-justice/smart-bool';
+import ModalButton from '../../common/ModalButton';
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -24,7 +25,7 @@ interface IInjected extends RouteComponentProps {
 @autoBindMethods
 @observer
 class PullDetail extends Component<RouteComponentProps> {
-  public editModal = new ModalManager();
+  public editModal = new SmartBool();
 
   private get injected () {
     return this.props as IInjected;
@@ -57,7 +58,7 @@ class PullDetail extends Component<RouteComponentProps> {
     }
   }
 
-  public dataSource () {
+  public dataSource (): IComicPullSeriesPair[] {
     const { store } = this.injected
       , { series, pull } = store.pullWithSeries(this.pullId);
 
@@ -86,35 +87,34 @@ class PullDetail extends Component<RouteComponentProps> {
   public render () {
     const { store } = this.injected
       , pullSeriesPair = store.pullWithSeries(this.pullId)
-      , COL_SPAN_TITLE = 20
-      , COL_SPAN_BUTTON = 4
       ;
 
     return (
       <div>
-        <Row type='flex' justify='space-between' align='top'>
-          <Col span={COL_SPAN_TITLE}><h2>{pullSeriesPair.series.title}</h2></Col>
-          <Col span={COL_SPAN_BUTTON} style={{ textAlign: 'right' }}>
-            <Button type='primary' onClick={this.editModal.open}>
-              <Icon type='edit' />Edit
-            </Button>
-          </Col>
-        </Row>
+        <Title title={pullSeriesPair.series.title}>
+          <ModalButton
+            label='Add new'
+            modalComponent={FormModal}
+            modalProps={{
+              fieldSets: [[
+                {
+                  field: 'pull_list_id',
+                  optionType: 'pullLists',
+                  type: 'optionSelect',
+                },
+              ]],
+              model: pullSeriesPair.pull,
+              onSave: this.onSave,
+              title: pullSeriesPair.series.title,
+            }}
+          />
+          <Button type='primary' onClick={this.editModal.setTrue}>
+            <Icon type='edit' />Edit
+          </Button>
+        </Title>
 
-        {this.editModal.isShowing &&
-          <FormModal
-            fieldSets={[[
-              {
-                field: 'pull_list_id',
-                optionType: 'pullLists',
-                type: 'optionSelect',
-              },
-            ]]}
-            model={pullSeriesPair.pull}
-            onCancel={this.editModal.close}
-            onSave={this.onSave}
-            title={pullSeriesPair.series.title}
-          />}
+        <FormModal
+        />
 
         <Table
           columns={COLUMNS as any}

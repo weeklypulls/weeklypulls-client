@@ -1,5 +1,3 @@
-import { observable } from 'mobx';
-import autoBindMethods from 'class-autobind-decorator';
 import moment from 'moment';
 import { DateTime } from 'luxon';
 import _ from 'lodash';
@@ -7,14 +5,6 @@ import cx from 'classnames';
 
 import consts from './consts';
 import { IComicPullPair } from './interfaces';
-
-@autoBindMethods
-class ModalManager {
-  @observable public isShowing = false;
-
-  public open () { this.isShowing = true; }
-  public close () { this.isShowing = false; }
-}
 
 function stringSort (a: string, b: string) {
   if (a < b) { return -1; }
@@ -75,7 +65,6 @@ function rowClassName (record: IComicPullPair) {
 export default {
   farFuture,
   future,
-  ModalManager,
   nearFuture,
   nextWeek,
   prevWeek,

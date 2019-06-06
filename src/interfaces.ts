@@ -24,16 +24,22 @@ export interface IPullList {
   id: string;
 }
 
-export interface IComicPullPair {
-  comic: IComic;
+interface IPair {
   key: string;
+}
+
+export interface IComicPullPair extends IPair {
+  comic: IComic;
   pull: IPull;
   read: boolean;
   skipped: boolean;
 }
 
-export interface IPullSeriesPair {
-  key: string;
+export interface IComicPullSeriesPair extends IComicPullPair {
+  series: ISeries;
+}
+
+export interface IPullSeriesPair extends IPair {
   pull: IPull;
   pullList: IPullList;
   series: ISeries;
