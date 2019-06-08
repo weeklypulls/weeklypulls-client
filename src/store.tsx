@@ -6,6 +6,7 @@ import consts from './consts';
 import Client from './client';
 import Resource from './resource';
 import { IPullSeriesPair, ISeries } from './interfaces';
+import { AxiosInstance } from 'axios';
 
 const {
   ACTIONS,
@@ -48,6 +49,14 @@ class Store {
 
   public get isAuthenticated () {
     return this.client.hasToken;
+  }
+
+  public async getEndpoint (arg: string) {
+    // /marvel:search/series/?search=
+    const [client, url] = arg.slice(1).split(':')
+      , axiosInstance = (this.client as unknown as { [key: string]: AxiosInstance })[client];
+
+    return (await axiosInstance.get(url));
   }
 
   public async login (username: string, password: string) {
@@ -152,12 +161,16 @@ class Store {
       }[actionKey]
       , set = new Set<string>(pull[noun])
       , verb = {
-        [ACTIONS.READ]: set.add,
-        [ACTIONS.SKIP]: set.add,
-        [ACTIONS.UNREAD]: set.delete,
-        [ACTIONS.UNSKIP]: set.delete,
+        [ACTIONS.READ]: set.add.bind(set),
+        [ACTIONS.SKIP]: set.add.bind(set),
+        [ACTIONS.UNREAD]: set.delete.bind(set),
+        [ACTIONS.UNSKIP]: set.delete.bind(set),
       }[actionKey]
       ;
+
+    if (!set) { throw new Error(`Invalid set from noun: ${noun}`); }
+    if (!verb) { throw new Error(`Invalid verb from action key: ${actionKey}`); }
+    if (!noun) { throw new Error(`Invalid noun from action key: ${actionKey}`); }
 
     verb(issueId);
 

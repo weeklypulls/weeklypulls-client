@@ -66,7 +66,7 @@ class App extends Component<IProps> {
       , { getOptions, isAuthenticated } = store;
 
     return (
-      <Provider store={store} getOptions={getOptions}>
+      <Provider store={store} getOptions={getOptions} getEndpoint={store.getEndpoint}>
         <Router>
           <Layout style={{ minHeight: '100vh' }}>
             <Header>

@@ -5,7 +5,7 @@ import httpStatus from 'http-status-codes';
 import { get } from 'lodash';
 import { RouteComponentProps } from 'react-router';
 
-import { Button, Icon, Table } from 'antd';
+import { Table } from 'antd';
 
 import utils from '../../../utils';
 import COLUMNS from '../series/ComicsListColumns';
@@ -93,7 +93,7 @@ class PullDetail extends Component<RouteComponentProps> {
       <div>
         <Title title={pullSeriesPair.series.title}>
           <ModalButton
-            label='Add new'
+            label='Edit'
             modalComponent={FormModal}
             modalProps={{
               fieldSets: [[
@@ -108,16 +108,10 @@ class PullDetail extends Component<RouteComponentProps> {
               title: pullSeriesPair.series.title,
             }}
           />
-          <Button type='primary' onClick={this.editModal.setTrue}>
-            <Icon type='edit' />Edit
-          </Button>
         </Title>
 
-        <FormModal
-        />
-
         <Table
-          columns={COLUMNS as any}
+          columns={COLUMNS}
           dataSource={this.dataSource()}
           loading={store.isLoading}
           pagination={{ pageSize: 50 }}

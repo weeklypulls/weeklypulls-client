@@ -6,7 +6,6 @@ import autoBindMethods from 'class-autobind-decorator';
 import { FormModal, Table } from '@mighty-justice/fields-ant';
 
 import Store from '../../store';
-import LoadingButton from '../common/LoadingButton';
 import Title from '../common/Title';
 import ModalButton from '../common/ModalButton';
 import { IModel } from '@mighty-justice/fields-ant/dist/props';
@@ -22,17 +21,6 @@ class PagePullLists extends Component<RouteComponentProps> {
   private get injected () {
     return this.props as IInjected;
   }
-
-  private renderClickable (value: string) {
-    const resource = this.injected.store.resources[value];
-
-    if (!resource) { return '--'; }
-
-    return (
-      <LoadingButton onClick={resource.clear}>Clear</LoadingButton>
-    );
-  }
-
   private onAddNew (data: IModel) {
     console.log(data);
   }
