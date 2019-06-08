@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import autoBindMethods from 'class-autobind-decorator/build/index';
-import { observer } from 'mobx-react/index';
+import autoBindMethods from 'class-autobind-decorator';
+import { observer } from 'mobx-react';
 
 import consts from '../../consts';
 import { IComic } from '../../interfaces';
