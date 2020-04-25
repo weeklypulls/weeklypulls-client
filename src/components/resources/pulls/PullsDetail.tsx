@@ -99,6 +99,7 @@ class PullDetail extends Component<RouteComponentProps> {
               fieldSets: [[
                 {
                   field: 'pull_list_id',
+                  label: 'Pull List',
                   optionType: 'pullLists',
                   type: 'optionSelect',
                 },

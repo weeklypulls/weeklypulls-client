@@ -1,5 +1,5 @@
-docker build -t weeklypulls_frontend .
 docker rm wp_front
+docker build -t weeklypulls_frontend .
 docker run \
   -t \
   -i \

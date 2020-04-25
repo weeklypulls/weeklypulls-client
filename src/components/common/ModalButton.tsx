@@ -1,6 +1,7 @@
 import autoBindMethods from 'class-autobind-decorator';
 import { observer } from 'mobx-react';
 import React, { Component } from 'react';
+import { observable } from 'mobx';
 
 import { Button } from 'antd';
 
@@ -17,18 +18,16 @@ interface IProps {
 @autoBindMethods
 @observer
 class ModalButton extends Component<IProps> {
-  private isVisible = new SmartBool();
+  @observable private isVisible = new SmartBool();
 
   public render () {
     const { modalComponent: ModalComponent, modalProps, label } = this.props;
 
     return (
-      <Button
-        onClick={this.isVisible.setTrue}
-      >
-        {label}
+      <>
+        <Button onClick={this.isVisible.setTrue}>{label}</Button>
         <ModalComponent {...modalProps} isVisible={this.isVisible} />
-      </Button>
+      </>
     );
   }
 }
