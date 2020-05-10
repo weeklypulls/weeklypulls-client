@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import autoBindMethods from 'class-autobind-decorator';
 import { observer } from 'mobx-react';
 import { Button } from 'antd';
+import { ButtonProps } from 'antd/lib/button/button';
 
 import SmartBool from '@mighty-justice/smart-bool';
 
-interface IProps {
+interface IProps extends ButtonProps {
   onClick: () => Promise<any> | any;
 }
 
@@ -21,6 +22,7 @@ class LoadingButton extends Component<IProps> {
   public render () {
     return (
       <Button
+        {...this.props}
         loading={this.isLoading.isTrue}
         onClick={this.onClick}
       >

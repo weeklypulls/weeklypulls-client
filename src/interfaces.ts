@@ -20,8 +20,13 @@ export interface IPull {
   skipped: string[];
 }
 
+export interface IWeek {
+  comics: IComic[];
+}
+
 export interface IPullList {
   id: string;
+  title: string;
 }
 
 interface IPair {
@@ -40,6 +45,7 @@ export interface IComicPullSeriesPair extends IComicPullPair {
 }
 
 export interface IPullSeriesPair extends IPair {
+  key: string;
   pull: IPull;
   pullList: IPullList;
   series: ISeries;

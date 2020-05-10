@@ -8,7 +8,7 @@ import PullsList from './PullsList';
 
 @autoBindMethods
 @observer
-class SeriesListPage extends Component<RouteComponentProps> {
+class PullsPages extends Component<RouteComponentProps> {
   public renderPull (props: RouteComponentProps) {
     return <PullsDetail {...this.props} {...props} />;
   }
@@ -28,4 +28,4 @@ class SeriesListPage extends Component<RouteComponentProps> {
   }
 }
 
-export default SeriesListPage;
+export default PullsPages;

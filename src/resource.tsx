@@ -6,7 +6,7 @@ import { DateTime, DurationObject } from 'luxon';
 import { AxiosInstance } from 'axios';
 
 @autoBindMethods
-class Resource {
+class Resource<T> {
   public client: AxiosInstance;
   public endpoint: string;
   public idKey: string;
@@ -33,6 +33,11 @@ class Resource {
   public setObject (id: string, value: object) {
     this.objects.set(id, value);
     this.fetchedOn.set(id, DateTime.utc().toISO());
+  }
+
+  public deleteObject (id: string) {
+    this.objects.delete(id);
+    this.fetchedOn.delete(id);
   }
 
   public cacheTooCold (key: string) {
@@ -91,7 +96,7 @@ class Resource {
   }
 
   @action
-  public async list () {
+  public async list (): Promise<T[]> {
     this.isLoading = true;
     const response = await this.client.get(`${this.endpoint}/`)
       , objects = response.data;
@@ -106,26 +111,30 @@ class Resource {
     return this.all;
   }
 
-  public getBy (key: string, value: any) {
-    return this.all.find(obj => obj[key] === value);
+  public getBy (key: string, value: any): T {
+    const found = this.all.find(obj => obj[key] === value);
+    if (!found) {
+      throw new Error(`No ${this.endpoint} resource found for key / value ${key}/${value}`);
+    }
+    return found;
   }
 
-  public get (id: string) {
+  public get (id: string): T | undefined {
     return this.objects.get(id);
   }
 
   @action
-  public async fetchIfCold (id: string) {
+  public async fetchIfCold (id: string): Promise<T> {
     if (this.cacheTooCold(id)) {
       // tslint:disable-next-line no-console
       console.log(`Triggered cache-based refresh of ${this.endpoint} ${id}`);
       return (await this.fetch(id));
     }
-    return this.get(id);
+    return this.get(id) as T;
   }
 
   @action
-  public async fetch (id: string) {
+  public async fetch (id: string): Promise<T> {
     try {
       this.isLoading = true;
       const response = await this.client.get(`${this.endpoint}/${id}/`);
@@ -165,6 +174,17 @@ class Resource {
     this.save();
     this.isLoading = false;
     return response.data;
+  }
+
+  @action
+  public async delete (id: string) {
+    this.isLoading = true;
+    await this.client.delete(`${this.endpoint}/${id}/`);
+
+    this.deleteObject(id);
+
+    this.save();
+    this.isLoading = false;
   }
 }
 

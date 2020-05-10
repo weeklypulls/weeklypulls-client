@@ -5,7 +5,7 @@ import store from 'store';
 import consts from './consts';
 import Client from './client';
 import Resource from './resource';
-import { IPullSeriesPair, ISeries } from './interfaces';
+import { IPull, IPullList, IPullSeriesPair, ISeries, IWeek } from './interfaces';
 import { AxiosInstance } from 'axios';
 
 const {
@@ -21,10 +21,10 @@ class Store {
   @observable public _filters: IFilters = {};
   public client: Client;
 
-  public pullLists: Resource;
-  public pulls: Resource;
-  public series: Resource;
-  public weeks: Resource;
+  public pullLists: Resource<IPullList>;
+  public pulls: Resource<IPull>;
+  public series: Resource<ISeries>;
+  public weeks: Resource<IWeek>;
 
   public constructor () {
     this.client = new Client();
@@ -38,7 +38,7 @@ class Store {
     this.pullLists.listIfCold();
   }
 
-  public get resources (): { [key: string]: Resource } {
+  public get resources (): { [key: string]: Resource<unknown> } {
     return {
       pullLists: this.pullLists,
       pulls: this.pulls,
@@ -116,13 +116,11 @@ class Store {
   }
 
   public pullWithSeries (id: string): IPullSeriesPair {
-    const pull = this.pulls.get(id);
-    return {
-      key: pull.id,
-      pull,
-      pullList: this.pullLists.get(pull.pull_list_id),
-      series: this.series.get(pull.series_id),
-    };
+    const pull = this.pulls.get(id) as IPull
+      , pullList = this.pullLists.get(pull.pull_list_id) as IPullList
+      , series = this.series.get(pull.series_id) as ISeries;
+
+    return { key: pull.id, pull, pullList, series };
   }
 
   public _firstUnreadWeek (series: ISeries) {
@@ -152,14 +150,16 @@ class Store {
 
   @action
   public async mark (seriesId: string, issueId: string, actionKey: string) {
-    const pull = this.pulls.getBy('series_id', seriesId)
-      , noun = {
+    const pull = this.pulls.getBy('series_id', seriesId);
+    if (!pull) { return null; }
+    const noun = {
         [ACTIONS.READ]: 'read',
         [ACTIONS.SKIP]: 'skipped',
         [ACTIONS.UNREAD]: 'read',
         [ACTIONS.UNSKIP]: 'skipped',
-      }[actionKey]
-      , set = new Set<string>(pull[noun])
+      }[actionKey] as string
+      , actionKeysPull = pull as unknown as { [key: string]: string[] }
+      , set = new Set<string>(actionKeysPull[noun])
       , verb = {
         [ACTIONS.READ]: set.add.bind(set),
         [ACTIONS.SKIP]: set.add.bind(set),

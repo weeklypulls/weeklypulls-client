@@ -162,14 +162,15 @@ class ComicsList extends Component<RouteComponentProps> {
         return [];
       }
 
-      const pullComicPairs = get(series, 'comics', [])
+      const comics: IComic[] = get(series, 'comics', [])
+        , pullComicPairs = comics
         .map((comic: IComic) => ({
-          comic,
-          key: comic.id,
-          pull,
-          read: pull.read.includes(comic.id),
-          skipped: pull.skipped.includes(comic.id),
-        }))
+            comic,
+            key: comic.id,
+            pull,
+            read: pull.read.includes(comic.id),
+            skipped: pull.skipped.includes(comic.id),
+          }))
         .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
 
       if (!pullComicPairs.length || pullComicPairs.every(readOrSkipped)) {

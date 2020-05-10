@@ -16,7 +16,7 @@ import Store from '../store';
 
 import ComicsListPage from './resources/series/ComicsListPage';
 import PageLogin from './page-login/PageLogin';
-import PullsListPage from './resources/pulls/PullsPages';
+import PullsPages from './resources/pulls/PullsPages';
 import WeekPage from './resources/weeks/WeeksDetailPage';
 import PageLogout from './page-logout/PageLogout';
 import PageResources from './page-resources/PageResources';
@@ -87,9 +87,9 @@ class App extends Component<IProps> {
 
             <Layout>
               <Content style={{ margin: '16px', padding: 24, background: '#fff', minHeight: 280 }}>
-                <PrivateRoute isAuthenticated={isAuthenticated} exact path='/' component={ComicsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/' exact component={ComicsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pull-lists' component={PagePullLists} />
-                <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsPages} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeekPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/resources' component={PageResources} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/logout' component={PageLogout} />

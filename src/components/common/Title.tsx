@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
-import { Col, Row } from 'antd';
+import { Col, Row, Button } from 'antd';
 
 interface IProps {
   title: string;
@@ -18,7 +18,9 @@ class Title extends Component<IProps> {
       <Row type='flex' justify='space-between' align='top'>
         <Col span={COL_SPAN_TITLE}><h2>{this.props.title}</h2></Col>
         <Col span={COL_SPAN_BUTTON} style={{ textAlign: 'right' }}>
-          {this.props.children}
+          <Button.Group>
+            {this.props.children}
+          </Button.Group>
         </Col>
       </Row>
     );

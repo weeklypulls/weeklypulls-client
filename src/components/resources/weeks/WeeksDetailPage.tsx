@@ -43,10 +43,12 @@ class WeeksDetailPage extends Component<RouteComponentProps> {
     store.weeks.fetchIfCold(this.weekId);
   }
 
-  public get comics () {
+  public get comics (): IComic[] {
     const { store } = this.injected
-      , week = store.weeks.get(this.weekId);
-    return get(week, 'comics', []);
+      , week = store.weeks.get(this.weekId)
+      , comics: IComic[] = get(week, 'comics', []);
+
+    return comics;
   }
 
   public dataSource () {
