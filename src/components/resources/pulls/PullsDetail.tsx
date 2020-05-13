@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { RouteComponentProps } from 'react-router';
 import { action } from 'mobx';
 
-import { Table, Spin } from 'antd';
+import { Table, Spin, Empty } from 'antd';
 
 import { FormModal } from '@mighty-justice/fields-ant';
 import SmartBool from '@mighty-justice/smart-bool';
@@ -62,8 +62,10 @@ class PullsDetail extends Component<RouteComponentProps> {
 
   public dataSource (): IComicPullSeriesPair[] {
     const { store } = this.injected
-      , { series, pull } = store.pullWithSeries(this.pullId);
+      , pullWithSeries = store.pullWithSeries(this.pullId);
 
+    if (!pullWithSeries) { return []; }
+    const { series, pull } = pullWithSeries;
     return series.comics.map((comic: IComic) => ({
       comic,
       key: comic.id,
@@ -76,7 +78,10 @@ class PullsDetail extends Component<RouteComponentProps> {
 
   public async onSave (model: any) {
     const { store } = this.injected
-      , { pull } = store.pullWithSeries(this.pullId);
+      , pullWithSeries = store.pullWithSeries(this.pullId);
+
+    if (!pullWithSeries) { return; }
+    const { pull } = pullWithSeries;
 
     if (pull.id) {
       await store.pulls.patch(pull.id, model);
@@ -105,6 +110,10 @@ class PullsDetail extends Component<RouteComponentProps> {
 
     if (this.isLoading.isTrue) {
       return <Spin size='large' />;
+    }
+
+    if (!pullSeriesPair) {
+      return <Empty description='Pull not found' />;
     }
 
     return (

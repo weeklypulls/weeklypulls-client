@@ -115,10 +115,13 @@ class Store {
     }));
   }
 
-  public pullWithSeries (id: string): IPullSeriesPair {
-    const pull = this.pulls.get(id) as IPull
-      , pullList = this.pullLists.get(pull.pull_list_id) as IPullList
-      , series = this.series.get(pull.series_id) as ISeries;
+  public pullWithSeries (id: string): IPullSeriesPair | undefined {
+    const pull = this.pulls.get(id);
+    if (!pull) { return; }
+    const pullList = this.pullLists.get(pull.pull_list_id);
+    if (!pullList) { return; }
+    const series = this.series.get(pull.series_id);
+    if (!series) { return; }
 
     return { key: pull.id, pull, pullList, series };
   }
