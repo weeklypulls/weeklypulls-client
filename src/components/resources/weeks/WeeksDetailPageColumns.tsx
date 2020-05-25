@@ -22,14 +22,8 @@ function titleSort (a: { comic: IComic }, b: { comic: IComic }) {
 const COLUMNS: Array<ColumnProps<IComicPullPair>> = [
   {
     dataIndex: 'comic.title',
-      key: 'comic.title',
+    key: 'comic.title',
     render: pullLinkCell,
-    sorter: titleSort,
-    title: 'Title',
-  },
-  {
-    dataIndex: 'comic.title',
-      key: 'comic.title',
     sorter: titleSort,
     title: 'Title',
   },
