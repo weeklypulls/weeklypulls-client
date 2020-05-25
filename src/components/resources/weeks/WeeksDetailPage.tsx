@@ -1,27 +1,29 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import autoBindMethods from 'class-autobind-decorator';
-import { Table, Button, Icon, Row, Col } from 'antd';
+import { Button, Icon, Row, Col } from 'antd';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { get } from 'lodash';
 
-import utils from '../../../utils';
-import PullButton from '../../common/PullButton';
+import ObserverTable from '../../common/ObserverTable';
 import Store from '../../../store';
-import { IComic } from '../../../interfaces';
+import utils from '../../../utils';
+import { IComic, IComicPullPair } from '../../../interfaces';
 
-function pullCell (_text: string, record: { comic: IComic, store: Store }) {
-  return <PullButton {...record} />;
+import COLUMNS from './WeeksDetailPageColumns';
+
+interface IProps {
+  weekId: string;
 }
 
-interface IInjected extends RouteComponentProps {
+interface IInjected extends IProps, RouteComponentProps {
   store: Store;
 }
 
 @inject('store')
 @autoBindMethods
 @observer
-class WeeksDetailPage extends Component<RouteComponentProps> {
+class WeeksDetailPage extends Component<IProps> {
   private get injected () {
     return this.props as IInjected;
   }
@@ -34,8 +36,8 @@ class WeeksDetailPage extends Component<RouteComponentProps> {
     this.fetch(this.injected);
   }
 
-  public componentWillReceiveProps (nextProps: IInjected) {
-    this.fetch(nextProps);
+  public componentDidUpdate () {
+    this.fetch(this.injected);
   }
 
   public fetch (props: IInjected) {
@@ -51,11 +53,30 @@ class WeeksDetailPage extends Component<RouteComponentProps> {
     return comics;
   }
 
-  public dataSource () {
-    return this.comics.map((comic: IComic) => ({
-      comic,
-      key: comic.id,
-    }));
+  public dataSource (): IComicPullPair[] {
+    return this.comics.map((comic: IComic) => {
+      const pull = this.injected.store.pulls.getBy('series_id', comic.series_id);
+
+      if (!pull) {
+        return {
+          comic,
+          key: comic.id,
+          pull,
+          read: false,
+          skipped: false,
+          store: this.injected.store,
+        };
+      }
+
+      return {
+        comic,
+        key: comic.id,
+        pull,
+        read: pull.read.includes(comic.id),
+        skipped: pull.skipped.includes(comic.id),
+        store: this.injected.store,
+      };
+    });
   }
 
   public render () {
@@ -63,23 +84,7 @@ class WeeksDetailPage extends Component<RouteComponentProps> {
       , nextWeek = utils.nextWeek(weekId)
       , lastWeek = utils.prevWeek(weekId);
 
-    const { store } = this.injected
-      , titleSort = (a: { comic: IComic }, b: { comic: IComic }) =>
-          utils.stringAttrsSort(a, b, ['comic.title', 'comic.series_id'])
-      , COLUMNS = [
-        {
-          dataIndex: 'comic.title',
-          key: 'comic.title',
-          sorter: titleSort,
-          title: 'Title',
-        },
-        {
-          dataIndex: 'comic.series_id',
-          key: 'comic.series_id',
-          render: pullCell,
-          title: 'Series',
-        },
-      ];
+    const { store } = this.injected;
 
     return (
       <div>
@@ -93,6 +98,10 @@ class WeeksDetailPage extends Component<RouteComponentProps> {
                 </Button>
               </Link>
               {' '}
+              <Button type='ghost' disabled>
+                {weekId}
+              </Button>
+              {' '}
               <Link to={`/weeks/${nextWeek}`}>
                 <Button type='primary'>
                   {nextWeek}<Icon type='right' />
@@ -102,7 +111,7 @@ class WeeksDetailPage extends Component<RouteComponentProps> {
           </Col>
         </Row>
 
-        <Table
+        <ObserverTable
           columns={COLUMNS as any}
           dataSource={this.dataSource()}
           loading={store.isLoading}

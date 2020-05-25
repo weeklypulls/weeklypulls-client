@@ -10,6 +10,7 @@ import { IComicPullPair } from '../../../interfaces';
 import { ColumnProps } from 'antd/lib/table';
 
 function pullListCell (_text: string, record: IComicPullPair) {
+  if (!record.pull) { return '--'; }
   return <PullListLink pullId={record.pull.id} pullListId={record.pull.pull_list_id} />;
 }
 
@@ -18,6 +19,7 @@ function imagesCell (_text: string, record: IComicPullPair) {
 }
 
 function pullLinkCell (text: string, record: IComicPullPair) {
+  if (!record.pull) { return '--'; }
   return <Link to={`/pulls/${record.pull.id}`}>{text}</Link>;
 }
 

@@ -16,13 +16,15 @@ import Store from '../store';
 
 import ComicsListPage from './resources/series/ComicsListPage';
 import PageLogin from './page-login/PageLogin';
-import PullsPages from './resources/pulls/PullsPages';
-import WeekPage from './resources/weeks/WeeksDetailPage';
 import PageLogout from './page-logout/PageLogout';
+import PagePullLists from './page-pull-lists/PagePullLists';
 import PageResources from './page-resources/PageResources';
+import PullsPages from './resources/pulls/PullsPages';
+import WeeksDetailPage from './resources/weeks/WeeksDetailPage';
+
+import utils from '../utils';
 
 import 'antd/dist/antd.css';
-import PagePullLists from './page-pull-lists/PagePullLists';
 
 const { Header, Content, Footer } = Layout;
 
@@ -79,6 +81,7 @@ class App extends Component<IProps> {
               >
                 {this.renderNavLink('/', 'Comics')}
                 {this.renderNavLink('/pull-lists', 'Pull Lists')}
+                {this.renderNavLink(`/weeks/${utils.nearestWed()}`, 'Weeks')}
                 {this.renderNavLink('/pulls', 'Pulls')}
                 {this.renderNavLink('/resources', 'Resources')}
                 {this.renderNavLink('/logout', 'Logout')}
@@ -90,7 +93,7 @@ class App extends Component<IProps> {
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/' exact component={ComicsListPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pull-lists' component={PagePullLists} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsPages} />
-                <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeekPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeeksDetailPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/resources' component={PageResources} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/logout' component={PageLogout} />
                 <Route path='/login' render={this.renderLoginPage} />

@@ -35,7 +35,7 @@ interface IPair {
 
 export interface IComicPullPair extends IPair {
   comic: IComic;
-  pull: IPull;
+  pull: IPull | undefined;
   read: boolean;
   skipped: boolean;
 }

@@ -9,10 +9,11 @@ import { FormModal } from '@mighty-justice/fields-ant';
 import SmartBool from '@mighty-justice/smart-bool';
 
 import Store from '../../store';
-import { IComic } from '../../interfaces';
+import { IComic, IPull } from '../../interfaces';
 
 interface IProps {
   comic: IComic;
+  pull: IPull | undefined;
 }
 
 interface IInjected extends IProps {
@@ -30,9 +31,8 @@ class PullButton extends Component<IProps> {
   }
 
   public render () {
-    const { comic, store } = this.injected
-      , { series_id } = comic
-      , pull = store.pulls.getBy('series_id', series_id);
+    const { pull, comic, store } = this.injected
+      , { series_id } = comic;
 
     if (pull) {
       return _.get(store.pullLists.get(pull.pull_list_id), 'title', '--');

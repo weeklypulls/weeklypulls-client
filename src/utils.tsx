@@ -37,6 +37,10 @@ function farFuture (week: string) {
   return (date > tooFar);
 }
 
+function nearestWed () {
+  return DateTime.fromObject({ weekday: 3 }).toISODate();
+}
+
 function nextWeek (weekIso: string) {
   return DateTime.fromISO(weekIso).plus({ weeks: 1 }).toISODate();
 }
@@ -65,6 +69,7 @@ function rowClassName (record: IComicPullPair) {
 export default {
   farFuture,
   future,
+  nearestWed,
   nearFuture,
   nextWeek,
   prevWeek,

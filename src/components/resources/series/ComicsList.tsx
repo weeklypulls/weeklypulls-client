@@ -149,7 +149,7 @@ class ComicsList extends Component<RouteComponentProps> {
     return filters.includes(value);
   }
 
-  public dataSource () {
+  public dataSource (): IComicPullPair[] {
     const { store } = this.injected
       , pulls = store.pulls.all;
 
