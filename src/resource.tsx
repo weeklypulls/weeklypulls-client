@@ -111,12 +111,8 @@ class Resource<T> {
     return this.all;
   }
 
-  public getBy (key: string, value: any): T {
-    const found = this.all.find(obj => obj[key] === value);
-    if (!found) {
-      throw new Error(`No ${this.endpoint} resource found for key / value ${key}/${value}`);
-    }
-    return found;
+  public getBy (key: string, value: any): T | undefined {
+    return this.all.find(obj => obj[key] === value);
   }
 
   public get (id: string): T | undefined {

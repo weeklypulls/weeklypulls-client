@@ -126,9 +126,10 @@ class Store {
     return { key: pull.id, pull, pullList, series };
   }
 
-  public _firstUnreadWeek (series: ISeries) {
-    const pull = this.pulls.getBy('series_id', series.series_id)
-      , comics = series.comics
+  public _firstUnreadWeek (series: ISeries): string | null {
+    const pull = this.pulls.getBy('series_id', series.series_id);
+    if (!pull) { return null; }
+    const comics = series.comics
       , comicsUnread = comics.filter((comic: any) => !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id)))
       , weeks = comicsUnread.map((comic: any) => comic.on_sale)
       , firstWeek = weeks.sort()[0]
