@@ -50,3 +50,17 @@ export interface IPullSeriesPair extends IPair {
   pullList: IPullList;
   series: ISeries;
 }
+
+export interface IUnreadIssue {
+  cv_id: number;
+  name: string;
+  number: string;
+  store_date: string;
+  cover_date: string;
+  volume_id: number;
+  volume_name: string;
+  volume_start_year: number;
+  description: string;
+  image_medium_url: string;
+  site_url: string;
+}

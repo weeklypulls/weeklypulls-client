@@ -5,7 +5,7 @@ import store from 'store';
 import consts from './consts';
 import Client from './client';
 import Resource from './resource';
-import { IPull, IPullList, IPullSeriesPair, ISeries, IWeek } from './interfaces';
+import { IPull, IPullList, IPullSeriesPair, ISeries, IWeek, IUnreadIssue } from './interfaces';
 import { AxiosInstance } from 'axios';
 
 const {
@@ -25,12 +25,14 @@ class Store {
   public pulls: Resource<IPull>;
   public series: Resource<ISeries>;
   public weeks: Resource<IWeek>;
+  public unreadIssues: Resource<IUnreadIssue>;
 
   public constructor () {
     this.client = new Client();
 
     this.pulls = new Resource(this.client.user, 'pulls', { minutes: 20 });
     this.pullLists = new Resource(this.client.user, 'pull-lists', { weeks: 1 });
+    this.unreadIssues = new Resource(this.client.user, 'pulls/unread_issues', { minutes: 5 }, 'cv_id');
 
     this.series = new Resource(this.client.marvel, 'series', { weeks: 2 }, 'series_id');
     this.weeks = new Resource(this.client.marvel, 'weeks', { minutes: 20 }, 'week_of');
@@ -43,6 +45,7 @@ class Store {
       pullLists: this.pullLists,
       pulls: this.pulls,
       series: this.series,
+      unreadIssues: this.unreadIssues,
       weeks: this.weeks,
     };
   }

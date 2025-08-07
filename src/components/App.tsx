@@ -20,6 +20,7 @@ import PageLogout from './page-logout/PageLogout';
 import PagePullLists from './page-pull-lists/PagePullLists';
 import PageResources from './page-resources/PageResources';
 import PullsPages from './resources/pulls/PullsPages';
+import UnreadIssuesPage from './resources/unread-issues/UnreadIssuesPage';
 import WeeksDetailPage from './resources/weeks/WeeksDetailPage';
 
 import utils from '../utils';
@@ -80,6 +81,7 @@ class App extends Component<IProps> {
                 theme='dark'
               >
                 {this.renderNavLink('/', 'Comics')}
+                {this.renderNavLink('/unread-issues', 'Unread Issues')}
                 {this.renderNavLink('/pull-lists', 'Pull Lists')}
                 {this.renderNavLink(`/weeks/${utils.nearestWed()}`, 'Weeks')}
                 {this.renderNavLink('/pulls', 'Pulls')}
@@ -91,6 +93,7 @@ class App extends Component<IProps> {
             <Layout>
               <Content style={{ margin: '16px', padding: 24, background: '#fff', minHeight: 280 }}>
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/' exact component={ComicsListPage} />
+                <PrivateRoute isAuthenticated={isAuthenticated} path='/unread-issues' component={UnreadIssuesPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pull-lists' component={PagePullLists} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsPages} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/weeks/:weekId' component={WeeksDetailPage} />

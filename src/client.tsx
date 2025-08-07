@@ -24,6 +24,16 @@ class Client {
       baseURL: URL_MARVEL,
       headers: JSON_HEADERS,
     });
+
+    // Stub all Marvel API calls to fail
+    this.marvel.interceptors.request.use(
+      (config: any) => {
+        const method = config.method ? config.method.toUpperCase() : 'UNKNOWN';
+        console.warn(`Marvel API call stubbed to fail: ${method} ${config.url}`);
+        return Promise.reject(new Error('Marvel API temporarily unavailable - all calls stubbed to fail'));
+      },
+      (error: any) => Promise.reject(error)
+    );
   }
 
   public async login (username: string, password: string) {
