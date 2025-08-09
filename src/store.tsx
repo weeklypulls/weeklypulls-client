@@ -157,7 +157,8 @@ class Store {
 
   @action
   public async mark (seriesId: string, issueId: string, actionKey: string) {
-    const pull = this.pulls.getBy('series_id', seriesId);
+    // Robustly find the pull even if series_id is a number in API payloads
+    const pull = (this.pulls.all as any[]).find(p => String(p.series_id) === String(seriesId));
     if (!pull) { return null; }
     const noun = {
         [ACTIONS.READ]: 'read',
@@ -166,7 +167,7 @@ class Store {
         [ACTIONS.UNSKIP]: 'skipped',
       }[actionKey] as string
       , actionKeysPull = pull as unknown as { [key: string]: string[] }
-      , set = new Set<string>(actionKeysPull[noun])
+      , set = new Set<string>(actionKeysPull[noun] || [])
       , verb = {
         [ACTIONS.READ]: set.add.bind(set),
         [ACTIONS.SKIP]: set.add.bind(set),
@@ -181,7 +182,7 @@ class Store {
 
     verb(issueId);
 
-    const data = { [noun]: Array.from(set) };
+    const data = { [noun]: Array.from(set) } as any;
 
     await this.pulls.patch(pull.id, data);
   }

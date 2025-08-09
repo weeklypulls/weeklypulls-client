@@ -4,7 +4,7 @@ import autoBindMethods from 'class-autobind-decorator';
 import httpStatus from 'http-status-codes';
 import { get } from 'lodash';
 import { RouteComponentProps } from 'react-router';
-import { observable } from 'mobx';
+import { observable, action } from 'mobx';
 
 import { Table, Button, Input, DatePicker, Row, Col } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
@@ -15,6 +15,7 @@ import { IUnreadIssue } from '../../../interfaces';
 import Title from '../../common/Title';
 
 import COLUMNS from './UnreadIssuesColumns';
+import consts from '../../../consts';
 
 interface IFilters {
   limit?: number;
@@ -30,43 +31,54 @@ interface IInjected extends RouteComponentProps, FormComponentProps {
 @observer
 class UnreadIssues extends Component<RouteComponentProps> {
   @observable public filters: IFilters = { limit: 50 };
+  @observable public rowLoading: Set<number> = new Set();
 
   private get injected () {
     return this.props as IInjected;
   }
 
   public componentDidMount () {
+    this.init();
+  }
+
+  @action
+  private async init () {
+    // Ensure pulls are loaded so store.mark can find the pull to patch
+    try {
+      await this.injected.store.pulls.listIfCold();
+    }
+    catch (e) {
+      // tslint:disable-next-line no-console
+      console.warn('Failed to pre-load pulls', e);
+    }
     this.fetchUnreadIssues();
   }
 
+  @action
   public async fetchUnreadIssues () {
     try {
       const { store } = this.injected;
-      
+      store.unreadIssues.isLoading = true;
+
       // Build query parameters
       const params = new URLSearchParams();
-      if (this.filters.limit) {
-        params.append('limit', this.filters.limit.toString());
-      }
-      if (this.filters.since) {
-        params.append('since', this.filters.since);
-      }
+      if (this.filters.limit) { params.append('limit', this.filters.limit.toString()); }
+      if (this.filters.since) { params.append('since', this.filters.since); }
 
-      // Since the Resource class doesn't support query parameters directly,
-      // we'll make a direct API call
+      // Use trailing slash to match DRF action route
       const queryString = params.toString();
-      const endpoint = queryString ? `pulls/unread_issues?${queryString}` : 'pulls/unread_issues';
-      
+      const endpoint = queryString ? `pulls/unread_issues/?${queryString}` : 'pulls/unread_issues/';
+
       const response = await store.client.user.get(endpoint);
-      
+
       // Clear existing data and populate with new data
       store.unreadIssues.objects.clear();
       store.unreadIssues.fetchedOn.clear();
-      
-      response.data.forEach((issue: IUnreadIssue) => {
-        store.unreadIssues.setObject(issue.cv_id.toString(), issue);
-      });
-      
+      if (Array.isArray(response.data)) {
+        response.data.forEach((issue: IUnreadIssue) => {
+          store.unreadIssues.setObject(issue.cv_id.toString(), issue);
+        });
+      }
       store.unreadIssues.save();
     }
     catch (e) {
@@ -76,20 +88,68 @@ class UnreadIssues extends Component<RouteComponentProps> {
         this.injected.history.push('/login');
       }
     }
+    finally {
+      this.injected.store.unreadIssues.isLoading = false;
+    }
   }
 
+  @action
   public onLimitChange (event: React.ChangeEvent<HTMLInputElement>) {
     const limit = parseInt(event.target.value, 10);
-    this.filters = { ...this.filters, limit: isNaN(limit) ? undefined : limit };
+    this.filters = { ...this.filters, limit: isNaN(limit) ? undefined : Math.max(1, Math.min(200, limit)) };
   }
 
-  public onDateChange (dates: any, dateStrings: [string, string]) {
+  @action
+  public onDateChange (_dates: any, dateStrings: [string, string]) {
     const since = dateStrings[0] || undefined;
     this.filters = { ...this.filters, since };
   }
 
+  @action
   public onRefresh () {
     this.fetchUnreadIssues();
+  }
+
+  @action
+  private async markAsRead (issue: IUnreadIssue) {
+    const { store } = this.injected;
+    const issueId = issue.cv_id.toString();
+
+    if (this.rowLoading.has(issue.cv_id)) { return; }
+    this.rowLoading.add(issue.cv_id);
+    try {
+      if (issue.pull_id) {
+        await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, { issue_id: issue.cv_id });
+        const existingPull = store.pulls.get(issue.pull_id.toString());
+        if (existingPull) {
+          const set = new Set<string>(existingPull.read || []);
+          set.add(issueId);
+          (existingPull as any).read = Array.from(set);
+          store.pulls.setObject(existingPull.id, existingPull);
+        }
+      } else {
+        const seriesId = issue.volume_id.toString();
+        // Ensure pulls are loaded so we can resolve pull.id
+        if (!store.pulls.all.length) {
+          await store.pulls.list();
+        }
+        if (!store.pulls.getBy('series_id', seriesId)) {
+          // Try a refresh in case cache was cold
+          await store.pulls.list();
+        }
+        const { ACTIONS } = consts;
+        await store.mark(seriesId, issueId, ACTIONS.READ);
+      }
+      store.unreadIssues.deleteObject(issueId);
+      store.unreadIssues.save();
+    }
+    catch (e) {
+      // tslint:disable-next-line no-console
+      console.error('Failed to mark as read', e);
+    }
+    finally {
+      this.rowLoading.delete(issue.cv_id);
+    }
   }
 
   public dataSource (): IUnreadIssue[] {
@@ -99,7 +159,22 @@ class UnreadIssues extends Component<RouteComponentProps> {
 
   public render () {
     const { store } = this.injected;
-    
+
+    const actionColumn = {
+      key: 'actions',
+      title: 'Actions',
+      width: 120,
+      render: (_text: unknown, record: IUnreadIssue) => (
+        <Button
+          type="link"
+          onClick={() => this.markAsRead(record)}
+          loading={this.rowLoading.has(record.cv_id)}
+        >Mark Read</Button>
+      ),
+    };
+
+    const columns = [...COLUMNS, actionColumn];
+
     return (
       <div>
         <Title title="Unread Issues">
@@ -124,7 +199,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
             <DatePicker
               value={this.filters.since ? moment(this.filters.since) : undefined}
               onChange={(date, dateString) => {
-                this.filters = { ...this.filters, since: dateString || undefined };
+                this.onDateChange(date, [dateString, dateString] as any);
               }}
               format="YYYY-MM-DD"
               placeholder="Filter by date"
@@ -139,14 +214,14 @@ class UnreadIssues extends Component<RouteComponentProps> {
         </Row>
 
         <Table
-          columns={COLUMNS}
+          columns={columns as any}
           dataSource={this.dataSource()}
           loading={store.unreadIssues.isLoading}
-          pagination={{ 
+          pagination={{
             pageSize: 50,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
           }}
           rowKey="cv_id"
           size="small"
