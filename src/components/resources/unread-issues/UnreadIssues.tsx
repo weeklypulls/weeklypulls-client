@@ -1,10 +1,9 @@
-import { Table, Button, Input, DatePicker, Row, Col } from "antd";
+import { Table, Button, Input, Row, Col } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import autoBindMethods from "class-autobind-decorator";
 import { get } from "lodash";
 import { observable, action } from "mobx";
 import { inject, observer } from "mobx-react";
-import moment from "moment";
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
 
@@ -101,8 +100,8 @@ class UnreadIssues extends Component<RouteComponentProps> {
   }
 
   @action
-  public onDateChange(_dates: any, dateStrings: [string, string]) {
-    const since = dateStrings[0] || undefined;
+  public onDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const since = e.target.value || undefined;
     this.filters = { ...this.filters, since };
   }
 
@@ -227,17 +226,14 @@ class UnreadIssues extends Component<RouteComponentProps> {
           </Col>
 
           <Col span={8}>
-            <label htmlFor="since-date-picker" style={{ display: "block" }}>
+            <label htmlFor="since-date" style={{ display: "block" }}>
               Since Date:
             </label>
-            <DatePicker
-              id="since-date-picker"
-              value={this.filters.since ? moment(this.filters.since) : undefined}
-              onChange={(date, dateString) => {
-                this.onDateChange(date, [dateString, dateString] as any);
-              }}
-              format="YYYY-MM-DD"
-              placeholder="Filter by date"
+            <Input
+              id="since-date"
+              type="date"
+              value={this.filters.since || ""}
+              onChange={this.onDateChange}
               style={{ width: "100%", marginTop: 4 }}
             />
           </Col>

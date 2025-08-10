@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.134",
-    "@types/luxon": "^1.15.1",
     "@types/node": "^12.0.7",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
@@ -30,10 +29,8 @@
     "class-autobind-decorator": "^3.0.1",
     "express": "^4.17.1",
     "lodash": "^4.17.11",
-    "luxon": "^1.16.0",
     "mobx": "^5",
     "mobx-react": "^5",
-    "moment": "^2.24.0",
     "path": "^0.12.7",
     "react": "16.8.6",
     "react-dom": "16.8.6",

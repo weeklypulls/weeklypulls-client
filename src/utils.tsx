@@ -1,9 +1,20 @@
 import _ from "lodash";
-import { DateTime } from "luxon";
-import moment from "moment";
 
-import { DATE_FORMAT } from "./consts";
 import { IComicPullPair } from "./interfaces";
+
+// Helper: format a Date to YYYY-MM-DD using local time
+function formatISODateLocal(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Helper: parse YYYY-MM-DD into a local Date (avoids UTC parsing quirks)
+function parseISODateLocal(iso: string) {
+  const [y, m, d] = iso.split("-").map((n) => parseInt(n, 10));
+  return new Date(y, (m || 1) - 1, d || 1);
+}
 
 function stringSort(a: string, b: string) {
   if (a < b) {
@@ -16,34 +27,43 @@ function stringSort(a: string, b: string) {
 }
 
 function future(week: string) {
-  const date = moment(week, DATE_FORMAT),
-    now = moment();
-  return date > now;
+  // week is in YYYY-MM-DD
+  const date = parseISODateLocal(week);
+  return date.getTime() > Date.now();
 }
 
 function nearFuture(week: string) {
-  const date = moment(week, DATE_FORMAT),
-    now = moment(),
-    tooFar = moment().add(1, "week");
-  return date > now && date < tooFar;
+  const date = parseISODateLocal(week);
+  const now = Date.now();
+  const tooFar = now + 7 * 24 * 60 * 60 * 1000; // +1 week
+  const t = date.getTime();
+  return t > now && t < tooFar;
 }
 
 function farFuture(week: string) {
-  const date = moment(week, DATE_FORMAT),
-    tooFar = moment().add(1, "week");
-  return date > tooFar;
+  const date = parseISODateLocal(week);
+  const tooFar = Date.now() + 7 * 24 * 60 * 60 * 1000; // +1 week
+  return date.getTime() > tooFar;
 }
 
 function nearestWed() {
-  return DateTime.fromObject({ weekday: 3 }).toISODate();
+  const today = new Date();
+  const dow = today.getDay(); // 0=Sun,1=Mon,2=Tue,3=Wed
+  const diff = 3 - dow; // days to Wednesday of current week
+  const wed = new Date(today.getFullYear(), today.getMonth(), today.getDate() + diff);
+  return formatISODateLocal(wed);
 }
 
 function nextWeek(weekIso: string) {
-  return DateTime.fromISO(weekIso).plus({ weeks: 1 }).toISODate();
+  const d = parseISODateLocal(weekIso);
+  d.setDate(d.getDate() + 7);
+  return formatISODateLocal(d);
 }
 
 function prevWeek(weekIso: string) {
-  return DateTime.fromISO(weekIso).minus({ weeks: 1 }).toISODate();
+  const d = parseISODateLocal(weekIso);
+  d.setDate(d.getDate() - 7);
+  return formatISODateLocal(d);
 }
 
 function stringAttrsSort(a: Record<string, any>, b: Record<string, any>, attrs: string[]) {

@@ -1,7 +1,6 @@
 import { AxiosInstance } from "axios";
 import autoBindMethods from "class-autobind-decorator";
 import _ from "lodash";
-import { DateTime, DurationObject } from "luxon";
 import { observable, action } from "mobx";
 import store from "store";
 
@@ -14,18 +13,18 @@ class Resource<T> {
   @observable public objects = new Map<string, T>();
   @observable public isLoading = true;
 
-  @observable public fetchedOn = new Map<string, string>();
-  private maxCache: DurationObject;
+  @observable public fetchedOn = new Map<string, number>();
+  private maxCacheMs: number;
 
   public constructor(
     client: AxiosInstance,
     endpoint: string,
-    maxCache: DurationObject,
+    maxCache: { minutes?: number; weeks?: number },
     idKey = "id"
   ) {
     this.client = client;
     this.endpoint = endpoint;
-    this.maxCache = maxCache;
+    this.maxCacheMs = ((maxCache.minutes || 0) * 60 + (maxCache.weeks || 0) * 7 * 24 * 60) * 1000;
     this.idKey = idKey;
 
     this.load();
@@ -37,7 +36,7 @@ class Resource<T> {
 
   public setObject(id: string, value: T) {
     this.objects.set(id, value);
-    this.fetchedOn.set(id, DateTime.utc().toISO());
+    this.fetchedOn.set(id, Date.now());
   }
 
   public deleteObject(id: string) {
@@ -52,7 +51,7 @@ class Resource<T> {
       return true;
     }
 
-    if (DateTime.fromISO(fetchedOn).plus(this.maxCache) < DateTime.utc()) {
+    if (fetchedOn + this.maxCacheMs < Date.now()) {
       return true;
     }
 
@@ -82,7 +81,11 @@ class Resource<T> {
     }
 
     for (const [key, value] of fetchedOn) {
-      this.fetchedOn.set(key, value as string);
+      const raw = value as any;
+      const ts = typeof raw === "number" ? raw : Date.parse(raw);
+      if (Number.isFinite(ts)) {
+        this.fetchedOn.set(key, ts);
+      }
     }
 
     this.isLoading = false;
@@ -108,7 +111,7 @@ class Resource<T> {
     const response = await this.client.get(`${this.endpoint}/`),
       objects = response.data as T[];
 
-    this.fetchedOn.set("list", DateTime.utc().toISO());
+    this.fetchedOn.set("list", Date.now());
     for (const obj of objects) {
       this.setObject((obj as any)[this.idKey], obj);
     }
