@@ -1,7 +1,6 @@
 import { Table, Button, Input, Row, Col } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
 import { observable, action } from "mobx";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
@@ -82,7 +81,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error("Error fetching unread issues:", e);
-      if (get(e, "response.status") === 401) {
+      if ((e as any)?.response?.status === 401) {
         this.injected.history.push("/login");
       }
     } finally {

@@ -186,7 +186,7 @@ class PullsDetail extends Component<RouteComponentProps> {
           <Select
             id="edit-pull-list"
             value={this.editPullListId}
-            onChange={(val) => (this.editPullListId = val)}
+            onChange={(val: number) => (this.editPullListId = val)}
             style={{ width: "100%" }}
           >
             {store.pullLists.all.map((pl: any) => (

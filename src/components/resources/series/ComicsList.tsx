@@ -9,7 +9,7 @@ import { RouteComponentProps } from "react-router";
 
 import COLUMNS from "./ComicsListColumns";
 import { IComic, IComicPullPair } from "../../../interfaces";
-import Store, { IFilters } from "../../../store";
+import Store from "../../../store";
 import utils from "../../../utils";
 
 const { future, stringSort } = utils;
@@ -50,8 +50,8 @@ class ComicsList extends Component<RouteComponentProps> {
     }
   }
 
-  public handleChange(pagination: PaginationConfig, filters: IFilters) {
-    this.injected.store.setFilters(filters);
+  public handleChange(pagination: PaginationConfig, filters: any, _sorter?: any, _extra?: any) {
+    this.injected.store.setFilters(filters as any);
   }
 
   public onInputChange(event: any) {
