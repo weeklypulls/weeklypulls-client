@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
 import { Col, Row, Button } from "antd";
+import autoBindMethods from "class-autobind-decorator";
+import { observer } from "mobx-react";
+import React, { Component } from "react";
 
 interface IProps {
   title: string;

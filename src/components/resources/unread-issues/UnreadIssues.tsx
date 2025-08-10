@@ -1,20 +1,18 @@
-import React, { Component } from "react";
-import { inject, observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
-import { RouteComponentProps } from "react-router";
-import { observable, action } from "mobx";
-
 import { Table, Button, Input, DatePicker, Row, Col } from "antd";
 import { FormComponentProps } from "antd/lib/form";
+import autoBindMethods from "class-autobind-decorator";
+import { get } from "lodash";
+import { observable, action } from "mobx";
+import { inject, observer } from "mobx-react";
 import moment from "moment";
-
-import Store from "../../../store";
-import { IUnreadIssue } from "../../../interfaces";
-import Title from "../../common/Title";
+import React, { Component } from "react";
+import { RouteComponentProps } from "react-router";
 
 import COLUMNS from "./UnreadIssuesColumns";
-import consts from "../../../consts";
+import { ACTIONS } from "../../../consts";
+import { IUnreadIssue } from "../../../interfaces";
+import Store from "../../../store";
+import Title from "../../common/Title";
 
 interface IFilters {
   limit?: number;
@@ -144,7 +142,6 @@ class UnreadIssues extends Component<RouteComponentProps> {
           // Try a refresh in case cache was cold
           await store.pulls.list();
         }
-        const { ACTIONS } = consts;
         await store.mark(seriesId, issueId, ACTIONS.READ);
       }
       store.unreadIssues.deleteObject(issueId);
@@ -216,8 +213,11 @@ class UnreadIssues extends Component<RouteComponentProps> {
 
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={8}>
-            <label>Limit:</label>
+            <label htmlFor="limit-input" style={{ display: "block" }}>
+              Limit:
+            </label>
             <Input
+              id="limit-input"
               type="number"
               value={this.filters.limit || ""}
               onChange={this.onLimitChange}
@@ -225,9 +225,13 @@ class UnreadIssues extends Component<RouteComponentProps> {
               style={{ marginTop: 4 }}
             />
           </Col>
+
           <Col span={8}>
-            <label>Since Date:</label>
+            <label htmlFor="since-date-picker" style={{ display: "block" }}>
+              Since Date:
+            </label>
             <DatePicker
+              id="since-date-picker"
               value={this.filters.since ? moment(this.filters.since) : undefined}
               onChange={(date, dateString) => {
                 this.onDateChange(date, [dateString, dateString] as any);

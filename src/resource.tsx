@@ -1,9 +1,9 @@
-import { observable, action } from "mobx";
+import { AxiosInstance } from "axios";
 import autoBindMethods from "class-autobind-decorator";
-import store from "store";
 import _ from "lodash";
 import { DateTime, DurationObject } from "luxon";
-import { AxiosInstance } from "axios";
+import { observable, action } from "mobx";
+import store from "store";
 
 @autoBindMethods
 class Resource<T> {
@@ -11,10 +11,10 @@ class Resource<T> {
   public endpoint: string;
   public idKey: string;
 
-  @observable public objects = new Map();
+  @observable public objects = new Map<string, T>();
   @observable public isLoading = true;
 
-  @observable public fetchedOn = new Map();
+  @observable public fetchedOn = new Map<string, string>();
   private maxCache: DurationObject;
 
   public constructor(
@@ -35,7 +35,7 @@ class Resource<T> {
     return `pull-list-resource-${this.endpoint}`;
   }
 
-  public setObject(id: string, value: object) {
+  public setObject(id: string, value: T) {
     this.objects.set(id, value);
     this.fetchedOn.set(id, DateTime.utc().toISO());
   }
@@ -78,17 +78,17 @@ class Resource<T> {
       fetchedOn = _.get(cache, "fetchedOn", []);
 
     for (const [key, value] of objects) {
-      this.objects.set(key, value);
+      this.objects.set(key, value as T);
     }
 
     for (const [key, value] of fetchedOn) {
-      this.fetchedOn.set(key, value);
+      this.fetchedOn.set(key, value as string);
     }
 
     this.isLoading = false;
   }
 
-  public get all(): any[] {
+  public get all(): T[] {
     return Array.from(this.objects.values());
   }
 
@@ -106,11 +106,11 @@ class Resource<T> {
   public async list(): Promise<T[]> {
     this.isLoading = true;
     const response = await this.client.get(`${this.endpoint}/`),
-      objects = response.data;
+      objects = response.data as T[];
 
     this.fetchedOn.set("list", DateTime.utc().toISO());
     for (const obj of objects) {
-      this.setObject(obj[this.idKey], obj);
+      this.setObject((obj as any)[this.idKey], obj);
     }
 
     this.save();
@@ -119,7 +119,7 @@ class Resource<T> {
   }
 
   public getBy(key: string, value: any): T | undefined {
-    return this.all.find((obj) => obj[key] === value);
+    return this.all.find((obj: any) => obj[key] === value);
   }
 
   public get(id: string): T | undefined {
@@ -141,7 +141,7 @@ class Resource<T> {
     try {
       this.isLoading = true;
       const response = await this.client.get(`${this.endpoint}/${id}/`);
-      this.setObject(id, response.data);
+      this.setObject(id, response.data as T);
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error(e);
@@ -150,31 +150,31 @@ class Resource<T> {
       this.isLoading = false;
     }
 
-    return this.objects.get(id);
+    return this.objects.get(id) as T;
   }
 
   @action
-  public async patch(id: string, data: object) {
+  public async patch(id: string, data: Record<string, unknown>) {
     this.isLoading = true;
     const response = await this.client.patch(`${this.endpoint}/${id}/`, data);
-    this.setObject(id, response.data);
+    this.setObject(id, response.data as T);
 
     this.save();
     this.isLoading = false;
-    return response.data;
+    return response.data as T;
   }
 
   @action
-  public async post(data: object) {
+  public async post(data: Record<string, unknown>) {
     this.isLoading = true;
     const response = await this.client.post(`${this.endpoint}/`, data),
-      id = response.data[this.idKey];
+      id = (response.data as any)[this.idKey];
 
-    this.setObject(id, response.data);
+    this.setObject(id, response.data as T);
 
     this.save();
     this.isLoading = false;
-    return response.data;
+    return response.data as T;
   }
 
   @action

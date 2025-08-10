@@ -1,14 +1,12 @@
-import { action, observable } from "mobx";
+import { AxiosInstance } from "axios";
 import autoBindMethods from "class-autobind-decorator";
+import { action, observable } from "mobx";
 import store from "store";
 
-import consts from "./consts";
 import Client from "./client";
-import Resource from "./resource";
+import { ACTIONS } from "./consts";
 import { IPull, IPullList, IPullSeriesPair, ISeries, IWeek, IUnreadIssue } from "./interfaces";
-import { AxiosInstance } from "axios";
-
-const { ACTIONS } = consts;
+import Resource from "./resource";
 
 export interface IFilters {
   [key: string]: string[];

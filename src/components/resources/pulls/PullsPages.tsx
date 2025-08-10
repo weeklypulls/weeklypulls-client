@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import { observer } from "mobx-react";
 import autoBindMethods from "class-autobind-decorator";
+import { observer } from "mobx-react";
+import React, { Component } from "react";
 import { Route, RouteComponentProps } from "react-router-dom";
 
 import PullsDetail from "./PullsDetail";

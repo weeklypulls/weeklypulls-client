@@ -1,13 +1,10 @@
-import React, { Component } from "react";
 import autoBindMethods from "class-autobind-decorator";
 import { observer } from "mobx-react";
-
-import consts from "../../consts";
-import { IComic } from "../../interfaces";
+import React, { Component } from "react";
 
 import BoolButton from "./BoolButton";
-
-const { ACTIONS } = consts;
+import { ACTIONS } from "../../consts";
+import { IComic } from "../../interfaces";
 
 interface IProps {
   comic: IComic;

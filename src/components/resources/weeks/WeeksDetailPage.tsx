@@ -1,16 +1,15 @@
-import React, { Component } from "react";
-import { inject, observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
 import { Button, Icon, Row, Col } from "antd";
-import { Link, RouteComponentProps } from "react-router-dom";
+import autoBindMethods from "class-autobind-decorator";
 import { get } from "lodash";
-
-import ObserverTable from "../../common/ObserverTable";
-import Store from "../../../store";
-import utils from "../../../utils";
-import { IComic, IComicPullPair } from "../../../interfaces";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
+import { Link, RouteComponentProps } from "react-router-dom";
 
 import COLUMNS from "./WeeksDetailPageColumns";
+import { IComic, IComicPullPair } from "../../../interfaces";
+import Store from "../../../store";
+import utils from "../../../utils";
+import ObserverTable from "../../common/ObserverTable";
 
 interface IProps {
   weekId: string;

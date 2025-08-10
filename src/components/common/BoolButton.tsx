@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import { Button, Icon } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { inject, observer } from "mobx-react";
-import { Button, Icon } from "antd";
+import React, { Component } from "react";
 
-import Store from "../../store";
 import { IComic } from "../../interfaces";
+import Store from "../../store";
 
 interface IProps {
   actions: [string, string];

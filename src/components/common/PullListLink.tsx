@@ -1,6 +1,6 @@
-import React, { Component } from "react";
 import autoBindMethods from "class-autobind-decorator";
 import { observer, inject } from "mobx-react";
+import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 import Store from "../../store";

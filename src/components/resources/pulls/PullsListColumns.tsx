@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+
+import { IPullSeriesPair } from "../../../interfaces";
 import utils from "../../../utils";
 import PullListLink from "../../common/PullListLink";
-import { IPullSeriesPair } from "../../../interfaces";
 
 const titleSort = (a: IPullSeriesPair, b: IPullSeriesPair) =>
   utils.stringAttrsSort(a, b, ["series.title", "pull.series_id"]);

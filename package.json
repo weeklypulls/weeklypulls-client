@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@mighty-justice/fields-ant": "^1.5.2",
-    "@mighty-justice/smart-bool": "^1.0.0",
     "@types/lodash": "^4.14.134",
     "@types/luxon": "^1.15.1",
     "@types/node": "^12.0.7",

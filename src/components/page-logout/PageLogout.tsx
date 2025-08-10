@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import { inject, observer } from "mobx-react";
 import autoBindMethods from "class-autobind-decorator";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
 
 import Store from "../../store";

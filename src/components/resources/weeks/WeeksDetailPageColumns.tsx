@@ -1,10 +1,10 @@
+import { ColumnProps } from "antd/lib/table";
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { IComic, IComicPullPair } from "../../../interfaces";
-import { ColumnProps } from "antd/lib/table";
 import utils from "../../../utils";
 import PullButton from "../../common/PullButton";
-import { Link } from "react-router-dom";
 
 function pullLinkCell(text: string, record: IComicPullPair) {
   if (!record.pull) {

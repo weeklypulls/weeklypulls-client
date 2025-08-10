@@ -1,8 +1,7 @@
-import React, { Component } from "react";
-import { observer, Provider } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
-
 import { Layout, Menu } from "antd";
+import autoBindMethods from "class-autobind-decorator";
+import { observer, Provider } from "mobx-react";
+import React, { Component } from "react";
 import {
   BrowserRouter as Router,
   NavLink,
@@ -13,9 +12,9 @@ import {
 } from "react-router-dom";
 
 import Store from "../store";
-
 // Removed legacy ComicsListPage
 // import ComicsListPage from './resources/series/ComicsListPage';
+import utils from "../utils";
 import PageLogin from "./page-login/PageLogin";
 import PageLogout from "./page-logout/PageLogout";
 import PagePullLists from "./page-pull-lists/PagePullLists";
@@ -23,8 +22,6 @@ import PageResources from "./page-resources/PageResources";
 import PullsPages from "./resources/pulls/PullsPages";
 import UnreadIssuesPage from "./resources/unread-issues/UnreadIssuesPage";
 import WeeksDetailPage from "./resources/weeks/WeeksDetailPage";
-
-import utils from "../utils";
 
 import "antd/dist/antd.css";
 

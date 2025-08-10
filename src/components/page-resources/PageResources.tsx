@@ -1,13 +1,11 @@
+import { Table } from "@mighty-justice/fields-ant";
+import { Button } from "antd";
+import autoBindMethods from "class-autobind-decorator";
+import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
-import { inject, observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
-
-import { Table } from "@mighty-justice/fields-ant";
-import SmartBool from "@mighty-justice/smart-bool";
 
 import Store from "../../store";
-import { Button } from "antd";
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -19,16 +17,21 @@ interface ISmartButton {
 
 @autoBindMethods
 @observer
-class SmartButton extends Component<ISmartButton> {
-  private isLoading = new SmartBool();
+class SmartButton extends Component<ISmartButton, { isLoading: boolean }> {
+  public state = { isLoading: false };
 
-  private async onClick() {
-    await this.isLoading.until(this.props.onClick());
-  }
+  private onClick = async () => {
+    try {
+      this.setState({ isLoading: true });
+      await this.props.onClick();
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  };
 
   public render() {
     return (
-      <Button loading={this.isLoading.isTrue} onClick={this.onClick}>
+      <Button loading={this.state.isLoading} onClick={this.onClick}>
         {this.props.children}
       </Button>
     );

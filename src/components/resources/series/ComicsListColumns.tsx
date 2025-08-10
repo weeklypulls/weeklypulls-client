@@ -1,12 +1,12 @@
+import { ColumnProps } from "antd/lib/table";
 import React from "react";
 import { Link } from "react-router-dom";
 
-import Images from "../../common/Images";
-import utils from "../../../utils";
-import ReadButton from "../../common/ReadButton";
-import PullListLink from "../../common/PullListLink";
 import { IComicPullPair } from "../../../interfaces";
-import { ColumnProps } from "antd/lib/table";
+import utils from "../../../utils";
+import Images from "../../common/Images";
+import PullListLink from "../../common/PullListLink";
+import ReadButton from "../../common/ReadButton";
 
 function pullListCell(_text: string, record: IComicPullPair) {
   if (!record.pull) {

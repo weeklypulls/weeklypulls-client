@@ -1,9 +1,10 @@
-import React from "react";
 import { ColumnProps } from "antd/lib/table";
+import React from "react";
+import { Link } from "react-router-dom";
+
 import { IUnreadIssue } from "../../../interfaces";
 import utils from "../../../utils";
 import Images from "../../common/Images";
-import { Link } from "react-router-dom";
 
 function coverCell(_text: string, record: IUnreadIssue) {
   const url = record.image_medium_url || (record as any).image_url;

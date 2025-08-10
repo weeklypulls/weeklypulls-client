@@ -1,8 +1,7 @@
-import React, { Component } from "react";
-import { observer } from "mobx-react";
-
 import { Table } from "antd";
 import { TableProps } from "antd/lib/table/interface";
+import { observer } from "mobx-react";
+import React, { Component } from "react";
 
 @observer
 class ObserverTable<T> extends Component<TableProps<T>> {

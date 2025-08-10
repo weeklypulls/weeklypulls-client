@@ -1,14 +1,14 @@
+import { FormModal, Table } from "@mighty-justice/fields-ant";
+import autoBindMethods from "class-autobind-decorator";
+import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
-import { inject, observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
-
-import { FormModal, Table } from "@mighty-justice/fields-ant";
 
 import Store from "../../store";
-import Title from "../common/Title";
 import ModalButton from "../common/ModalButton";
-import { IModel } from "@mighty-justice/fields-ant/dist/props";
+import Title from "../common/Title";
+
+type IModel = Record<string, any>;
 
 interface IInjected extends RouteComponentProps {
   store: Store;

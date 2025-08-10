@@ -1,9 +1,8 @@
-import React, { Component } from "react";
-import { inject, observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
-import { RouteComponentProps } from "react-router";
-
 import { FormCard } from "@mighty-justice/fields-ant";
+import autoBindMethods from "class-autobind-decorator";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
+import { RouteComponentProps } from "react-router";
 
 import Store from "../../store";
 

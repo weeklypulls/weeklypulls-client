@@ -1,25 +1,22 @@
-import React, { Component } from "react";
-import { inject, observer } from "mobx-react";
+import { FormModal } from "@mighty-justice/fields-ant";
+import { Table, Spin, Empty } from "antd";
+import { ColumnProps } from "antd/lib/table";
 import autoBindMethods from "class-autobind-decorator";
 import { get } from "lodash";
+import { action, observable } from "mobx";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
 import { Link } from "react-router-dom";
-import { action } from "mobx";
 
-import { Table, Spin, Empty } from "antd";
-
-import { FormModal } from "@mighty-justice/fields-ant";
-import SmartBool from "@mighty-justice/smart-bool";
-
-import LoadingButton from "../../common/LoadingButton";
-import ModalButton from "../../common/ModalButton";
+import { IComic, IComicPullSeriesPair } from "../../../interfaces";
 import Store from "../../../store";
-import Title from "../../common/Title";
 import utils from "../../../utils";
 import Images from "../../common/Images";
+import LoadingButton from "../../common/LoadingButton";
+import ModalButton from "../../common/ModalButton";
 import ReadButton from "../../common/ReadButton";
-import { IComic, IComicPullSeriesPair } from "../../../interfaces";
-import { ColumnProps } from "antd/lib/table";
+import Title from "../../common/Title";
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -29,7 +26,7 @@ interface IInjected extends RouteComponentProps {
 @autoBindMethods
 @observer
 class PullsDetail extends Component<RouteComponentProps> {
-  public isLoading = new SmartBool();
+  @observable public isLoading = false;
 
   private get injected() {
     return this.props as IInjected;
@@ -137,17 +134,17 @@ class PullsDetail extends Component<RouteComponentProps> {
     const { store } = this.injected;
     const pull = await store.pulls.fetchIfCold(this.pullId);
 
-    this.isLoading.setTrue();
+    this.isLoading = true;
     await store.pulls.delete(pull.id);
     await store.pullLists.fetch(pull.pull_list_id);
     this.injected.history.goBack();
-    this.isLoading.setFalse();
+    this.isLoading = false;
   }
 
   public render() {
     const { store } = this.injected,
       pullSeriesPair = store.pullWithSeries(this.pullId);
-    if (this.isLoading.isTrue) {
+    if (this.isLoading) {
       return <Spin size="large" />;
     }
 

@@ -1,17 +1,15 @@
-import React, { Component } from "react";
-import { inject, observer } from "mobx-react";
+import { FormModal } from "@mighty-justice/fields-ant";
+import { Table } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { get } from "lodash";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
 import { RouteComponentProps } from "react-router-dom";
 
-import { Table } from "antd";
-
-import Store from "../../../store";
-
 import COLUMNS from "./PullsListColumns";
-import Title from "../../common/Title";
+import Store from "../../../store";
 import ModalButton from "../../common/ModalButton";
-import { FormModal } from "@mighty-justice/fields-ant";
+import Title from "../../common/Title";
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -45,7 +43,7 @@ class PullsList extends Component<RouteComponentProps> {
     return store.pullsWithSeries();
   }
 
-  private onAddNew(data: object) {
+  private onAddNew(data: Record<string, unknown>) {
     console.log(data);
   }
 

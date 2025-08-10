@@ -1,19 +1,17 @@
-import React, { Component } from "react";
-import { toJS, observable } from "mobx";
-import { inject, observer } from "mobx-react";
-import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
 import { Table, Button, Input } from "antd";
-import { RouteComponentProps } from "react-router";
-
 import { PaginationConfig } from "antd/lib/pagination";
 import { ColumnProps } from "antd/lib/table";
-
-import utils from "../../../utils";
-import Store, { IFilters } from "../../../store";
-import { IComic, IComicPullPair } from "../../../interfaces";
+import autoBindMethods from "class-autobind-decorator";
+import { get } from "lodash";
+import { toJS, observable } from "mobx";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
+import { RouteComponentProps } from "react-router";
 
 import COLUMNS from "./ComicsListColumns";
+import { IComic, IComicPullPair } from "../../../interfaces";
+import Store, { IFilters } from "../../../store";
+import utils from "../../../utils";
 
 const { future, stringSort } = utils;
 

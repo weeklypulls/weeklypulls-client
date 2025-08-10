@@ -6,8 +6,3 @@ export const ACTIONS = {
 };
 
 export const DATE_FORMAT = "YYYY-MM-DD";
-
-export default {
-  ACTIONS,
-  DATE_FORMAT,
-};

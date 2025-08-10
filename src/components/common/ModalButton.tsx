@@ -1,32 +1,35 @@
+import { FormModal, FormDrawer } from "@mighty-justice/fields-ant";
+import { Button } from "antd";
 import autoBindMethods from "class-autobind-decorator";
+import { observable, action } from "mobx";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
-import { observable } from "mobx";
-
-import { Button } from "antd";
-
-import SmartBool from "@mighty-justice/smart-bool";
-import { FormModal, FormDrawer } from "@mighty-justice/fields-ant";
-import { ISharedFormModalProps } from "@mighty-justice/fields-ant/dist/props";
 
 interface IProps {
   label: string;
-  modalComponent: new (props: ISharedFormModalProps) => FormModal | FormDrawer;
+  modalComponent: React.ComponentType<any> | (new (props: any) => FormModal | FormDrawer);
   modalProps: any;
 }
 
 @autoBindMethods
 @observer
 class ModalButton extends Component<IProps> {
-  @observable private isVisible = new SmartBool();
+  @observable private isVisible = false;
+
+  @action.bound private open() {
+    this.isVisible = true;
+  }
+  @action.bound private close() {
+    this.isVisible = false;
+  }
 
   public render() {
     const { modalComponent: ModalComponent, modalProps, label } = this.props;
 
     return (
       <>
-        <Button onClick={this.isVisible.setTrue}>{label}</Button>
-        <ModalComponent {...modalProps} isVisible={this.isVisible} />
+        <Button onClick={this.open}>{label}</Button>
+        <ModalComponent {...modalProps} isVisible={this.isVisible} onCancel={this.close} />
       </>
     );
   }

@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import { Icon, Popover } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { observer } from "mobx-react";
-import { Icon, Popover } from "antd";
+import React, { Component } from "react";
 
 interface IProps {
   images: string[];

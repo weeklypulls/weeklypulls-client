@@ -1,15 +1,13 @@
-import React, { Component } from "react";
-import autoBindMethods from "class-autobind-decorator";
-import { inject, observer } from "mobx-react";
-import _ from "lodash";
-
-import { Button } from "antd";
-
 import { FormModal } from "@mighty-justice/fields-ant";
-import SmartBool from "@mighty-justice/smart-bool";
+import autoBindMethods from "class-autobind-decorator";
+import _ from "lodash";
+import { inject, observer } from "mobx-react";
+import React, { Component } from "react";
 
-import Store from "../../store";
+// Use ModalButton wrapper for form modals
+import ModalButton from "./ModalButton";
 import { IComic, IPull } from "../../interfaces";
+import Store from "../../store";
 
 interface IProps {
   comic: IComic;
@@ -24,8 +22,6 @@ interface IInjected extends IProps {
 @autoBindMethods
 @observer
 class PullButton extends Component<IProps> {
-  public pullModal = new SmartBool();
-
   private get injected() {
     return this.props as IInjected;
   }
@@ -40,27 +36,28 @@ class PullButton extends Component<IProps> {
 
     return (
       <span>
-        <FormModal
-          isVisible={this.pullModal}
-          fieldSets={[
-            [
-              {
-                field: "pull_list_id",
-                optionType: "pullLists",
-                type: "optionSelect",
-              },
-              {
-                field: "series_id",
-                type: "hidden",
-              },
+        <ModalButton
+          label="Pull"
+          modalComponent={FormModal}
+          modalProps={{
+            fieldSets: [
+              [
+                {
+                  field: "pull_list_id",
+                  optionType: "pullLists",
+                  type: "optionSelect",
+                },
+                {
+                  field: "series_id",
+                  type: "hidden",
+                },
+              ],
             ],
-          ]}
-          model={{ series_id }}
-          onSave={store.pulls.post}
-          title="Add to pull list"
+            model: { series_id },
+            onSave: store.pulls.post,
+            title: "Add to pull list",
+          }}
         />
-
-        <Button onClick={this.pullModal.setTrue}>Pull</Button>
       </span>
     );
   }
