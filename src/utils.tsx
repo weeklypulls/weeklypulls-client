@@ -1,7 +1,6 @@
 import moment from "moment";
 import { DateTime } from "luxon";
 import _ from "lodash";
-import cx from "classnames";
 
 import consts from "./consts";
 import { IComicPullPair } from "./interfaces";
@@ -61,10 +60,7 @@ function stringAttrsSort(a: object, b: object, attrs: string[]) {
 
 function rowClassName(record: IComicPullPair) {
   const { read } = record;
-  return cx({
-    "comic-read": read,
-    "comic-toread": !read,
-  });
+  return read ? "comic-read" : "comic-toread";
 }
 
 export default {

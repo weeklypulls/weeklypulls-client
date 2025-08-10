@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { toJS, observable } from "mobx";
 import { inject, observer } from "mobx-react";
-import httpStatus from "http-status-codes";
 import autoBindMethods from "class-autobind-decorator";
 import { get } from "lodash";
 import { Table, Button, Input } from "antd";
@@ -48,7 +47,7 @@ class ComicsList extends Component<RouteComponentProps> {
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error(e);
-      if (get(e, "response.status") === httpStatus.UNAUTHORIZED) {
+      if (get(e, "response.status") === 401) {
         this.props.history.push("/login");
       }
     }

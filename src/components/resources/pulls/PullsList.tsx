@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
 import autoBindMethods from "class-autobind-decorator";
-import httpStatus from "http-status-codes";
 import { get } from "lodash";
 import { RouteComponentProps } from "react-router-dom";
 
@@ -35,7 +34,7 @@ class PullsList extends Component<RouteComponentProps> {
     try {
       await this.injected.store.getAllSeries();
     } catch (e) {
-      if (get(e, "response.status") === httpStatus.UNAUTHORIZED) {
+      if (get(e, "response.status") === 401) {
         this.props.history.push("/login");
       }
     }

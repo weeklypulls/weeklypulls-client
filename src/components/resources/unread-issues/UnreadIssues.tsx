@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
 import autoBindMethods from "class-autobind-decorator";
-import httpStatus from "http-status-codes";
 import { get } from "lodash";
 import { RouteComponentProps } from "react-router";
 import { observable, action } from "mobx";
@@ -86,7 +85,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error("Error fetching unread issues:", e);
-      if (get(e, "response.status") === httpStatus.UNAUTHORIZED) {
+      if (get(e, "response.status") === 401) {
         this.injected.history.push("/login");
       }
     } finally {
