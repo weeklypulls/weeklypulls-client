@@ -16,7 +16,6 @@ export interface IPull {
   pull_list_id: string;
   read: string[];
   series_id: string;
-  skipped: string[];
 }
 
 export interface IWeek {
@@ -36,7 +35,6 @@ export interface IComicPullPair extends IPair {
   comic: IComic;
   pull: IPull | undefined;
   read: boolean;
-  skipped: boolean;
 }
 
 export interface IComicPullSeriesPair extends IComicPullPair {

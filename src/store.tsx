@@ -51,7 +51,7 @@ class Store {
       "series_id"
     );
     this.weeks = new Resource(
-      this.client.marvel,
+      this.client.user,
       "weeks",
       { minutes: 20 },
       "week_of"
@@ -167,10 +167,7 @@ class Store {
       return null;
     }
     const comics = series.comics,
-      comicsUnread = comics.filter(
-        (comic: any) =>
-          !(pull.read.includes(comic.id) || pull.skipped.includes(comic.id))
-      ),
+      comicsUnread = comics.filter((comic: any) => !pull.read.includes(comic.id)),
       weeks = comicsUnread.map((comic: any) => comic.on_sale),
       firstWeek = weeks.sort()[0];
     return firstWeek;
@@ -201,17 +198,13 @@ class Store {
     }
     const noun = {
         [ACTIONS.READ]: "read",
-        [ACTIONS.SKIP]: "skipped",
         [ACTIONS.UNREAD]: "read",
-        [ACTIONS.UNSKIP]: "skipped",
       }[actionKey] as string,
       actionKeysPull = pull as unknown as { [key: string]: string[] },
       set = new Set<string>(actionKeysPull[noun] || []),
       verb = {
         [ACTIONS.READ]: set.add.bind(set),
-        [ACTIONS.SKIP]: set.add.bind(set),
         [ACTIONS.UNREAD]: set.delete.bind(set),
-        [ACTIONS.UNSKIP]: set.delete.bind(set),
       }[actionKey];
     if (!set) {
       throw new Error(`Invalid set from noun: ${noun}`);
@@ -219,32 +212,17 @@ class Store {
     if (!verb) {
       throw new Error(`Invalid verb from action key: ${actionKey}`);
     }
-    if (!noun) {
-      throw new Error(`Invalid noun from action key: ${actionKey}`);
-    }
-
     verb(issueId);
 
-    const data = { [noun]: Array.from(set) } as any;
+    const payload = { [noun]: Array.from(set) };
+    await this.pulls.patch(pull.id, payload);
 
-    await this.pulls.patch(pull.id, data);
+    // Update local cache
+    (pull as any)[noun] = payload[noun];
+    this.pulls.setObject(pull.id, pull);
+    this.pulls.save();
+    return pull;
   }
-
-  // async fillInRead (seriesId) {
-  //   this.isLoading.set(`series.${seriesId}`, true);
-  //   const pull = this.pulls.get(seriesId)
-  //     , series = this.series.get(seriesId)
-  //     , comicsOrdered = _.orderBy(series.comics, 'on_sale')
-  //     , lastRead = _.findLastIndex(comicsOrdered, comic => pull.read.contains(comic.id))
-  //     , comicsToMarkUnread = comicsOrdered.slice(0, lastRead + 1)
-  //     , issueIds = comicsToMarkUnread.map(comic => comic.id)
-  //     , data = { read: issueIds }
-  //     ;
-  //
-  //   const response = await this.client.user.patch(`series/${series.id}/`, data);
-  //   this.series.set(response.data.id, response.data);
-  //   this.isLoading.set(`series.${seriesId}`, false);
-  // }
 }
 
 export default Store;

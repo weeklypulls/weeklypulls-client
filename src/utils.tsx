@@ -58,11 +58,10 @@ function stringAttrsSort (a: object, b: object, attrs: string[]) {
 }
 
 function rowClassName (record: IComicPullPair) {
-  const { read, skipped } = record;
+  const { read } = record;
   return cx({
     'comic-read': read,
-    'comic-skipped': skipped,
-    'comic-toread': !read && !skipped,
+    'comic-toread': !read,
   });
 }
 

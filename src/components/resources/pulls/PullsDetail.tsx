@@ -72,7 +72,6 @@ class PullsDetail extends Component<RouteComponentProps> {
       pull,
       read: pull.read.includes(comic.id),
       series,
-      skipped: pull.skipped.includes(comic.id),
     }));
   }
 

@@ -3,7 +3,7 @@ import { toJS, observable } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import httpStatus from 'http-status-codes';
 import autoBindMethods from 'class-autobind-decorator';
-import { get, negate } from 'lodash';
+import { get } from 'lodash';
 import { Table, Button, Input } from 'antd';
 import { RouteComponentProps } from 'react-router';
 
@@ -18,7 +18,7 @@ import COLUMNS from './ComicsListColumns';
 
 const { future, stringSort } = utils;
 
-const readOrSkipped = (comicPair: IComicPullPair) => (comicPair.read || comicPair.skipped);
+const isRead = (comicPair: IComicPullPair) => comicPair.read;
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -169,16 +169,15 @@ class ComicsList extends Component<RouteComponentProps> {
             key: comic.id,
             pull,
             read: pull.read.includes(comic.id),
-            skipped: pull.skipped.includes(comic.id),
           }))
         .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
 
-      if (!pullComicPairs.length || pullComicPairs.every(readOrSkipped)) {
+      if (!pullComicPairs.length || pullComicPairs.every(isRead)) {
         return [];
       }
 
       const unreadDate = pullComicPairs
-        .filter(negate(readOrSkipped))
+        .filter((cp: IComicPullPair) => !cp.read)
         .map((cp: IComicPullPair) => cp.comic.on_sale)
         .sort(stringSort)[0];
 
@@ -190,7 +189,7 @@ class ComicsList extends Component<RouteComponentProps> {
     });
 
     // Filter out series
-    seriesComics = seriesComics.filter(comicPair => !comicPair.every(readOrSkipped));
+    seriesComics = seriesComics.filter(comicPair => !comicPair.every(isRead));
 
     // flatten list
     const comicPairs = seriesComics
@@ -205,7 +204,6 @@ class ComicsList extends Component<RouteComponentProps> {
         }
 
         filter = filter && this.filterBy('read', comicPair);
-        filter = filter && this.filterBy('skipped', comicPair);
         filter = filter && this.filterBy('pull.pull_list_id', comicPair);
         filter = filter && this.filterByRegex('comic.title', comicPair);
 

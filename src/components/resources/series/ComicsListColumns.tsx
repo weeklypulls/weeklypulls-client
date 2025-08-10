@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Images from '../../common/Images';
 import utils from '../../../utils';
 import ReadButton from '../../common/ReadButton';
-import SkipButton from '../../common/SkipButton';
 import PullListLink from '../../common/PullListLink';
 import { IComicPullPair } from '../../../interfaces';
 import { ColumnProps } from 'antd/lib/table';
@@ -34,15 +33,6 @@ function weekCell (text: string, _record: IComicPullPair) {
   return <Link to={`/weeks/${date}`}>{date}</Link>;
 }
 
-function skippedCell (text: string, record: IComicPullPair) {
-  return (
-    <SkipButton
-      comic={record.comic}
-      value={record.skipped}
-    />
-  );
-}
-
 function readCell (text: string, record: IComicPullPair) {
   return (
     <ReadButton
@@ -63,17 +53,6 @@ const COLUMNS: Array<ColumnProps<IComicPullPair>> = [
     key: 'read',
     render: readCell,
     title: 'Read',
-  },
-  {
-    dataIndex: 'skipped',
-    filterMultiple: false,
-    filters: [
-      { text: 'Skipped', value: 'true' },
-      { text: 'Unskipped', value: 'false' },
-    ],
-    key: 'skipped',
-    render: skippedCell,
-    title: 'Skip',
   },
   {
     dataIndex: 'comic.images',
