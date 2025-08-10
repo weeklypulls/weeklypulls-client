@@ -1,0 +1,11 @@
+repos:
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        language: node
+        entry: prettier
+        args: ["--write"]
+        additional_dependencies: ["prettier@3.3.3"]
+        files: \.(ts|tsx|js|jsx|json|css|md)$
+        exclude: ^(build/|node_modules/)
