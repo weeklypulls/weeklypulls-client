@@ -45,7 +45,7 @@ class Store {
     );
 
     this.series = new Resource(
-      this.client.marvel,
+      this.client.user,
       "series",
       { weeks: 2 },
       "series_id"

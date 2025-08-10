@@ -3,6 +3,7 @@ import { ColumnProps } from "antd/lib/table";
 import { IUnreadIssue } from "../../../interfaces";
 import utils from "../../../utils";
 import Images from "../../common/Images";
+import { Link } from "react-router-dom";
 
 function coverCell(_text: string, record: IUnreadIssue) {
   const url = record.image_medium_url || (record as any).image_url;
@@ -29,6 +30,13 @@ function titleCell(text: string, record: IUnreadIssue) {
   );
 }
 
+function pullCell(_text: string, record: IUnreadIssue) {
+  if (!record.pull_id) {
+    return "--";
+  }
+  return <Link to={`/pulls/${String(record.pull_id)}`}>Pull</Link>;
+}
+
 function dateCell(text: string) {
   return text || "--";
 }
@@ -52,7 +60,7 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
       { text: "No cover", value: "none" },
     ],
     onFilter: (value, record) => {
-      const has = !!(record.image_medium_url || record.image_url);
+      const has = !!(record.image_medium_url || (record as any).image_url);
       return value === "has" ? has : !has;
     },
   },
@@ -65,6 +73,13 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
     filterMultiple: true,
     filters: [], // to be provided dynamically in UnreadIssues.tsx
     onFilter: (value, record) => String(record.volume_name) === String(value),
+  },
+  {
+    dataIndex: "pull_id",
+    key: "pull",
+    render: pullCell,
+    title: "Pull",
+    width: 80,
   },
   {
     dataIndex: "volume_start_year",

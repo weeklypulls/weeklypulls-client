@@ -14,7 +14,8 @@ import {
 
 import Store from '../store';
 
-import ComicsListPage from './resources/series/ComicsListPage';
+// Removed legacy ComicsListPage
+// import ComicsListPage from './resources/series/ComicsListPage';
 import PageLogin from './page-login/PageLogin';
 import PageLogout from './page-logout/PageLogout';
 import PagePullLists from './page-pull-lists/PagePullLists';
@@ -80,7 +81,7 @@ class App extends Component<IProps> {
                 style={{ lineHeight: '64px' }}
                 theme='dark'
               >
-                {this.renderNavLink('/', 'Comics')}
+                {/* Removed legacy Comics nav */}
                 {this.renderNavLink('/unread-issues', 'Unread Issues')}
                 {this.renderNavLink('/pull-lists', 'Pull Lists')}
                 {this.renderNavLink(`/weeks/${utils.nearestWed()}`, 'Weeks')}
@@ -92,7 +93,8 @@ class App extends Component<IProps> {
 
             <Layout>
               <Content style={{ margin: '16px', padding: 24, background: '#fff', minHeight: 280 }}>
-                <PrivateRoute isAuthenticated={isAuthenticated} path='/' exact component={ComicsListPage} />
+                {/* Redirect root to Unread Issues now that Comics page is removed */}
+                <Route path='/' exact render={() => <Redirect to='/unread-issues' />} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/unread-issues' component={UnreadIssuesPage} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pull-lists' component={PagePullLists} />
                 <PrivateRoute isAuthenticated={isAuthenticated} path='/pulls' component={PullsPages} />
