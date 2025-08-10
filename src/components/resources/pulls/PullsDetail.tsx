@@ -1,5 +1,4 @@
-import { FormModal } from "@mighty-justice/fields-ant";
-import { Table, Spin, Empty } from "antd";
+import { Modal, Select, Table, Spin, Empty, Button } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import autoBindMethods from "class-autobind-decorator";
 import { get } from "lodash";
@@ -14,7 +13,6 @@ import Store from "../../../store";
 import utils from "../../../utils";
 import Images from "../../common/Images";
 import LoadingButton from "../../common/LoadingButton";
-import ModalButton from "../../common/ModalButton";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
@@ -27,6 +25,8 @@ interface IInjected extends RouteComponentProps {
 @observer
 class PullsDetail extends Component<RouteComponentProps> {
   @observable public isLoading = false;
+  @observable private isEditVisible = false;
+  @observable private editPullListId: any = undefined;
 
   private get injected() {
     return this.props as IInjected;
@@ -127,6 +127,7 @@ class PullsDetail extends Component<RouteComponentProps> {
     } else {
       await store.pulls.post({ ...model, series_id: pull.series_id });
     }
+    this.isEditVisible = false;
   }
 
   @action
@@ -139,6 +140,19 @@ class PullsDetail extends Component<RouteComponentProps> {
     await store.pullLists.fetch(pull.pull_list_id);
     this.injected.history.goBack();
     this.isLoading = false;
+  }
+
+  @action.bound private openEdit(pullListId: any) {
+    this.editPullListId = pullListId;
+    this.isEditVisible = true;
+  }
+
+  @action.bound private closeEdit() {
+    this.isEditVisible = false;
+  }
+
+  @action.bound private onEditOk() {
+    this.onSave({ pull_list_id: this.editPullListId });
   }
 
   public render() {
@@ -158,26 +172,31 @@ class PullsDetail extends Component<RouteComponentProps> {
           <LoadingButton type="danger" onClick={this.onDelete}>
             Delete
           </LoadingButton>
-          <ModalButton
-            label="Edit"
-            modalComponent={FormModal}
-            modalProps={{
-              fieldSets: [
-                [
-                  {
-                    field: "pull_list_id",
-                    label: "Pull List",
-                    optionType: "pullLists",
-                    type: "optionSelect",
-                  },
-                ],
-              ],
-              model: pullSeriesPair.pull,
-              onSave: this.onSave,
-              title: pullSeriesPair.series.title,
-            }}
-          />
+          <Button onClick={() => this.openEdit(pullSeriesPair.pull.pull_list_id)}>Edit</Button>
         </Title>
+
+        <Modal
+          visible={this.isEditVisible}
+          title={pullSeriesPair.series.title}
+          onCancel={this.closeEdit}
+          onOk={this.onEditOk}
+        >
+          <label htmlFor="edit-pull-list" style={{ display: "block", marginBottom: 4 }}>
+            Pull List
+          </label>
+          <Select
+            id="edit-pull-list"
+            value={this.editPullListId}
+            onChange={(val) => (this.editPullListId = val)}
+            style={{ width: "100%" }}
+          >
+            {store.pullLists.all.map((pl: any) => (
+              <Select.Option value={pl.id} key={pl.id}>
+                {pl.title}
+              </Select.Option>
+            ))}
+          </Select>
+        </Modal>
 
         <Table
           columns={this.columns}

@@ -1,14 +1,14 @@
-import { FormModal, FormDrawer } from "@mighty-justice/fields-ant";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import autoBindMethods from "class-autobind-decorator";
-import { observable, action } from "mobx";
+import { action, observable } from "mobx";
 import { observer } from "mobx-react";
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 
 interface IProps {
   label: string;
-  modalComponent: React.ComponentType<any> | (new (props: any) => FormModal | FormDrawer);
-  modalProps: any;
+  // Pass children as a function receiving close() to render modal body
+  render?: (close: () => void) => ReactNode;
+  title?: string;
 }
 
 @autoBindMethods
@@ -24,12 +24,14 @@ class ModalButton extends Component<IProps> {
   }
 
   public render() {
-    const { modalComponent: ModalComponent, modalProps, label } = this.props;
+    const { label, render, title } = this.props;
 
     return (
       <>
         <Button onClick={this.open}>{label}</Button>
-        <ModalComponent {...modalProps} isVisible={this.isVisible} onCancel={this.close} />
+        <Modal visible={this.isVisible} onCancel={this.close} onOk={this.close} title={title}>
+          {render ? render(this.close) : null}
+        </Modal>
       </>
     );
   }

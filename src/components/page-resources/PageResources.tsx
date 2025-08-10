@@ -1,5 +1,4 @@
-import { Table } from "@mighty-justice/fields-ant";
-import { Button } from "antd";
+import { Button, Table } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
@@ -63,18 +62,18 @@ class PageResources extends Component<RouteComponentProps> {
       cachedValues: this.injected.store.resources[key].all.length,
     }));
 
-    return (
-      <Table
-        model={model}
-        fieldSets={[
-          [
-            { field: "key" },
-            { field: "clearKey", render: this.renderClickable },
-            { field: "cachedValues" },
-          ],
-        ]}
-      />
-    );
+    const columns = [
+      { title: "Key", dataIndex: "key", key: "key" },
+      {
+        title: "Clear",
+        dataIndex: "clearKey",
+        key: "clearKey",
+        render: (value: string) => this.renderClickable(value),
+      },
+      { title: "Cached Values", dataIndex: "cachedValues", key: "cachedValues" },
+    ];
+
+    return <Table rowKey="key" columns={columns} dataSource={model} pagination={false} />;
   }
 }
 
