@@ -1,10 +1,10 @@
-FROM node:10-alpine
-RUN npm install -g yarn
+FROM node:16-alpine
 
-COPY package.json /
-COPY yarn.lock /
-RUN yarn install \
-    && yarn cache clean
+WORKDIR /app
 
-COPY . /
-CMD [ "yarn", "start"]
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+COPY . .
+
+CMD [ "npm", "run", "start" ]
