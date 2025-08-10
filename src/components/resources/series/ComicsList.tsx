@@ -2,7 +2,6 @@ import { Table, Button, Input } from "antd";
 import { PaginationConfig } from "antd/lib/pagination";
 import { ColumnProps } from "antd/lib/table";
 import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
 import { toJS, observable } from "mobx";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
@@ -45,7 +44,7 @@ class ComicsList extends Component<RouteComponentProps> {
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error(e);
-      if (get(e, "response.status") === 401) {
+      if ((e as any)?.response?.status === 401) {
         this.props.history.push("/login");
       }
     }
@@ -90,7 +89,7 @@ class ComicsList extends Component<RouteComponentProps> {
     const filters = this.injected.store.filters;
 
     return COLUMNS.map((column) => {
-      column.filteredValue = toJS(get(filters, column.key || "", []));
+      column.filteredValue = toJS((filters as any)?.[column.key || ""] ?? []);
 
       if (column.key === "pull.pull_list_id") {
         column.filters = this.injected.store.pullLists.all.map((pullList) => ({
@@ -123,8 +122,8 @@ class ComicsList extends Component<RouteComponentProps> {
   }
 
   public filterByRegex(key: string, record: IComicPullPair) {
-    const filters = get(this.injected.store.filters, key, []),
-      value = get(record, key).toString();
+    const filters = ((this.injected.store.filters as any)?.[key] ?? []) as string[],
+      value = (record as any)?.[key]?.toString?.() ?? "";
 
     if (!filters.length) {
       return true;
@@ -137,8 +136,8 @@ class ComicsList extends Component<RouteComponentProps> {
   }
 
   public filterBy(key: string, record: IComicPullPair) {
-    const filters = get(this.injected.store.filters, key, []) as string[],
-      value = get(record, key).toString();
+    const filters = ((this.injected.store.filters as any)?.[key] ?? []) as string[],
+      value = (record as any)?.[key]?.toString?.() ?? "";
 
     if (!filters.length) {
       return true;
@@ -160,7 +159,7 @@ class ComicsList extends Component<RouteComponentProps> {
         return [];
       }
 
-      const comics: IComic[] = get(series, "comics", []),
+      const comics: IComic[] = ((series as any)?.comics ?? []) as IComic[],
         pullComicPairs = comics
           .map((comic: IComic) => ({
             comic,

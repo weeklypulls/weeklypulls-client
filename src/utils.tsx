@@ -1,4 +1,17 @@
-import _ from "lodash";
+// Tiny path getter: safely access nested properties by dot path
+export function getPath(obj: any, path: string, fallback?: any) {
+  if (!obj || !path) return fallback;
+  const parts = path.split(".");
+  let cur: any = obj;
+  for (const p of parts) {
+    if (cur != null && Object.prototype.hasOwnProperty.call(cur, p)) {
+      cur = cur[p];
+    } else {
+      return fallback;
+    }
+  }
+  return cur === undefined ? fallback : cur;
+}
 
 import { IComicPullPair } from "./interfaces";
 
@@ -68,10 +81,12 @@ function prevWeek(weekIso: string) {
 
 function stringAttrsSort(a: Record<string, any>, b: Record<string, any>, attrs: string[]) {
   for (const attr of attrs) {
-    if (_.get(a, attr) < _.get(b, attr)) {
+    const av = getPath(a, attr);
+    const bv = getPath(b, attr);
+    if (av < bv) {
       return -1;
     }
-    if (_.get(a, attr) > _.get(b, attr)) {
+    if (av > bv) {
       return 1;
     }
   }

@@ -1,6 +1,5 @@
 import { Button, Icon, Row, Col } from "antd";
 import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
@@ -28,7 +27,7 @@ class WeeksDetailPage extends Component<IProps> {
   }
 
   private get weekId(): string {
-    return get(this.injected.match.params, "weekId", "");
+    return (this.injected.match.params as any)?.weekId ?? "";
   }
 
   public componentDidMount() {
@@ -47,7 +46,7 @@ class WeeksDetailPage extends Component<IProps> {
   public get comics(): IComic[] {
     const { store } = this.injected,
       week = store.weeks.get(this.weekId),
-      comics: IComic[] = get(week, "comics", []);
+      comics: IComic[] = (week as any)?.comics ?? [];
 
     return comics;
   }

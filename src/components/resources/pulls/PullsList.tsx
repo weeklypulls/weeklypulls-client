@@ -1,6 +1,5 @@
 import { Button, Input, Modal, Select, Table } from "antd";
 import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -34,7 +33,7 @@ class PullsList extends Component<
     try {
       await this.injected.store.getAllSeries();
     } catch (e) {
-      if (get(e, "response.status") === 401) {
+      if ((e as any)?.response?.status === 401) {
         this.props.history.push("/login");
       }
     }

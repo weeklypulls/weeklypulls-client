@@ -1,6 +1,5 @@
 import { AxiosInstance } from "axios";
 import autoBindMethods from "class-autobind-decorator";
-import _ from "lodash";
 import { observable, action } from "mobx";
 import store from "store";
 
@@ -73,8 +72,8 @@ class Resource<T> {
 
   public load() {
     const cache = store.get(this.cacheKey),
-      objects = _.get(cache, "objects", []),
-      fetchedOn = _.get(cache, "fetchedOn", []);
+      objects = (cache?.objects ?? []) as Array<[string, T]>,
+      fetchedOn = (cache?.fetchedOn ?? []) as Array<[string, number | string]>;
 
     for (const [key, value] of objects) {
       this.objects.set(key, value as T);

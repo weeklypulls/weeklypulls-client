@@ -1,7 +1,6 @@
 import { Modal, Select, Table, Spin, Empty, Button } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import autoBindMethods from "class-autobind-decorator";
-import { get } from "lodash";
 import { action, observable } from "mobx";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
@@ -33,7 +32,7 @@ class PullsDetail extends Component<RouteComponentProps> {
   }
 
   private get pullId(): string {
-    return get(this.injected.match.params, "pullId", "");
+    return (this.injected.match.params as any)?.pullId ?? "";
   }
 
   public componentWillMount() {
@@ -53,7 +52,7 @@ class PullsDetail extends Component<RouteComponentProps> {
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error(e);
-      if (get(e, "response.status") === 401) {
+      if ((e as any)?.response?.status === 401) {
         this.props.history.push("/login");
       }
     }
