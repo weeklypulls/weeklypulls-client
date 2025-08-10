@@ -1,21 +1,21 @@
-import React, { Component } from 'react';
-import { inject, observer } from 'mobx-react';
-import autoBindMethods from 'class-autobind-decorator';
-import httpStatus from 'http-status-codes';
-import { get } from 'lodash';
-import { RouteComponentProps } from 'react-router';
-import { observable, action } from 'mobx';
+import React, { Component } from "react";
+import { inject, observer } from "mobx-react";
+import autoBindMethods from "class-autobind-decorator";
+import httpStatus from "http-status-codes";
+import { get } from "lodash";
+import { RouteComponentProps } from "react-router";
+import { observable, action } from "mobx";
 
-import { Table, Button, Input, DatePicker, Row, Col } from 'antd';
-import { FormComponentProps } from 'antd/lib/form';
-import moment from 'moment';
+import { Table, Button, Input, DatePicker, Row, Col } from "antd";
+import { FormComponentProps } from "antd/lib/form";
+import moment from "moment";
 
-import Store from '../../../store';
-import { IUnreadIssue } from '../../../interfaces';
-import Title from '../../common/Title';
+import Store from "../../../store";
+import { IUnreadIssue } from "../../../interfaces";
+import Title from "../../common/Title";
 
-import COLUMNS from './UnreadIssuesColumns';
-import consts from '../../../consts';
+import COLUMNS from "./UnreadIssuesColumns";
+import consts from "../../../consts";
 
 interface IFilters {
   limit?: number;
@@ -26,48 +26,53 @@ interface IInjected extends RouteComponentProps, FormComponentProps {
   store: Store;
 }
 
-@inject('store')
+@inject("store")
 @autoBindMethods
 @observer
 class UnreadIssues extends Component<RouteComponentProps> {
   @observable public filters: IFilters = { limit: 50 };
   @observable public rowLoading: Set<number> = new Set();
 
-  private get injected () {
+  private get injected() {
     return this.props as IInjected;
   }
 
-  public componentDidMount () {
+  public componentDidMount() {
     this.init();
   }
 
   @action
-  private async init () {
+  private async init() {
     // Ensure pulls are loaded so store.mark can find the pull to patch
     try {
       await this.injected.store.pulls.listIfCold();
-    }
-    catch (e) {
+    } catch (e) {
       // tslint:disable-next-line no-console
-      console.warn('Failed to pre-load pulls', e);
+      console.warn("Failed to pre-load pulls", e);
     }
     this.fetchUnreadIssues();
   }
 
   @action
-  public async fetchUnreadIssues () {
+  public async fetchUnreadIssues() {
     try {
       const { store } = this.injected;
       store.unreadIssues.isLoading = true;
 
       // Build query parameters
       const params = new URLSearchParams();
-      if (this.filters.limit) { params.append('limit', this.filters.limit.toString()); }
-      if (this.filters.since) { params.append('since', this.filters.since); }
+      if (this.filters.limit) {
+        params.append("limit", this.filters.limit.toString());
+      }
+      if (this.filters.since) {
+        params.append("since", this.filters.since);
+      }
 
       // Use trailing slash to match DRF action route
       const queryString = params.toString();
-      const endpoint = queryString ? `pulls/unread_issues/?${queryString}` : 'pulls/unread_issues/';
+      const endpoint = queryString
+        ? `pulls/unread_issues/?${queryString}`
+        : "pulls/unread_issues/";
 
       const response = await store.client.user.get(endpoint);
 
@@ -80,46 +85,51 @@ class UnreadIssues extends Component<RouteComponentProps> {
         });
       }
       store.unreadIssues.save();
-    }
-    catch (e) {
+    } catch (e) {
       // tslint:disable-next-line no-console
-      console.error('Error fetching unread issues:', e);
-      if (get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
-        this.injected.history.push('/login');
+      console.error("Error fetching unread issues:", e);
+      if (get(e, "response.status") === httpStatus.UNAUTHORIZED) {
+        this.injected.history.push("/login");
       }
-    }
-    finally {
+    } finally {
       this.injected.store.unreadIssues.isLoading = false;
     }
   }
 
   @action
-  public onLimitChange (event: React.ChangeEvent<HTMLInputElement>) {
+  public onLimitChange(event: React.ChangeEvent<HTMLInputElement>) {
     const limit = parseInt(event.target.value, 10);
-    this.filters = { ...this.filters, limit: isNaN(limit) ? undefined : Math.max(1, Math.min(200, limit)) };
+    this.filters = {
+      ...this.filters,
+      limit: isNaN(limit) ? undefined : Math.max(1, Math.min(200, limit)),
+    };
   }
 
   @action
-  public onDateChange (_dates: any, dateStrings: [string, string]) {
+  public onDateChange(_dates: any, dateStrings: [string, string]) {
     const since = dateStrings[0] || undefined;
     this.filters = { ...this.filters, since };
   }
 
   @action
-  public onRefresh () {
+  public onRefresh() {
     this.fetchUnreadIssues();
   }
 
   @action
-  private async markAsRead (issue: IUnreadIssue) {
+  private async markAsRead(issue: IUnreadIssue) {
     const { store } = this.injected;
     const issueId = issue.cv_id.toString();
 
-    if (this.rowLoading.has(issue.cv_id)) { return; }
+    if (this.rowLoading.has(issue.cv_id)) {
+      return;
+    }
     this.rowLoading.add(issue.cv_id);
     try {
       if (issue.pull_id) {
-        await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, { issue_id: issue.cv_id });
+        await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, {
+          issue_id: issue.cv_id,
+        });
         const existingPull = store.pulls.get(issue.pull_id.toString());
         if (existingPull) {
           const set = new Set<string>(existingPull.read || []);
@@ -133,7 +143,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
         if (!store.pulls.all.length) {
           await store.pulls.list();
         }
-        if (!store.pulls.getBy('series_id', seriesId)) {
+        if (!store.pulls.getBy("series_id", seriesId)) {
           // Try a refresh in case cache was cold
           await store.pulls.list();
         }
@@ -142,43 +152,71 @@ class UnreadIssues extends Component<RouteComponentProps> {
       }
       store.unreadIssues.deleteObject(issueId);
       store.unreadIssues.save();
-    }
-    catch (e) {
+    } catch (e) {
       // tslint:disable-next-line no-console
-      console.error('Failed to mark as read', e);
-    }
-    finally {
+      console.error("Failed to mark as read", e);
+    } finally {
       this.rowLoading.delete(issue.cv_id);
     }
   }
 
-  public dataSource (): IUnreadIssue[] {
+  public dataSource(): IUnreadIssue[] {
     const { store } = this.injected;
     return store.unreadIssues.all;
   }
 
-  public render () {
+  public render() {
     const { store } = this.injected;
 
     const actionColumn = {
-      key: 'actions',
-      title: 'Actions',
+      key: "actions",
+      title: "Actions",
       width: 120,
       render: (_text: unknown, record: IUnreadIssue) => (
         <Button
           type="link"
           onClick={() => this.markAsRead(record)}
           loading={this.rowLoading.has(record.cv_id)}
-        >Mark Read</Button>
+        >
+          Mark Read
+        </Button>
       ),
     };
 
-    const columns = [...COLUMNS, actionColumn];
+    const columns = [...COLUMNS, actionColumn] as any;
+
+    // Build dynamic filters (Volume Title and Year) like Comics page
+    const data = this.dataSource();
+    const titleOptions = Array.from(
+      new Set(data.map((i) => (i.volume_name || "").trim()).filter((n) => !!n))
+    ).sort();
+    const yearOptions = Array.from(
+      new Set(
+        data
+          .map((i) => i.volume_start_year)
+          .filter((y) => y !== null && y !== undefined)
+          .map((y) => String(y))
+      )
+    ).sort((a, b) => Number(a) - Number(b));
+
+    // Inject filters into the appropriate columns (values must be strings)
+    columns.forEach((col: any) => {
+      if (col.key === "title") {
+        col.filters = titleOptions.map((name) => ({ text: name, value: name }));
+      }
+      if (col.key === "year") {
+        col.filters = yearOptions.map((y) => ({ text: y, value: y }));
+      }
+    });
 
     return (
       <div>
         <Title title="Unread Issues">
-          <Button type="primary" onClick={this.onRefresh} loading={store.unreadIssues.isLoading}>
+          <Button
+            type="primary"
+            onClick={this.onRefresh}
+            loading={store.unreadIssues.isLoading}
+          >
             Refresh
           </Button>
         </Title>
@@ -188,7 +226,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
             <label>Limit:</label>
             <Input
               type="number"
-              value={this.filters.limit || ''}
+              value={this.filters.limit || ""}
               onChange={this.onLimitChange}
               placeholder="Limit (max 200)"
               style={{ marginTop: 4 }}
@@ -197,13 +235,15 @@ class UnreadIssues extends Component<RouteComponentProps> {
           <Col span={8}>
             <label>Since Date:</label>
             <DatePicker
-              value={this.filters.since ? moment(this.filters.since) : undefined}
+              value={
+                this.filters.since ? moment(this.filters.since) : undefined
+              }
               onChange={(date, dateString) => {
                 this.onDateChange(date, [dateString, dateString] as any);
               }}
               format="YYYY-MM-DD"
               placeholder="Filter by date"
-              style={{ width: '100%', marginTop: 4 }}
+              style={{ width: "100%", marginTop: 4 }}
             />
           </Col>
           <Col span={8} style={{ paddingTop: 24 }}>
@@ -214,14 +254,15 @@ class UnreadIssues extends Component<RouteComponentProps> {
         </Row>
 
         <Table
-          columns={columns as any}
+          columns={columns}
           dataSource={this.dataSource()}
           loading={store.unreadIssues.isLoading}
           pagination={{
             pageSize: 50,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} unread issues`,
           }}
           rowKey="cv_id"
           size="small"

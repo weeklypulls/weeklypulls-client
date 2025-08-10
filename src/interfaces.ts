@@ -62,6 +62,8 @@ export interface IUnreadIssue {
   description: string;
   image_medium_url: string;
   site_url: string;
-  // New: id of the corresponding Pull (if available from API)
+  // server-provided best image url (annotation)
+  image_url?: string;
+  // id of the corresponding Pull (if available from API)
   pull_id?: number;
 }

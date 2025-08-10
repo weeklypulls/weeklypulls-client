@@ -2,25 +2,14 @@ import React from "react";
 import { ColumnProps } from "antd/lib/table";
 import { IUnreadIssue } from "../../../interfaces";
 import utils from "../../../utils";
+import Images from "../../common/Images";
 
 function coverCell(_text: string, record: IUnreadIssue) {
-  if (!record.image_medium_url) {
+  const url = record.image_medium_url || (record as any).image_url;
+  if (!url) {
     return "--";
   }
-  return (
-    <a
-      href={record.site_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={`${record.volume_name} #${record.number}`}
-    >
-      <img
-        src={record.image_medium_url}
-        alt={`${record.volume_name} #${record.number}`}
-        style={{ maxHeight: "60px", maxWidth: "40px" }}
-      />
-    </a>
-  );
+  return <Images images={[url]} />;
 }
 
 function titleCell(text: string, record: IUnreadIssue) {
@@ -57,6 +46,15 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
     render: coverCell,
     title: "Cover",
     width: 80,
+    filterMultiple: false,
+    filters: [
+      { text: "Has cover", value: "has" },
+      { text: "No cover", value: "none" },
+    ],
+    onFilter: (value, record) => {
+      const has = !!(record.image_medium_url || record.image_url);
+      return value === "has" ? has : !has;
+    },
   },
   {
     dataIndex: "volume_name",
@@ -64,6 +62,9 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
     render: titleCell,
     sorter: titleSort,
     title: "Title",
+    filterMultiple: true,
+    filters: [], // to be provided dynamically in UnreadIssues.tsx
+    onFilter: (value, record) => String(record.volume_name) === String(value),
   },
   {
     dataIndex: "volume_start_year",
@@ -72,6 +73,10 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
       a.volume_start_year - b.volume_start_year,
     title: "Year",
     width: 80,
+    filterMultiple: true,
+    filters: [], // to be provided dynamically in UnreadIssues.tsx
+    onFilter: (value, record) =>
+      String(record.volume_start_year) === String(value),
   },
   {
     dataIndex: "store_date",
