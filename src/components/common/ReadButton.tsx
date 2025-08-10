@@ -1,15 +1,13 @@
-import React, { Component } from 'react';
-import autoBindMethods from 'class-autobind-decorator';
-import { observer } from 'mobx-react';
+import React, { Component } from "react";
+import autoBindMethods from "class-autobind-decorator";
+import { observer } from "mobx-react";
 
-import consts from '../../consts';
-import { IComic } from '../../interfaces';
+import consts from "../../consts";
+import { IComic } from "../../interfaces";
 
-import BoolButton from './BoolButton';
+import BoolButton from "./BoolButton";
 
-const {
-  ACTIONS,
-} = consts;
+const { ACTIONS } = consts;
 
 interface IProps {
   comic: IComic;
@@ -19,14 +17,14 @@ interface IProps {
 @autoBindMethods
 @observer
 class ReadButton extends Component<IProps> {
-  public render () {
+  public render() {
     const { comic, value } = this.props;
     return (
       <BoolButton
         actions={[ACTIONS.READ, ACTIONS.UNREAD]}
         comic={comic}
-        icons={['check', 'close']}
-        langs={['Mark read', 'Mark unread']}
+        icons={["check", "close"]}
+        langs={["Mark read", "Mark unread"]}
         value={value}
       />
     );

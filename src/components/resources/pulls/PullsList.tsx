@@ -1,80 +1,81 @@
-import React, { Component } from 'react';
-import { inject, observer } from 'mobx-react';
-import autoBindMethods from 'class-autobind-decorator';
-import httpStatus from 'http-status-codes';
-import { get } from 'lodash';
-import { RouteComponentProps } from 'react-router-dom';
+import React, { Component } from "react";
+import { inject, observer } from "mobx-react";
+import autoBindMethods from "class-autobind-decorator";
+import httpStatus from "http-status-codes";
+import { get } from "lodash";
+import { RouteComponentProps } from "react-router-dom";
 
-import { Table } from 'antd';
+import { Table } from "antd";
 
-import Store from '../../../store';
+import Store from "../../../store";
 
-import COLUMNS from './PullsListColumns';
-import Title from '../../common/Title';
-import ModalButton from '../../common/ModalButton';
-import { FormModal } from '@mighty-justice/fields-ant';
+import COLUMNS from "./PullsListColumns";
+import Title from "../../common/Title";
+import ModalButton from "../../common/ModalButton";
+import { FormModal } from "@mighty-justice/fields-ant";
 
 interface IInjected extends RouteComponentProps {
   store: Store;
 }
 
-@inject('store')
+@inject("store")
 @autoBindMethods
 @observer
 class PullsList extends Component<RouteComponentProps> {
-  public constructor (props: RouteComponentProps) {
+  public constructor(props: RouteComponentProps) {
     super(props);
     this.getAllSeries();
   }
 
-  private get injected () {
+  private get injected() {
     return this.props as IInjected;
   }
 
-  public async getAllSeries () {
+  public async getAllSeries() {
     try {
       await this.injected.store.getAllSeries();
-    }
-    catch (e) {
-      if (get(e, 'response.status') === httpStatus.UNAUTHORIZED) {
-        this.props.history.push('/login');
+    } catch (e) {
+      if (get(e, "response.status") === httpStatus.UNAUTHORIZED) {
+        this.props.history.push("/login");
       }
     }
   }
 
-  public dataSource () {
+  public dataSource() {
     const { store } = this.injected;
     return store.pullsWithSeries();
   }
 
-  private onAddNew (data: object) {
+  private onAddNew(data: object) {
     console.log(data);
   }
 
-  public render () {
+  public render() {
     const { store } = this.injected;
     return (
       <div>
-        <Title title='Pulls'>
+        <Title title="Pulls">
           <ModalButton
-            label='Add new'
+            label="Add new"
             modalComponent={FormModal}
             modalProps={{
-              fieldSets: [[
-                {
-                  endpoint: 'marvel:search/series',
-                  field: 'series_id',
-                  label: 'Series',
-                  type: 'objectSearch',
-                },
-                {
-                  field: 'pull_list',
-                  optionType: 'pullLists',
-                  type: 'optionSelect',
-                },
-              ]],
+              fieldSets: [
+                [
+                  {
+                    endpoint: "marvel:search/series",
+                    field: "series_id",
+                    label: "Series",
+                    type: "objectSearch",
+                  },
+                  {
+                    field: "pull_list",
+                    optionType: "pullLists",
+                    type: "optionSelect",
+                  },
+                ],
+              ],
               onSave: this.onAddNew,
-              title: 'Add Series',
+              title: "Add Series",
             }}
           />
         </Title>
@@ -84,7 +85,7 @@ class PullsList extends Component<RouteComponentProps> {
           dataSource={this.dataSource()}
           loading={store.isLoading}
           pagination={false}
-          size='small'
+          size="small"
         />
       </div>
     );

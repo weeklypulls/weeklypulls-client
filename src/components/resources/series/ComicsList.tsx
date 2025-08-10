@@ -103,8 +103,7 @@ class ComicsList extends Component<RouteComponentProps> {
       }
 
       if (column.key === "comic.title") {
-        column.onFilterDropdownVisibleChange =
-          this.onFilterDropdownVisibleChange;
+        column.onFilterDropdownVisibleChange = this.onFilterDropdownVisibleChange;
         column.filterDropdownVisible = this.filterDropdownVisible;
         column.filterDropdown = (
           <div className="custom-filter-dropdown">
@@ -172,9 +171,7 @@ class ComicsList extends Component<RouteComponentProps> {
             pull,
             read: pull.read.includes(comic.id),
           }))
-          .filter(
-            (comicPair: IComicPullPair) => !future(comicPair.comic.on_sale)
-          );
+          .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
 
       if (!pullComicPairs.length || pullComicPairs.every(isRead)) {
         return [];
@@ -196,26 +193,21 @@ class ComicsList extends Component<RouteComponentProps> {
     seriesComics = seriesComics.filter((comicPair) => !comicPair.every(isRead));
 
     // flatten list
-    const comicPairs = seriesComics.reduce(
-      (flat, toFlatten) => flat.concat(toJS(toFlatten)),
-      []
-    );
+    const comicPairs = seriesComics.reduce((flat, toFlatten) => flat.concat(toJS(toFlatten)), []);
 
-    const comicsPairsFiltered = comicPairs.filter(
-      (comicPair: IComicPullPair) => {
-        let filter = true;
+    const comicsPairsFiltered = comicPairs.filter((comicPair: IComicPullPair) => {
+      let filter = true;
 
-        if (comicPair.comic.on_sale < earliestUnread) {
-          return false;
-        }
-
-        filter = filter && this.filterBy("read", comicPair);
-        filter = filter && this.filterBy("pull.pull_list_id", comicPair);
-        filter = filter && this.filterByRegex("comic.title", comicPair);
-
-        return filter;
+      if (comicPair.comic.on_sale < earliestUnread) {
+        return false;
       }
-    );
+
+      filter = filter && this.filterBy("read", comicPair);
+      filter = filter && this.filterBy("pull.pull_list_id", comicPair);
+      filter = filter && this.filterByRegex("comic.title", comicPair);
+
+      return filter;
+    });
 
     return comicsPairsFiltered;
   }

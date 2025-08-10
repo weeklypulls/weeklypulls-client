@@ -1,23 +1,23 @@
-import React, { Component } from 'react';
-import { observer } from 'mobx-react';
-import autoBindMethods from 'class-autobind-decorator';
-import { Route, RouteComponentProps } from 'react-router-dom';
+import React, { Component } from "react";
+import { observer } from "mobx-react";
+import autoBindMethods from "class-autobind-decorator";
+import { Route, RouteComponentProps } from "react-router-dom";
 
-import PullsDetail from './PullsDetail';
-import PullsList from './PullsList';
+import PullsDetail from "./PullsDetail";
+import PullsList from "./PullsList";
 
 @autoBindMethods
 @observer
 class PullsPages extends Component<RouteComponentProps> {
-  public renderPull (props: RouteComponentProps) {
+  public renderPull(props: RouteComponentProps) {
     return <PullsDetail {...this.props} {...props} />;
   }
 
-  public renderPullsList (props: RouteComponentProps) {
+  public renderPullsList(props: RouteComponentProps) {
     return <PullsList {...this.props} {...props} />;
   }
 
-  public render () {
+  public render() {
     const { match } = this.props;
     return (
       <div>

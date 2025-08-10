@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import { observer } from 'mobx-react';
+import React, { Component } from "react";
+import { observer } from "mobx-react";
 
-import { Table } from 'antd';
-import { TableProps } from 'antd/lib/table/interface';
+import { Table } from "antd";
+import { TableProps } from "antd/lib/table/interface";
 
 @observer
 class ObserverTable<T> extends Component<TableProps<T>> {
-  private get dataSource () {
+  private get dataSource() {
     const { dataSource } = this.props;
 
     if (dataSource && dataSource.length) {
@@ -15,7 +15,7 @@ class ObserverTable<T> extends Component<TableProps<T>> {
     return dataSource;
   }
 
-  public render () {
+  public render() {
     return <Table {...this.props} dataSource={this.dataSource} />;
   }
 }

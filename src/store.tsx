@@ -5,14 +5,7 @@ import store from "store";
 import consts from "./consts";
 import Client from "./client";
 import Resource from "./resource";
-import {
-  IPull,
-  IPullList,
-  IPullSeriesPair,
-  ISeries,
-  IWeek,
-  IUnreadIssue,
-} from "./interfaces";
+import { IPull, IPullList, IPullSeriesPair, ISeries, IWeek, IUnreadIssue } from "./interfaces";
 import { AxiosInstance } from "axios";
 
 const { ACTIONS } = consts;
@@ -44,18 +37,8 @@ class Store {
       "cv_id"
     );
 
-    this.series = new Resource(
-      this.client.user,
-      "series",
-      { weeks: 2 },
-      "series_id"
-    );
-    this.weeks = new Resource(
-      this.client.user,
-      "weeks",
-      { minutes: 20 },
-      "week_of"
-    );
+    this.series = new Resource(this.client.user, "series", { weeks: 2 }, "series_id");
+    this.weeks = new Resource(this.client.user, "weeks", { minutes: 20 }, "week_of");
 
     this.pullLists.listIfCold();
   }
@@ -77,9 +60,7 @@ class Store {
   public async getEndpoint(arg: string) {
     // /marvel:search/series/?search=
     const [client, url] = arg.slice(1).split(":"),
-      axiosInstance = (
-        this.client as unknown as { [key: string]: AxiosInstance }
-      )[client];
+      axiosInstance = (this.client as unknown as { [key: string]: AxiosInstance })[client];
 
     return await axiosInstance.get(url);
   }
@@ -190,9 +171,7 @@ class Store {
   @action
   public async mark(seriesId: string, issueId: string, actionKey: string) {
     // Robustly find the pull even if series_id is a number in API payloads
-    const pull = (this.pulls.all as any[]).find(
-      (p) => String(p.series_id) === String(seriesId)
-    );
+    const pull = (this.pulls.all as any[]).find((p) => String(p.series_id) === String(seriesId));
     if (!pull) {
       return null;
     }

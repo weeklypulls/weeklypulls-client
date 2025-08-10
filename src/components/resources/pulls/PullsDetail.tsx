@@ -94,25 +94,25 @@ class PullsDetail extends Component<RouteComponentProps> {
         dataIndex: "comic.images",
         key: "comic.images",
         title: "Covers",
-        render: (_: any, record: IComicPullSeriesPair) => (
-          <Images images={record.comic.images} />
-        ),
+        render: (_: any, record: IComicPullSeriesPair) => <Images images={record.comic.images} />,
       },
       {
-        dataIndex: 'comic.on_sale',
-        key: 'comic.on_sale',
-        title: 'On Sale',
+        dataIndex: "comic.on_sale",
+        key: "comic.on_sale",
+        title: "On Sale",
         render: (_: any, record: IComicPullSeriesPair) => {
           const text = record.comic.on_sale;
-          if (!text) { return '--'; }
+          if (!text) {
+            return "--";
+          }
           const date = text.slice(0, 10);
           return <Link to={`/weeks/${date}`}>{date}</Link>;
         },
       },
       {
-        dataIndex: 'comic.title',
-        key: 'comic.title',
-        title: 'Title',
+        dataIndex: "comic.title",
+        key: "comic.title",
+        title: "Title",
       },
     ];
   }

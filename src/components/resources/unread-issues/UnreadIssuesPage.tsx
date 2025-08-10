@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import { observer } from 'mobx-react';
-import autoBindMethods from 'class-autobind-decorator';
-import { RouteComponentProps } from 'react-router';
+import React, { Component } from "react";
+import { observer } from "mobx-react";
+import autoBindMethods from "class-autobind-decorator";
+import { RouteComponentProps } from "react-router";
 
-import UnreadIssues from './UnreadIssues';
+import UnreadIssues from "./UnreadIssues";
 
 @observer
 @autoBindMethods
 class UnreadIssuesPage extends Component<RouteComponentProps> {
-  public render () {
+  public render() {
     return <UnreadIssues {...this.props} />;
   }
 }

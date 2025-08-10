@@ -70,9 +70,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
 
       // Use trailing slash to match DRF action route
       const queryString = params.toString();
-      const endpoint = queryString
-        ? `pulls/unread_issues/?${queryString}`
-        : "pulls/unread_issues/";
+      const endpoint = queryString ? `pulls/unread_issues/?${queryString}` : "pulls/unread_issues/";
 
       const response = await store.client.user.get(endpoint);
 
@@ -212,11 +210,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
     return (
       <div>
         <Title title="Unread Issues">
-          <Button
-            type="primary"
-            onClick={this.onRefresh}
-            loading={store.unreadIssues.isLoading}
-          >
+          <Button type="primary" onClick={this.onRefresh} loading={store.unreadIssues.isLoading}>
             Refresh
           </Button>
         </Title>
@@ -235,9 +229,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
           <Col span={8}>
             <label>Since Date:</label>
             <DatePicker
-              value={
-                this.filters.since ? moment(this.filters.since) : undefined
-              }
+              value={this.filters.since ? moment(this.filters.since) : undefined}
               onChange={(date, dateString) => {
                 this.onDateChange(date, [dateString, dateString] as any);
               }}
@@ -261,8 +253,7 @@ class UnreadIssues extends Component<RouteComponentProps> {
             pageSize: 50,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} unread issues`,
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
           }}
           rowKey="cv_id"
           size="small"

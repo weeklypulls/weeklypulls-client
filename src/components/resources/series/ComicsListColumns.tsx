@@ -12,12 +12,7 @@ function pullListCell(_text: string, record: IComicPullPair) {
   if (!record.pull) {
     return "--";
   }
-  return (
-    <PullListLink
-      pullId={record.pull.id}
-      pullListId={record.pull.pull_list_id}
-    />
-  );
+  return <PullListLink pullId={record.pull.id} pullListId={record.pull.pull_list_id} />;
 }
 
 function imagesCell(_text: string, record: IComicPullPair) {
@@ -32,11 +27,7 @@ function pullLinkCell(text: string, record: IComicPullPair) {
 }
 
 const titleSort = (a: IComicPullPair, b: IComicPullPair) =>
-  utils.stringAttrsSort(a, b, [
-    "comic.title",
-    "comic.series_id",
-    "comic.on_sale",
-  ]);
+  utils.stringAttrsSort(a, b, ["comic.title", "comic.series_id", "comic.on_sale"]);
 
 const onSaleSort = (a: IComicPullPair, b: IComicPullPair) =>
   utils.stringAttrsSort(a, b, ["comic.on_sale", "comic.title"]);

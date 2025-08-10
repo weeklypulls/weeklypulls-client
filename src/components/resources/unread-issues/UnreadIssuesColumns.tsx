@@ -15,12 +15,7 @@ function coverCell(_text: string, record: IUnreadIssue) {
 
 function titleCell(text: string, record: IUnreadIssue) {
   return (
-    <a
-      href={record.site_url}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={record.description}
-    >
+    <a href={record.site_url} target="_blank" rel="noopener noreferrer" title={record.description}>
       <strong>
         {record.volume_name} #{record.number}
       </strong>
@@ -84,14 +79,12 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
   {
     dataIndex: "volume_start_year",
     key: "year",
-    sorter: (a: IUnreadIssue, b: IUnreadIssue) =>
-      a.volume_start_year - b.volume_start_year,
+    sorter: (a: IUnreadIssue, b: IUnreadIssue) => a.volume_start_year - b.volume_start_year,
     title: "Year",
     width: 80,
     filterMultiple: true,
     filters: [], // to be provided dynamically in UnreadIssues.tsx
-    onFilter: (value, record) =>
-      String(record.volume_start_year) === String(value),
+    onFilter: (value, record) => String(record.volume_start_year) === String(value),
   },
   {
     dataIndex: "store_date",

@@ -1,0 +1,11 @@
+# Build artifacts
+build/
+node_modules/
+coverage/
+
+# Generated files
+*.min.js
+
+# IDE/project files
+.vscode/
+.DS_Store
