@@ -50,7 +50,7 @@ class ComicsList extends Component<RouteComponentProps> {
     }
   }
 
-  public handleChange(pagination: PaginationConfig, filters: any, _sorter?: any, _extra?: any) {
+  public handleChange(pagination: PaginationConfig, filters: any) {
     this.injected.store.setFilters(filters as any);
   }
 

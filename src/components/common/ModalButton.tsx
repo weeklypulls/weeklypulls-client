@@ -7,7 +7,7 @@ import React, { Component, ReactNode } from "react";
 interface IProps {
   label: string;
   // Pass children as a function receiving close() to render modal body
-  render?: (close: () => void) => ReactNode;
+  render?: (onClose: () => void) => ReactNode;
   title?: string;
 }
 

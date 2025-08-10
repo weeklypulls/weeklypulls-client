@@ -17,17 +17,7 @@ module.exports = {
     react: { version: "detect" },
   },
   plugins: ["@typescript-eslint", "react", "react-hooks", "import", "jsx-a11y", "prettier"],
-  extends: [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:import/recommended",
-    "plugin:import/typescript",
-    "plugin:jsx-a11y/recommended",
-    "plugin:prettier/recommended",
-    "prettier",
-  ],
+  extends: [],
   rules: {
     // TypeScript/React common adjustments for legacy codebase
     "react/prop-types": "off",

@@ -32,7 +32,7 @@ const titleSort = (a: IComicPullPair, b: IComicPullPair) =>
 const onSaleSort = (a: IComicPullPair, b: IComicPullPair) =>
   utils.stringAttrsSort(a, b, ["comic.on_sale", "comic.title"]);
 
-function weekCell(text: string, _record: IComicPullPair) {
+function weekCell(text: string) {
   const date = text.slice(0, 10);
   return <Link to={`/weeks/${date}`}>{date}</Link>;
 }
