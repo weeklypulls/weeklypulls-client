@@ -1,5 +1,4 @@
 import { Layout, Menu } from "antd";
-import { observer } from "mobx-react";
 import React, { useContext } from "react";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -12,7 +11,6 @@ import utils from "../utils";
 import PageLogin from "./page-login/PageLogin";
 import PageLogout from "./page-logout/PageLogout";
 import PagePullLists from "./page-pull-lists/PagePullLists";
-import PageResources from "./page-resources/PageResources";
 import PullsPages from "./resources/pulls/PullsPages";
 import UnreadIssuesPage from "./resources/unread-issues/UnreadIssuesPage";
 import WeeksDetailPage from "./resources/weeks/WeeksDetailPage";
@@ -30,7 +28,7 @@ const PrivateRoute = ({ isAuthenticated, element }: PrivateRouteProps) => {
   return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
 
-export default observer(function App() {
+export default function App() {
   const store = useContext<Store>(StoreContext);
   const isAuthenticated = store.isAuthenticated;
 
@@ -47,13 +45,11 @@ export default observer(function App() {
       <Layout style={{ minHeight: "100vh" }}>
         <Header>
           <div className="logo" />
-          <Menu mode="horizontal" selectedKeys={[]} style={{ lineHeight: "64px" }} theme="dark">
-            {/* Removed legacy Comics nav */}
+          <Menu mode="horizontal" selectedKeys={[]} theme="dark">
             {renderNavLink("/unread-issues", "Unread Issues")}
             {renderNavLink("/pull-lists", "Pull Lists")}
             {renderNavLink(`/weeks/${utils.nearestWed()}`, "Weeks")}
             {renderNavLink("/pulls", "Pulls")}
-            {renderNavLink("/resources", "Resources")}
             {renderNavLink("/logout", "Logout")}
           </Menu>
         </Header>
@@ -68,7 +64,6 @@ export default observer(function App() {
             }}
           >
             <Routes>
-              {/* Redirect root to Unread Issues now that Comics page is removed */}
               <Route path="/" element={<Navigate to="/unread-issues" replace />} />
 
               <Route
@@ -96,12 +91,6 @@ export default observer(function App() {
                 }
               />
               <Route
-                path="/resources"
-                element={
-                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PageResources />} />
-                }
-              />
-              <Route
                 path="/logout"
                 element={
                   <PrivateRoute isAuthenticated={isAuthenticated} element={<PageLogout />} />
@@ -116,4 +105,4 @@ export default observer(function App() {
       </Layout>
     </Router>
   );
-});
+}

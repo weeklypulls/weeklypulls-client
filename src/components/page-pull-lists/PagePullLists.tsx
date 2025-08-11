@@ -1,27 +1,22 @@
 import { Button, Input, Modal, Table } from "antd";
-import { observer } from "mobx-react";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
-import Store from "../../store";
-import { StoreContext } from "../../storeContext";
+import { usePullLists, useCreatePullList } from "../../queries";
 import Title from "../common/Title";
 
 type IModel = Record<string, any>;
 
 function PagePullLists() {
-  const store = useContext<Store>(StoreContext);
+  const { data: pullLists = [], isLoading } = usePullLists();
+  const createMutation = useCreatePullList();
   const [isAddVisible, setIsAddVisible] = useState(false);
   const [title, setTitle] = useState("");
 
-  useEffect(() => {
-    store.pullLists.listIfCold();
-  }, [store.pullLists]);
-
   const onAddNew = useCallback(
     async (data: IModel) => {
-      await store.pullLists.post(data);
+      await createMutation.mutateAsync(data as { title: string });
     },
-    [store.pullLists]
+    [createMutation]
   );
 
   const openAdd = useCallback(() => setIsAddVisible(true), []);
@@ -33,7 +28,7 @@ function PagePullLists() {
     setTitle("");
   }, [onAddNew, title]);
 
-  const all = store.pullLists.all;
+  const all = pullLists;
   const columns = [{ title: "Title", dataIndex: "title", key: "title" }];
 
   return (
@@ -42,7 +37,13 @@ function PagePullLists() {
         <Button onClick={openAdd}>Add new</Button>
       </Title>
 
-      <Table rowKey="id" dataSource={all} columns={columns} pagination={false} />
+      <Table
+        rowKey="id"
+        dataSource={all}
+        columns={columns}
+        loading={isLoading}
+        pagination={false}
+      />
 
       <Modal open={isAddVisible} title="Add Pull List" onCancel={closeAdd} onOk={submitAdd}>
         <label htmlFor="pull-list-title" style={{ display: "block", marginBottom: 4 }}>
@@ -59,4 +60,4 @@ function PagePullLists() {
   );
 }
 
-export default observer(PagePullLists);
+export default PagePullLists;

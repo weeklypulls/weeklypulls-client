@@ -1,12 +1,11 @@
 import { Button, Card, Input } from "antd";
-import { observer } from "mobx-react";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Store from "../../store";
 import { StoreContext } from "../../storeContext";
 
-export default observer(function PageLogin() {
+export default function PageLogin() {
   const store = useContext<Store>(StoreContext);
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -24,7 +23,7 @@ export default observer(function PageLogin() {
     navigate("/");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -73,4 +72,4 @@ export default observer(function PageLogin() {
       </Card>
     </div>
   );
-});
+}

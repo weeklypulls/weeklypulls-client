@@ -1,38 +1,29 @@
 import { Button, Input, Modal, Select, Table } from "antd";
-import { observer } from "mobx-react";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
+// import { useNavigate } from "react-router-dom";
 
 import COLUMNS from "./PullsListColumns";
 import { IPullSeriesPair } from "../../../interfaces";
-import Store from "../../../store";
-import { StoreContext } from "../../../storeContext";
+import { usePulls, useSeriesForPulls, usePullLists } from "../../../queries";
 import Title from "../../common/Title";
 
 function PullsList() {
-  const store = useContext<Store>(StoreContext);
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // reserved for future navigation needs
+  const pullsQuery = usePulls();
+  const pullListsQuery = usePullLists();
+  const seriesQuery = useSeriesForPulls(!pullsQuery.isLoading);
   const [isAddVisible, setIsAddVisible] = useState(false);
   const [addSeriesId, setAddSeriesId] = useState("");
   const [addPullList, setAddPullList] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        await store.getAllSeries();
-      } catch (e: any) {
-        if (mounted && e?.response?.status === 401) {
-          navigate("/login");
-        }
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [store, navigate]);
-
-  const dataSource: IPullSeriesPair[] = useMemo(() => store.pullsWithSeries() || [], [store]);
+  const dataSource: IPullSeriesPair[] = useMemo(() => {
+    if (!pullsQuery.data) return [];
+    return pullsQuery.data.map((pull: any) => ({
+      key: pull.id,
+      pull,
+      pullList: pullListsQuery.data?.find((pl: any) => pl.id === pull.pull_list_id),
+      series: seriesQuery.data?.[pull.series_id],
+    }));
+  }, [pullsQuery.data, pullListsQuery.data, seriesQuery.data]);
 
   const onAddNew = useCallback((data: Record<string, unknown>) => {
     // Preserve existing behavior
@@ -79,7 +70,10 @@ function PullsList() {
             onChange={(val: number) => setAddPullList(val)}
             style={{ width: "100%" }}
             placeholder="Select a pull list"
-            options={store.pullLists.all.map((pl) => ({ label: pl.title, value: pl.id }))}
+            options={(pullListsQuery.data || []).map((pl: any) => ({
+              label: pl.title,
+              value: pl.id,
+            }))}
           />
         </div>
       </Modal>
@@ -87,12 +81,11 @@ function PullsList() {
       <Table<IPullSeriesPair>
         columns={COLUMNS}
         dataSource={dataSource}
-        loading={store.isLoading}
+        loading={pullsQuery.isLoading || seriesQuery.isLoading || pullListsQuery.isLoading}
         pagination={false}
         size="small"
       />
     </div>
   );
 }
-
-export default observer(PullsList);
+export default PullsList;

@@ -1,35 +1,35 @@
 import { Button, Input, Modal, Select } from "antd";
-import { observer } from "mobx-react";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { IComic, IPull } from "../../interfaces";
-import Store from "../../store";
-import { StoreContext } from "../../storeContext";
+import { usePullLists, useCreatePull } from "../../queries";
 
 interface IProps {
   comic: IComic;
   pull: IPull | undefined;
 }
 
-export default observer(function PullButton({ comic, pull }: IProps) {
-  const store = useContext<Store>(StoreContext);
+export default function PullButton({ comic, pull }: IProps) {
+  const pullListsQuery = usePullLists();
   const [visible, setVisible] = useState(false);
   const [pullListId, setPullListId] = useState<number | undefined>(undefined);
+  const createPull = useCreatePull();
 
   const open = useCallback(() => setVisible(true), []);
   const close = useCallback(() => setVisible(false), []);
   const submit = useCallback(async () => {
     if (!pullListId) return;
-    await store.pulls.post({ pull_list_id: pullListId, series_id: comic.series_id });
+    await createPull.mutateAsync({ pull_list_id: pullListId, series_id: comic.series_id });
     setVisible(false);
     setPullListId(undefined);
-  }, [comic.series_id, pullListId, store.pulls]);
+  }, [comic.series_id, pullListId, createPull]);
 
   const pullListTitle = useMemo(() => {
     if (!pull) return undefined;
-    const pl = store.pullLists.get(pull.pull_list_id);
-    return pl && pl.title ? pl.title : undefined;
-  }, [pull, store.pullLists]);
+    const pullLists = pullListsQuery.data || [];
+    const pl = pullLists.find((p: any) => String(p.id) === String(pull?.pull_list_id));
+    return pl?.title;
+  }, [pull, pullListsQuery.data]);
 
   if (pull) {
     return <>{pullListTitle || "--"}</>;
@@ -55,7 +55,10 @@ export default observer(function PullButton({ comic, pull }: IProps) {
             onChange={(val: number) => setPullListId(val)}
             style={{ width: "100%" }}
             placeholder="Select a pull list"
-            options={store.pullLists.all.map((pl) => ({ label: pl.title, value: pl.id }))}
+            options={(pullListsQuery.data || []).map((pl: any) => ({
+              label: pl.title,
+              value: pl.id,
+            }))}
           />
         </div>
       </Modal>
@@ -63,4 +66,4 @@ export default observer(function PullButton({ comic, pull }: IProps) {
       <Button onClick={open}>Pull</Button>
     </span>
   );
-});
+}

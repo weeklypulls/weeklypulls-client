@@ -1,13 +1,10 @@
 import { Table, Button, Input, Row, Col } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { observer } from "mobx-react";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
-import { ACTIONS } from "../../../consts";
 import { IUnreadIssue } from "../../../interfaces";
-import Store from "../../../store";
-import { StoreContext } from "../../../storeContext";
+import { useUnreadIssues, useMarkUnreadIssue } from "../../../queries";
 import Title from "../../common/Title";
 
 interface IFilters {
@@ -15,50 +12,16 @@ interface IFilters {
   since?: string;
 }
 
-export default observer(function UnreadIssues() {
-  const store = useContext<Store>(StoreContext);
+export default function UnreadIssues() {
   const [filters, setFilters] = useState<IFilters>({ limit: 50 });
+  const unreadIssuesQuery = useUnreadIssues(filters);
+  const markIssueMutation = useMarkUnreadIssue();
   const rowLoading = useRef<Set<number>>(new Set());
   const [, forceTick] = useState(0); // to trigger rerenders for rowLoading changes
 
-  const fetchUnreadIssues = useCallback(async () => {
-    try {
-      store.unreadIssues.isLoading = true;
-      const params = new URLSearchParams();
-      if (filters.limit) params.append("limit", filters.limit.toString());
-      if (filters.since) params.append("since", filters.since);
-      const queryString = params.toString();
-      const endpoint = queryString ? `pulls/unread_issues/?${queryString}` : "pulls/unread_issues/";
-      const response = await store.client.user.get(endpoint);
-      store.unreadIssues.objects.clear();
-      store.unreadIssues.fetchedOn.clear();
-      if (Array.isArray(response.data)) {
-        response.data.forEach((issue: IUnreadIssue) => {
-          store.unreadIssues.setObject(issue.cv_id.toString(), issue);
-        });
-      }
-      store.unreadIssues.save();
-    } catch (e) {
-      // tslint:disable-next-line no-console
-      console.error("Error fetching unread issues:", e);
-    } finally {
-      store.unreadIssues.isLoading = false;
-    }
-  }, [store, filters]);
+  // Refetch unread issues when filters change handled automatically via query key
 
-  useEffect(() => {
-    (async () => {
-      try {
-        await store.pulls.listIfCold();
-      } catch (e) {
-        // tslint:disable-next-line no-console
-        console.warn("Failed to pre-load pulls", e);
-      }
-      fetchUnreadIssues();
-    })();
-  }, [store.pulls, fetchUnreadIssues]);
-
-  const onLimitChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const onLimitChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const limit = parseInt(event.target.value, 10);
     setFilters((prev) => ({
       ...prev,
@@ -66,54 +29,31 @@ export default observer(function UnreadIssues() {
     }));
   }, []);
 
-  const onDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const onDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const since = e.target.value || undefined;
     setFilters((prev) => ({ ...prev, since }));
   }, []);
 
-  const onRefresh = useCallback(() => {
-    fetchUnreadIssues();
-  }, [fetchUnreadIssues]);
+  const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
   const markAsRead = useCallback(
     async (issue: IUnreadIssue) => {
-      const issueId = issue.cv_id.toString();
       const loadSet = rowLoading.current;
       if (loadSet.has(issue.cv_id)) return;
       loadSet.add(issue.cv_id);
       forceTick((x) => x + 1);
       try {
-        if (issue.pull_id) {
-          await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, {
-            issue_id: issue.cv_id,
-          });
-          const existingPull = store.pulls.get(issue.pull_id.toString());
-          if (existingPull) {
-            const set = new Set<string>(existingPull.read || []);
-            set.add(issueId);
-            existingPull.read = Array.from(set);
-            store.pulls.setObject(existingPull.id, existingPull);
-          }
-        } else {
-          const seriesId = issue.volume_id.toString();
-          if (!store.pulls.all.length) await store.pulls.list();
-          if (!store.pulls.getBy("series_id", seriesId)) await store.pulls.list();
-          await store.mark(seriesId, issueId, ACTIONS.READ);
-        }
-        store.unreadIssues.deleteObject(issueId);
-        store.unreadIssues.save();
+        await markIssueMutation.mutateAsync(issue);
       } catch (e) {
-        // tslint:disable-next-line no-console
         console.error("Failed to mark as read", e);
       } finally {
         loadSet.delete(issue.cv_id);
         forceTick((x) => x + 1);
       }
     },
-    [store]
+    [markIssueMutation]
   );
-
-  const data = store.unreadIssues.all;
+  const data = useMemo(() => unreadIssuesQuery.data || [], [unreadIssuesQuery.data]);
 
   const actionColumn = useMemo(
     () => ({
@@ -168,7 +108,7 @@ export default observer(function UnreadIssues() {
   return (
     <div>
       <Title title="Unread Issues">
-        <Button type="primary" onClick={onRefresh} loading={store.unreadIssues.isLoading}>
+        <Button type="primary" onClick={onRefresh} loading={unreadIssuesQuery.isLoading}>
           Refresh
         </Button>
       </Title>
@@ -210,7 +150,7 @@ export default observer(function UnreadIssues() {
       <Table
         columns={columns}
         dataSource={data}
-        loading={store.unreadIssues.isLoading}
+        loading={unreadIssuesQuery.isLoading}
         pagination={{
           pageSize: 50,
           showSizeChanger: true,
@@ -222,4 +162,4 @@ export default observer(function UnreadIssues() {
       />
     </div>
   );
-});
+}

@@ -1,15 +1,11 @@
 import { Table, Button, Input } from "antd";
 import type { TableProps } from "antd";
 import type { ColumnsType, ColumnType } from "antd/es/table";
-import { toJS } from "mobx";
-import { observer } from "mobx-react";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
 
 import COLUMNS from "./ComicsListColumns";
 import { IComic, IComicPullPair } from "../../../interfaces";
-import Store from "../../../store";
-import { StoreContext } from "../../../storeContext";
+import { usePullLists, usePulls, useSeriesForPulls } from "../../../queries";
 import utils from "../../../utils";
 
 const { future, stringSort } = utils;
@@ -17,28 +13,14 @@ const { future, stringSort } = utils;
 const isRead = (comicPair: IComicPullPair) => comicPair.read;
 
 function ComicsList() {
-  const store = useContext<Store>(StoreContext);
-  const navigate = useNavigate();
+  const pullsQuery = usePulls();
+  const pullListsQuery = usePullLists();
+  const seriesQuery = useSeriesForPulls(!pullsQuery.isLoading);
   const [searchText, setSearchText] = useState("");
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const [filters, setFilters] = useState<Record<string, string[]>>({});
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        await Promise.all([store.pullLists.listIfCold(), store.getAllSeries()]);
-      } catch (e: any) {
-        // tslint:disable-next-line no-console
-        console.error(e);
-        if (mounted && e?.response?.status === 401) {
-          navigate("/login");
-        }
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [store, navigate]);
+  // Navigation on auth failure would be handled by axios interceptor (future improvement)
 
   const handleChange: NonNullable<TableProps<IComicPullPair>["onChange"]> = (
     _pagination,
@@ -56,7 +38,7 @@ function ComicsList() {
         normalizedFilters[key] = [];
       }
     });
-    store.setFilters(normalizedFilters);
+    setFilters(normalizedFilters);
   };
 
   const onInputChange = useCallback((event: any) => {
@@ -64,31 +46,25 @@ function ComicsList() {
   }, []);
 
   const onSearch = useCallback(() => {
-    store.setFilters({
-      ...toJS(store.filters),
-      "comic.title": [searchText],
-    });
+    setFilters((prev) => ({ ...prev, "comic.title": [searchText] }));
     setFilterDropdownOpen(false);
-  }, [searchText, store]);
+  }, [searchText]);
 
   const onClear = useCallback(() => {
     setSearchText("");
-    store.setFilters({
-      ...toJS<any>(store.filters),
-      "comic.title": [],
-    });
+    setFilters((prev) => ({ ...prev, "comic.title": [] }));
     setFilterDropdownOpen(false);
-  }, [store]);
+  }, []);
 
   const columns: ColumnsType<IComicPullPair> = useMemo(() => {
-    const filters = store.filters as any;
+    const currentFilters = filters as any;
     return COLUMNS.map((column) => {
       const col: ColumnType<IComicPullPair> = { ...column };
       const key = String(column.key ?? "");
-      col.filteredValue = toJS(filters?.[key] ?? []);
+      col.filteredValue = currentFilters?.[key] ?? [];
 
       if (column.key === "pull.pull_list_id") {
-        col.filters = store.pullLists.all.map((pullList) => ({
+        col.filters = (pullListsQuery.data || []).map((pullList: any) => ({
           text: pullList.title,
           value: pullList.id,
         }));
@@ -116,8 +92,8 @@ function ComicsList() {
       return col;
     });
   }, [
-    store.filters,
-    store.pullLists.all,
+    filters,
+    pullListsQuery.data,
     filterDropdownOpen,
     onInputChange,
     onSearch,
@@ -127,32 +103,32 @@ function ComicsList() {
 
   const filterByRegex = useCallback(
     (key: string, record: IComicPullPair) => {
-      const filters = ((store.filters as any)?.[key] ?? []) as string[];
+      const active = ((filters as any)?.[key] ?? []) as string[];
       const value = (record as any)?.[key]?.toString?.() ?? "";
-      if (!filters.length) return true;
-      const filter = filters[0];
+      if (!active.length) return true;
+      const filter = active[0];
       const reg = new RegExp(filter, "gi");
       return !!value.match(reg);
     },
-    [store.filters]
+    [filters]
   );
 
   const filterBy = useCallback(
     (key: string, record: IComicPullPair) => {
-      const filters = ((store.filters as any)?.[key] ?? []) as string[];
+      const active = ((filters as any)?.[key] ?? []) as string[];
       const value = (record as any)?.[key]?.toString?.() ?? "";
-      if (!filters.length) return true;
-      return filters.includes(value);
+      if (!active.length) return true;
+      return active.includes(value);
     },
-    [store.filters]
+    [filters]
   );
 
   const dataSource: IComicPullPair[] = useMemo(() => {
-    const pulls = store.pulls.all;
+    const pulls = pullsQuery.data || [];
 
     let earliestUnread = "";
     let seriesComics = pulls.map((pull) => {
-      const series = store.series.get(pull.series_id);
+      const series = seriesQuery.data?.[pull.series_id];
       if (!series) return [];
       const comics: IComic[] = (series?.comics ?? []) as IComic[];
       const pullComicPairs = comics
@@ -183,10 +159,7 @@ function ComicsList() {
     seriesComics = seriesComics.filter((comicPair) => !comicPair.every(isRead));
 
     // flatten list
-    const comicPairs = seriesComics.reduce(
-      (flat: IComicPullPair[], toFlatten: IComicPullPair[]) => flat.concat(toJS(toFlatten)),
-      [] as IComicPullPair[]
-    );
+    const comicPairs = seriesComics.flat();
 
     const comicsPairsFiltered = comicPairs.filter((comicPair: IComicPullPair) => {
       if (comicPair.comic.on_sale < earliestUnread) return false;
@@ -198,7 +171,7 @@ function ComicsList() {
     });
 
     return comicsPairsFiltered;
-  }, [store.pulls.all, store.series, filterBy, filterByRegex]);
+  }, [pullsQuery.data, seriesQuery.data, filterBy, filterByRegex]);
 
   return (
     <div>
@@ -206,7 +179,7 @@ function ComicsList() {
       <Table
         columns={columns}
         dataSource={dataSource}
-        loading={store.isLoading}
+        loading={pullsQuery.isLoading || seriesQuery.isLoading || pullListsQuery.isLoading}
         onChange={handleChange}
         pagination={{ pageSize: 50 }}
         rowClassName={utils.rowClassName}
@@ -216,4 +189,4 @@ function ComicsList() {
   );
 }
 
-export default observer(ComicsList);
+export default ComicsList;

@@ -15,9 +15,9 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2018",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "target": "ES2022",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]

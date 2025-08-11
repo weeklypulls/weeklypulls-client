@@ -1,61 +1,41 @@
 import { Modal, Select, Table, Spin, Empty, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { observer } from "mobx-react";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 import { IComic, IComicPullSeriesPair } from "../../../interfaces";
-import Store from "../../../store";
-import { StoreContext } from "../../../storeContext";
+import { usePull, useSeries, usePullLists, useUpdatePull, useDeletePull } from "../../../queries";
 import utils from "../../../utils";
 import Images from "../../common/Images";
 import LoadingButton from "../../common/LoadingButton";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
-export default observer(function PullsDetail() {
-  const store = useContext<Store>(StoreContext);
+export default function PullsDetail() {
   const { pullId = "" } = useParams<{ pullId: string }>();
   const navigate = useNavigate();
 
   const [isBusy, setIsBusy] = useState(false);
   const [isEditVisible, setIsEditVisible] = useState(false);
   const [editPullListId, setEditPullListId] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const pull = await store.pulls.fetchIfCold(pullId);
-        await Promise.all([
-          store.pullLists.fetchIfCold(pull.pull_list_id),
-          store.series.fetchIfCold(pull.series_id),
-        ]);
-      } catch (e: any) {
-        // tslint:disable-next-line no-console
-        console.error(e);
-        if (mounted && e?.response?.status === 401) {
-          navigate("/login");
-        }
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [store, pullId, navigate]);
+  const pullQuery = usePull(pullId);
+  const pullListsQuery = usePullLists();
+  const seriesQuery = useSeries(pullQuery.data?.series_id);
+  const updatePull = useUpdatePull();
+  const deletePull = useDeletePull();
 
   const dataSource: IComicPullSeriesPair[] = useMemo(() => {
-    const pullWithSeries = store.pullWithSeries(pullId);
-    if (!pullWithSeries) return [];
-    const { series, pull } = pullWithSeries;
+    const pull = pullQuery.data;
+    const series = seriesQuery.data;
+    if (!pull || !series) return [];
     return (series?.comics ?? []).map((comic: IComic) => ({
       comic,
       key: comic.id,
       pull,
-      read: pull.read.includes(comic.id),
+      read: (pull.read || []).includes(comic.id),
       series,
     }));
-  }, [store, pullId]);
+  }, [pullQuery.data, seriesQuery.data]);
 
   const columns: ColumnsType<IComicPullSeriesPair> = useMemo(
     () => [
@@ -97,27 +77,20 @@ export default observer(function PullsDetail() {
 
   const onSave = useCallback(
     async (model: Record<string, unknown>) => {
-      const pullWithSeries = store.pullWithSeries(pullId);
-      if (!pullWithSeries) return;
-      const { pull } = pullWithSeries;
-      if (pull.id) {
-        await store.pulls.patch(pull.id, model);
-      } else {
-        await store.pulls.post({ ...model, series_id: pull.series_id });
-      }
+      if (!pullId) return;
+      await updatePull.mutateAsync({ pullId, data: model });
       setIsEditVisible(false);
     },
-    [store, pullId]
+    [pullId, updatePull]
   );
 
   const onDelete = useCallback(async () => {
+    if (!pullId) return;
     setIsBusy(true);
-    const pull = await store.pulls.fetchIfCold(pullId);
-    await store.pulls.delete(pull.id);
-    await store.pullLists.fetch(pull.pull_list_id);
+    await deletePull.mutateAsync(pullId);
     navigate(-1);
     setIsBusy(false);
-  }, [store, pullId, navigate]);
+  }, [deletePull, pullId, navigate]);
 
   const openEdit = useCallback((pullListId: number) => {
     setEditPullListId(pullListId);
@@ -130,25 +103,21 @@ export default observer(function PullsDetail() {
     [onSave, editPullListId]
   );
 
-  const pullSeriesPair = store.pullWithSeries(pullId);
-  if (isBusy) return <Spin size="large" />;
-  if (!pullSeriesPair) return <Empty description="Pull not found" />;
+  const pull = pullQuery.data;
+  if (isBusy || pullQuery.isLoading || seriesQuery.isLoading) return <Spin size="large" />;
+  if (!pull) return <Empty description="Pull not found" />;
+  const series = seriesQuery.data;
 
   return (
     <div>
-      <Title title={pullSeriesPair.series?.title || ""}>
+      <Title title={series?.title || ""}>
         <LoadingButton danger onClick={onDelete}>
           Delete
         </LoadingButton>
-        <Button onClick={() => openEdit(Number(pullSeriesPair.pull?.pull_list_id))}>Edit</Button>
+        <Button onClick={() => openEdit(Number(pull?.pull_list_id))}>Edit</Button>
       </Title>
 
-      <Modal
-        open={isEditVisible}
-        title={pullSeriesPair.series?.title || ""}
-        onCancel={closeEdit}
-        onOk={onEditOk}
-      >
+      <Modal open={isEditVisible} title={series?.title || ""} onCancel={closeEdit} onOk={onEditOk}>
         <label htmlFor="edit-pull-list" style={{ display: "block", marginBottom: 4 }}>
           Pull List
         </label>
@@ -157,17 +126,20 @@ export default observer(function PullsDetail() {
           value={editPullListId}
           onChange={(val) => setEditPullListId(val)}
           style={{ width: "100%" }}
-          options={store.pullLists.all.map((pl) => ({ label: pl.title, value: pl.id }))}
+          options={(pullListsQuery.data || []).map((pl: any) => ({
+            label: pl.title,
+            value: pl.id,
+          }))}
         />
       </Modal>
       <Table
         columns={columns}
         dataSource={dataSource}
-        loading={store.isLoading}
+        loading={pullQuery.isLoading || seriesQuery.isLoading}
         pagination={{ pageSize: 50 }}
         rowClassName={utils.rowClassName}
         size="small"
       />
     </div>
   );
-});
+}

@@ -1,52 +1,39 @@
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { Button, Row, Col } from "antd";
-import { observer } from "mobx-react";
-import React, { useContext, useEffect, useMemo } from "react";
+import { Button, Row, Col, Table } from "antd";
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import COLUMNS from "./WeeksDetailPageColumns";
 import { IComic, IComicPullPair } from "../../../interfaces";
-import Store from "../../../store";
-import { StoreContext } from "../../../storeContext";
+import { useWeek, usePulls } from "../../../queries";
 import utils from "../../../utils";
-import ObserverTable from "../../common/ObserverTable";
 
-export default observer(function WeeksDetailPage() {
-  const store = useContext<Store>(StoreContext);
+export default function WeeksDetailPage() {
   const params = useParams<{ weekId: string }>();
   const weekId = params.weekId ?? "";
 
-  useEffect(() => {
-    store.weeks.fetchIfCold(weekId);
-  }, [store.weeks, weekId]);
+  const weekQuery = useWeek(weekId);
+  const pullsQuery = usePulls();
 
   const comics: IComic[] = useMemo(() => {
-      const week = store.weeks.get(weekId);
-      return week?.comics ?? [];
-    }, [store.weeks, weekId]),
-    dataSource: IComicPullPair[] = useMemo(() => {
-      return comics.map((comic: IComic) => {
-        const pull = store.pulls.all.find((p) => String(p.series_id) === String(comic.series_id));
-        if (!pull) {
-          return {
-            comic,
-            key: comic.id,
-            pull,
-            read: false,
-            store,
-          };
-        }
-        return {
-          comic,
-          key: comic.id,
-          pull,
-          read: pull.read.includes(comic.id),
-          store,
-        };
-      });
-    }, [comics, store]),
-    nextWeek = utils.nextWeek(weekId),
-    lastWeek = utils.prevWeek(weekId);
+    return weekQuery.data?.comics ?? [];
+  }, [weekQuery.data]);
+
+  const dataSource: IComicPullPair[] = useMemo(() => {
+    const pulls = pullsQuery.data ?? [];
+    return comics.map((comic: IComic) => {
+      const pull = pulls.find((p) => String(p.series_id) === String(comic.series_id));
+      return {
+        comic,
+        key: comic.id,
+        pull,
+        read: pull ? pull.read.includes(comic.id) : false,
+      };
+    });
+  }, [comics, pullsQuery.data]);
+
+  const nextWeek = utils.nextWeek(weekId);
+  const lastWeek = utils.prevWeek(weekId);
 
   return (
     <div>
@@ -73,13 +60,14 @@ export default observer(function WeeksDetailPage() {
         </Col>
       </Row>
 
-      <ObserverTable
+      <Table
         columns={COLUMNS}
         dataSource={dataSource}
-        loading={store.isLoading}
+        loading={weekQuery.isLoading || pullsQuery.isLoading}
         pagination={false}
         size="small"
+        rowClassName={utils.rowClassName}
       />
     </div>
   );
-});
+}
