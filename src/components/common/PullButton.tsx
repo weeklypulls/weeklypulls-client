@@ -38,7 +38,7 @@ export default observer(function PullButton({ comic, pull }: IProps) {
   const { series_id } = comic;
   return (
     <span>
-      <Modal visible={visible} title="Add to pull list" onCancel={close} onOk={submit}>
+      <Modal open={visible} title="Add to pull list" onCancel={close} onOk={submit}>
         <div style={{ marginBottom: 12 }}>
           <label htmlFor={`pull-series-${series_id}`} style={{ display: "block", marginBottom: 4 }}>
             Series
@@ -55,13 +55,8 @@ export default observer(function PullButton({ comic, pull }: IProps) {
             onChange={(val: number) => setPullListId(val)}
             style={{ width: "100%" }}
             placeholder="Select a pull list"
-          >
-            {store.pullLists.all.map((pl) => (
-              <Select.Option key={pl.id} value={pl.id}>
-                {pl.title}
-              </Select.Option>
-            ))}
-          </Select>
+            options={store.pullLists.all.map((pl) => ({ label: pl.title, value: pl.id }))}
+          />
         </div>
       </Modal>
 

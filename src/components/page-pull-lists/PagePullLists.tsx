@@ -44,7 +44,7 @@ function PagePullLists() {
 
       <Table rowKey="id" dataSource={all} columns={columns} pagination={false} />
 
-      <Modal visible={isAddVisible} title="Add Pull List" onCancel={closeAdd} onOk={submitAdd}>
+      <Modal open={isAddVisible} title="Add Pull List" onCancel={closeAdd} onOk={submitAdd}>
         <label htmlFor="pull-list-title" style={{ display: "block", marginBottom: 4 }}>
           Title
         </label>

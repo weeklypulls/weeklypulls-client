@@ -1,6 +1,6 @@
 import { Table, Button, Input } from "antd";
 import type { TableProps } from "antd";
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnsType, ColumnType } from "antd/es/table";
 import { toJS } from "mobx";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -20,7 +20,7 @@ function ComicsList() {
   const store = useContext<Store>(StoreContext);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
-  const [filterDropdownVisible, setFilterDropdownVisible] = useState(false);
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -68,7 +68,7 @@ function ComicsList() {
       ...toJS(store.filters),
       "comic.title": [searchText],
     });
-    setFilterDropdownVisible(false);
+    setFilterDropdownOpen(false);
   }, [searchText, store]);
 
   const onClear = useCallback(() => {
@@ -77,13 +77,13 @@ function ComicsList() {
       ...toJS<any>(store.filters),
       "comic.title": [],
     });
-    setFilterDropdownVisible(false);
+    setFilterDropdownOpen(false);
   }, [store]);
 
-  const columns: Array<ColumnProps<IComicPullPair>> = useMemo(() => {
+  const columns: ColumnsType<IComicPullPair> = useMemo(() => {
     const filters = store.filters as any;
     return COLUMNS.map((column) => {
-      const col: ColumnProps<IComicPullPair> = { ...column };
+      const col: ColumnType<IComicPullPair> = { ...column };
       const key = String(column.key ?? "");
       col.filteredValue = toJS(filters?.[key] ?? []);
 
@@ -95,8 +95,8 @@ function ComicsList() {
       }
 
       if (column.key === "comic.title") {
-        col.onFilterDropdownVisibleChange = (visible: boolean) => setFilterDropdownVisible(visible);
-        col.filterDropdownVisible = filterDropdownVisible;
+        col.onFilterDropdownOpenChange = (open: boolean) => setFilterDropdownOpen(open);
+        col.filterDropdownOpen = filterDropdownOpen;
         col.filterDropdown = (
           <div className="custom-filter-dropdown">
             <Input
@@ -118,7 +118,7 @@ function ComicsList() {
   }, [
     store.filters,
     store.pullLists.all,
-    filterDropdownVisible,
+    filterDropdownOpen,
     onInputChange,
     onSearch,
     onClear,

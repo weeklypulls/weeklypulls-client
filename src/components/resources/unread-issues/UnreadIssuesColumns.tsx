@@ -1,4 +1,4 @@
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnsType } from "antd/es/table";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -43,7 +43,7 @@ const titleSort = (a: IUnreadIssue, b: IUnreadIssue) =>
 const storeDateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
   utils.stringAttrsSort(a, b, ["store_date", "volume_name", "number"]);
 
-const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
+const COLUMNS: ColumnsType<IUnreadIssue> = [
   {
     dataIndex: "image_medium_url",
     key: "cover",

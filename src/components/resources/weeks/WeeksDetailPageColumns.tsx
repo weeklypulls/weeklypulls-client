@@ -1,4 +1,4 @@
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnsType } from "antd/es/table";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -21,7 +21,7 @@ function titleSort(a: { comic: IComic }, b: { comic: IComic }) {
   return utils.stringAttrsSort(a, b, ["comic.title", "comic.series_id"]);
 }
 
-const COLUMNS: Array<ColumnProps<IComicPullPair>> = [
+const COLUMNS: ColumnsType<IComicPullPair> = [
   {
     dataIndex: "comic.title",
     key: "comic.title",

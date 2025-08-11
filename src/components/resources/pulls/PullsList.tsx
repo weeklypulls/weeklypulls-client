@@ -4,10 +4,10 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { useNavigate } from "react-router-dom";
 
 import COLUMNS from "./PullsListColumns";
+import { IPullSeriesPair } from "../../../interfaces";
 import Store from "../../../store";
 import { StoreContext } from "../../../storeContext";
 import Title from "../../common/Title";
-import { IPullSeriesPair } from "../../../interfaces";
 
 function PullsList() {
   const store = useContext<Store>(StoreContext);
@@ -57,7 +57,7 @@ function PullsList() {
         <Button onClick={openAdd}>Add new</Button>
       </Title>
 
-      <Modal visible={isAddVisible} title="Add Series" onCancel={closeAdd} onOk={submitAdd}>
+      <Modal open={isAddVisible} title="Add Series" onCancel={closeAdd} onOk={submitAdd}>
         <div style={{ marginBottom: 12 }}>
           <label htmlFor="add-series" style={{ display: "block", marginBottom: 4 }}>
             Series

@@ -17,7 +17,7 @@ import PullsPages from "./resources/pulls/PullsPages";
 import UnreadIssuesPage from "./resources/unread-issues/UnreadIssuesPage";
 import WeeksDetailPage from "./resources/weeks/WeeksDetailPage";
 
-import "antd/dist/antd.css";
+import "antd/dist/reset.css";
 
 const { Header, Content, Footer } = Layout;
 

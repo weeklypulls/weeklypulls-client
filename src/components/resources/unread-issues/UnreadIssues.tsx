@@ -1,4 +1,5 @@
 import { Table, Button, Input, Row, Col } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
@@ -8,7 +9,6 @@ import { IUnreadIssue } from "../../../interfaces";
 import Store from "../../../store";
 import { StoreContext } from "../../../storeContext";
 import Title from "../../common/Title";
-import { ColumnProps } from "antd/lib/table";
 
 interface IFilters {
   limit?: number;
@@ -133,7 +133,7 @@ export default observer(function UnreadIssues() {
     [markAsRead]
   );
 
-  const columns: ColumnProps<IUnreadIssue>[] = useMemo(
+  const columns: ColumnsType<IUnreadIssue> = useMemo(
     () => [...COLUMNS, actionColumn],
     [actionColumn]
   );

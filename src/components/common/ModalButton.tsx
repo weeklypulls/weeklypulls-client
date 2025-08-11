@@ -16,7 +16,7 @@ export default function ModalButton({ label, render, title }: IProps) {
   return (
     <>
       <Button onClick={open}>{label}</Button>
-      <Modal visible={isVisible} onCancel={close} onOk={close} title={title}>
+      <Modal open={isVisible} onCancel={close} onOk={close} title={title}>
         {render ? render(close) : null}
       </Modal>
     </>

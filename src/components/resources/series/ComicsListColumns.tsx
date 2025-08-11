@@ -1,4 +1,4 @@
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnsType } from "antd/es/table";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -41,7 +41,7 @@ function readCell(text: string, record: IComicPullPair) {
   return <ReadButton comic={record.comic} value={record.read} />;
 }
 
-const COLUMNS: Array<ColumnProps<IComicPullPair>> = [
+const COLUMNS: ColumnsType<IComicPullPair> = [
   {
     dataIndex: "read",
     filterMultiple: false,

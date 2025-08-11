@@ -1,5 +1,5 @@
 import { Modal, Select, Table, Spin, Empty, Button } from "antd";
-import { ColumnProps } from "antd/lib/table";
+import type { ColumnsType } from "antd/es/table";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
@@ -20,7 +20,7 @@ export default observer(function PullsDetail() {
 
   const [isBusy, setIsBusy] = useState(false);
   const [isEditVisible, setIsEditVisible] = useState(false);
-  const [editPullListId, setEditPullListId] = useState<string | undefined>(undefined);
+  const [editPullListId, setEditPullListId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     let mounted = true;
@@ -57,7 +57,7 @@ export default observer(function PullsDetail() {
     }));
   }, [store, pullId]);
 
-  const columns: Array<ColumnProps<IComicPullSeriesPair>> = useMemo(
+  const columns: ColumnsType<IComicPullSeriesPair> = useMemo(
     () => [
       {
         dataIndex: "read",
@@ -119,7 +119,7 @@ export default observer(function PullsDetail() {
     setIsBusy(false);
   }, [store, pullId, navigate]);
 
-  const openEdit = useCallback((pullListId: string) => {
+  const openEdit = useCallback((pullListId: number) => {
     setEditPullListId(pullListId);
     setIsEditVisible(true);
   }, []);
@@ -140,11 +140,11 @@ export default observer(function PullsDetail() {
         <LoadingButton danger onClick={onDelete}>
           Delete
         </LoadingButton>
-        <Button onClick={() => openEdit(pullSeriesPair.pull?.pull_list_id)}>Edit</Button>
+        <Button onClick={() => openEdit(Number(pullSeriesPair.pull?.pull_list_id))}>Edit</Button>
       </Title>
 
       <Modal
-        visible={isEditVisible}
+        open={isEditVisible}
         title={pullSeriesPair.series?.title || ""}
         onCancel={closeEdit}
         onOk={onEditOk}
@@ -152,7 +152,7 @@ export default observer(function PullsDetail() {
         <label htmlFor="edit-pull-list" style={{ display: "block", marginBottom: 4 }}>
           Pull List
         </label>
-        <Select<string>
+        <Select<number>
           id="edit-pull-list"
           value={editPullListId}
           onChange={(val) => setEditPullListId(val)}
@@ -160,7 +160,6 @@ export default observer(function PullsDetail() {
           options={store.pullLists.all.map((pl) => ({ label: pl.title, value: pl.id }))}
         />
       </Modal>
-
       <Table
         columns={columns}
         dataSource={dataSource}
