@@ -8,29 +8,33 @@ import Images from "../../common/Images";
 
 function coverCell(_text: string, record: IUnreadIssue) {
   const url = record.image_medium_url || record.image_url;
-  if (!url) {
-    return "--";
-  }
+  if (!url) return null; // blank cell when no image
   return <Images images={[url]} />;
 }
 
-function titleCell(text: string, record: IUnreadIssue) {
-  return (
-    <a href={record.site_url} target="_blank" rel="noopener noreferrer" title={record.description}>
+function titleCell(_text: string, record: IUnreadIssue) {
+  const content = (
+    <span title={record.description}>
       <strong>
         {record.volume_name} #{record.number}
       </strong>
       <br />
       <small>{record.name}</small>
+    </span>
+  );
+  if (!record.site_url) return content;
+  return (
+    <a href={record.site_url} target="_blank" rel="noopener noreferrer" title={record.description}>
+      {content}
     </a>
   );
 }
 
 function pullCell(_text: string, record: IUnreadIssue) {
-  if (!record.pull_id) {
-    return "--";
-  }
-  return <Link to={`/pulls/${String(record.pull_id)}`}>Pull</Link>;
+  if (!record.pull_id) return "--";
+  const title = record.volume_name || "Series";
+  const year = record.volume_start_year ? ` (${record.volume_start_year})` : "";
+  return <Link to={`/pulls/${String(record.pull_id)}`}>{title + year}</Link>;
 }
 
 function dateCell(text: string) {
@@ -50,15 +54,6 @@ const COLUMNS: ColumnsType<IUnreadIssue> = [
     render: coverCell,
     title: "Cover",
     width: 80,
-    filterMultiple: false,
-    filters: [
-      { text: "Has cover", value: "has" },
-      { text: "No cover", value: "none" },
-    ],
-    onFilter: (value, record) => {
-      const has = !!(record.image_medium_url || record.image_url);
-      return value === "has" ? has : !has;
-    },
   },
   {
     dataIndex: "volume_name",
@@ -66,26 +61,20 @@ const COLUMNS: ColumnsType<IUnreadIssue> = [
     render: titleCell,
     sorter: titleSort,
     title: "Title",
-    filterMultiple: true,
-    filters: [], // to be provided dynamically in UnreadIssues.tsx
-    onFilter: (value, record) => String(record.volume_name) === String(value),
+    // filters now applied on pull column combining title + year
   },
   {
     dataIndex: "pull_id",
     key: "pull",
     render: pullCell,
     title: "Pull",
-    width: 80,
-  },
-  {
-    dataIndex: "volume_start_year",
-    key: "year",
-    sorter: (a: IUnreadIssue, b: IUnreadIssue) => a.volume_start_year - b.volume_start_year,
-    title: "Year",
-    width: 80,
+    width: 200,
     filterMultiple: true,
-    filters: [], // to be provided dynamically in UnreadIssues.tsx
-    onFilter: (value, record) => String(record.volume_start_year) === String(value),
+    filters: [], // dynamically populated (volume title + year)
+    onFilter: (value, record) => {
+      const text = `${record.volume_name || ""}$${record.volume_start_year || ""}`;
+      return text === String(value);
+    },
   },
   {
     dataIndex: "store_date",

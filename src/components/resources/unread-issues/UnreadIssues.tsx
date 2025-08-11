@@ -1,10 +1,11 @@
 import { Table, Button, Input, Row, Col } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo, useRef, useState, ChangeEvent } from "react";
+import { useCallback, useMemo, useState, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { IUnreadIssue } from "../../../interfaces";
-import { useUnreadIssues, useMarkUnreadIssue } from "../../../queries";
+import { useUnreadIssues } from "../../../queries";
+import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
 interface IFilters {
@@ -15,9 +16,7 @@ interface IFilters {
 export default function UnreadIssues() {
   const [filters, setFilters] = useState<IFilters>({ limit: 50 });
   const unreadIssuesQuery = useUnreadIssues(filters);
-  const markIssueMutation = useMarkUnreadIssue();
-  const rowLoading = useRef<Set<number>>(new Set());
-  const [, forceTick] = useState(0); // to trigger rerenders for rowLoading changes
+  // marking handled via ReadButton (uses optimistic cache + invalidation)
 
   // Refetch unread issues when filters change handled automatically via query key
 
@@ -36,72 +35,48 @@ export default function UnreadIssues() {
 
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
-  const markAsRead = useCallback(
-    async (issue: IUnreadIssue) => {
-      const loadSet = rowLoading.current;
-      if (loadSet.has(issue.cv_id)) return;
-      loadSet.add(issue.cv_id);
-      forceTick((x) => x + 1);
-      try {
-        await markIssueMutation.mutateAsync(issue);
-      } catch (e) {
-        console.error("Failed to mark as read", e);
-      } finally {
-        loadSet.delete(issue.cv_id);
-        forceTick((x) => x + 1);
-      }
-    },
-    [markIssueMutation]
-  );
   const data = useMemo(() => unreadIssuesQuery.data || [], [unreadIssuesQuery.data]);
+  const columns: ColumnsType<IUnreadIssue> = useMemo(() => {
+    const readCol = {
+      key: "read",
+      dataIndex: "read",
+      title: "",
+      width: 48,
+      render: (_: unknown, issue: IUnreadIssue) => {
+        // adapt unread issue into minimal IComic shape needed by ReadButton
+        const comicLike: any = {
+          id: String(issue.cv_id),
+          // fall back chain for date fields
+          on_sale: issue.store_date || issue.cover_date || "",
+          series_id: String(issue.volume_id),
+          images: issue.image_url
+            ? [issue.image_url]
+            : issue.image_medium_url
+              ? [issue.image_medium_url]
+              : [],
+        };
+        return <ReadButton comic={comicLike} value={false} />; // unread list only shows unread items
+      },
+    } as any;
+    return [readCol, ...COLUMNS];
+  }, []);
 
-  const actionColumn = useMemo(
-    () => ({
-      key: "actions",
-      title: "Actions",
-      width: 120,
-      render: (_text: unknown, record: IUnreadIssue) => (
-        <Button
-          type="link"
-          onClick={() => markAsRead(record)}
-          loading={rowLoading.current.has(record.cv_id)}
-        >
-          Mark Read
-        </Button>
-      ),
-    }),
-    [markAsRead]
-  );
-
-  const columns: ColumnsType<IUnreadIssue> = useMemo(
-    () => [...COLUMNS, actionColumn],
-    [actionColumn]
-  );
-
-  const titleOptions = useMemo(
-    () =>
-      Array.from(new Set(data.map((i) => (i.volume_name || "").trim()).filter((n) => !!n))).sort(),
-    [data]
-  );
-  const yearOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          data
-            .map((i) => i.volume_start_year)
-            .filter((y) => y !== null && y !== undefined)
-            .map((y) => String(y))
-        )
-      ).sort((a, b) => Number(a) - Number(b)),
-    [data]
-  );
+  const pullFilterOptions = useMemo(() => {
+    const map = new Map<string, { text: string; value: string }>();
+    data.forEach((i) => {
+      const base = (i.volume_name || "").trim();
+      if (!base) return;
+      const year = i.volume_start_year ? ` (${i.volume_start_year})` : "";
+      const label = `${base}${year}`;
+      const value = `${base}$${i.volume_start_year || ""}`;
+      if (!map.has(value)) map.set(value, { text: label, value });
+    });
+    return Array.from(map.values()).sort((a, b) => a.text.localeCompare(b.text));
+  }, [data]);
 
   columns.forEach((col) => {
-    if (col.key === "title") {
-      col.filters = titleOptions.map((name) => ({ text: name, value: name }));
-    }
-    if (col.key === "year") {
-      col.filters = yearOptions.map((y) => ({ text: y, value: y }));
+    if (col.key === "pull") {
+      col.filters = pullFilterOptions;
     }
   });
 
