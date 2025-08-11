@@ -1,10 +1,17 @@
-import { Button, Icon } from "antd";
+import { Button } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
+import { CheckOutlined, CloseOutlined, DoubleRightOutlined } from "@ant-design/icons";
 
 import { IComic } from "../../interfaces";
 import Store from "../../store";
+
+const ICON_MAP: { [key: string]: React.ReactNode } = {
+  check: <CheckOutlined />,
+  close: <CloseOutlined />,
+  "double-right": <DoubleRightOutlined />,
+};
 
 interface IProps {
   actions: [string, string];
@@ -40,12 +47,16 @@ class BoolButton extends Component<IProps> {
 
   public render() {
     const { value, langs, icons } = this.props,
-      icon = icons[value ? 1 : 0],
+      iconKey = icons[value ? 1 : 0],
       lang = langs[value ? 1 : 0];
     return (
-      <Button className="action-button" size="small" onClick={this.mark}>
-        <Icon type={icon} title={lang} />
-      </Button>
+      <Button
+        className="action-button"
+        size="small"
+        onClick={this.mark}
+        icon={ICON_MAP[iconKey]}
+        title={lang}
+      />
     );
   }
 }

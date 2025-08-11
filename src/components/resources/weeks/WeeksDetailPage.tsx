@@ -1,4 +1,5 @@
-import { Button, Icon, Row, Col } from "antd";
+import { Button, Row, Col } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import autoBindMethods from "class-autobind-decorator";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
@@ -86,7 +87,7 @@ class WeeksDetailPage extends Component<IProps> {
 
     return (
       <div>
-        <Row type="flex" justify="space-between" align="top">
+        <Row justify="space-between" align="top">
           <Col span={12}>
             <h2>Week of {weekId}</h2>
           </Col>
@@ -94,17 +95,15 @@ class WeeksDetailPage extends Component<IProps> {
             <Button.Group>
               <Link to={`/weeks/${lastWeek}`}>
                 <Button type="primary">
-                  <Icon type="left" />
+                  <LeftOutlined />
                   {lastWeek}
                 </Button>
               </Link>{" "}
-              <Button type="ghost" disabled>
-                {weekId}
-              </Button>{" "}
+              <Button disabled>{weekId}</Button>{" "}
               <Link to={`/weeks/${nextWeek}`}>
                 <Button type="primary">
                   {nextWeek}
-                  <Icon type="right" />
+                  <RightOutlined />
                 </Button>
               </Link>
             </Button.Group>

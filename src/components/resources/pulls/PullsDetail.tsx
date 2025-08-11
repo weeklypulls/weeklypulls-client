@@ -168,7 +168,7 @@ class PullsDetail extends Component<RouteComponentProps> {
     return (
       <div>
         <Title title={pullSeriesPair.series.title}>
-          <LoadingButton type="danger" onClick={this.onDelete}>
+          <LoadingButton danger onClick={this.onDelete}>
             Delete
           </LoadingButton>
           <Button onClick={() => this.openEdit(pullSeriesPair.pull.pull_list_id)}>Edit</Button>

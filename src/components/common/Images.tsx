@@ -1,7 +1,8 @@
-import { Icon, Popover } from "antd";
+import { Popover } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
+import { PictureOutlined } from "@ant-design/icons";
 
 interface IProps {
   images: string[];
@@ -27,7 +28,7 @@ class Images extends Component<IProps> {
           style={{ marginLeft: "2px" }}
           target="_blank"
         >
-          <Icon type="picture" />
+          <PictureOutlined />
         </a>
       </Popover>
     ));

@@ -4,7 +4,7 @@ import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
 
-import Store from "../../store";
+import Store, { Resources } from "../../store";
 
 interface IInjected extends RouteComponentProps {
   store: Store;
@@ -45,7 +45,7 @@ class PageResources extends Component<RouteComponentProps> {
     return this.props as IInjected;
   }
 
-  private renderClickable(value: string) {
+  private renderClickable(value: keyof Resources) {
     const resource = this.injected.store.resources[value];
 
     if (!resource) {
@@ -56,11 +56,13 @@ class PageResources extends Component<RouteComponentProps> {
   }
 
   public render() {
-    const model = Object.keys(this.injected.store.resources).map((key) => ({
-      clearKey: key,
-      key,
-      cachedValues: this.injected.store.resources[key].all.length,
-    }));
+    const model = (Object.keys(this.injected.store.resources) as Array<keyof Resources>).map(
+      (key) => ({
+        clearKey: key,
+        key,
+        cachedValues: this.injected.store.resources[key].all.length,
+      })
+    );
 
     const columns = [
       { title: "Key", dataIndex: "key", key: "key" },
@@ -68,7 +70,7 @@ class PageResources extends Component<RouteComponentProps> {
         title: "Clear",
         dataIndex: "clearKey",
         key: "clearKey",
-        render: (value: string) => this.renderClickable(value),
+        render: (value: keyof Resources) => this.renderClickable(value),
       },
       { title: "Cached Values", dataIndex: "cachedValues", key: "cachedValues" },
     ];

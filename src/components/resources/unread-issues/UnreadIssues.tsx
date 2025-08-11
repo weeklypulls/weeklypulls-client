@@ -1,10 +1,8 @@
 import { Table, Button, Input, Row, Col } from "antd";
-import { FormComponentProps } from "antd/lib/form";
-import autoBindMethods from "class-autobind-decorator";
-import { observable, action } from "mobx";
+import { RouteComponentProps } from "react-router";
+import { action, observable } from "mobx";
 import { inject, observer } from "mobx-react";
 import React, { Component } from "react";
-import { RouteComponentProps } from "react-router";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { ACTIONS } from "../../../consts";
@@ -17,12 +15,11 @@ interface IFilters {
   since?: string;
 }
 
-interface IInjected extends RouteComponentProps, FormComponentProps {
+interface IInjected extends RouteComponentProps {
   store: Store;
 }
 
 @inject("store")
-@autoBindMethods
 @observer
 class UnreadIssues extends Component<RouteComponentProps> {
   @observable public filters: IFilters = { limit: 50 };

@@ -15,7 +15,7 @@ export const COL_SPAN_BUTTON = 4;
 class Title extends Component<IProps> {
   public render() {
     return (
-      <Row type="flex" justify="space-between" align="top">
+      <Row justify="space-between" align="top">
         <Col span={COL_SPAN_TITLE}>
           <h2>{this.props.title}</h2>
         </Col>

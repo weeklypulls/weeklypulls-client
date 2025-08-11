@@ -40,7 +40,7 @@ class PagePullLists extends Component<
   };
 
   public render() {
-    const all = this.injected.store.resources.pullLists.all;
+    const all = this.injected.store.pullLists.all;
     const columns = [{ title: "Title", dataIndex: "title", key: "title" }];
 
     return (

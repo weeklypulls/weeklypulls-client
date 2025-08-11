@@ -1,6 +1,6 @@
 import { AxiosInstance } from "axios";
 import autoBindMethods from "class-autobind-decorator";
-import { action, observable } from "mobx";
+import { makeObservable, observable } from "mobx";
 import store from "store";
 
 import Client from "./client";
@@ -12,9 +12,17 @@ export interface IFilters {
   [key: string]: string[];
 }
 
+export type Resources = {
+  pullLists: Resource<IPullList>;
+  pulls: Resource<IPull>;
+  series: Resource<ISeries>;
+  unreadIssues: Resource<IUnreadIssue>;
+  weeks: Resource<IWeek>;
+};
+
 @autoBindMethods
 class Store {
-  @observable public _filters: IFilters = {};
+  public _filters: IFilters = {};
   public client: Client;
 
   public pullLists: Resource<IPullList>;
@@ -24,6 +32,9 @@ class Store {
   public unreadIssues: Resource<IUnreadIssue>;
 
   public constructor() {
+    makeObservable(this, {
+      _filters: observable,
+    });
     this.client = new Client();
 
     this.pulls = new Resource(this.client.user, "pulls", { minutes: 20 });
@@ -41,7 +52,7 @@ class Store {
     this.pullLists.listIfCold();
   }
 
-  public get resources(): { [key: string]: Resource<unknown> } {
+  public get resources(): Resources {
     return {
       pullLists: this.pullLists,
       pulls: this.pulls,
@@ -158,7 +169,6 @@ class Store {
     return lastStartWeek;
   }
 
-  @action
   public async getAllSeries() {
     const pulls = await this.pulls.listIfCold();
     for (const pull of pulls as any[]) {
@@ -166,10 +176,9 @@ class Store {
     }
   }
 
-  @action
   public async mark(seriesId: string, issueId: string, actionKey: string) {
     // Robustly find the pull even if series_id is a number in API payloads
-    const pull = (this.pulls.all as any[]).find((p) => String(p.series_id) === String(seriesId));
+    const pull = this.pulls.all.find((p) => String(p.series_id) === String(seriesId));
     if (!pull) {
       return null;
     }

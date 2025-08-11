@@ -1,5 +1,5 @@
 import { Table, Button, Input } from "antd";
-import { PaginationConfig } from "antd/lib/pagination";
+import type { TableProps } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import autoBindMethods from "class-autobind-decorator";
 import { toJS, observable } from "mobx";
@@ -50,9 +50,25 @@ class ComicsList extends Component<RouteComponentProps> {
     }
   }
 
-  public handleChange(pagination: PaginationConfig, filters: any) {
-    this.injected.store.setFilters(filters as any);
-  }
+  public handleChange: NonNullable<TableProps<IComicPullPair>["onChange"]> = (
+    _pagination,
+    filters
+  ) => {
+    // Convert all filter values to string arrays, replacing null/undefined with []
+    const normalizedFilters: Record<string, string[]> = {};
+    const isString = (value: any): value is string => typeof value === "string";
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        normalizedFilters[key] = value.filter(isString);
+      } else if (isString(value)) {
+        normalizedFilters[key] = [value];
+      } else {
+        normalizedFilters[key] = [];
+      }
+    });
+    this.injected.store.setFilters(normalizedFilters);
+  };
 
   public onInputChange(event: any) {
     this.searchText = event.target.value;
@@ -66,7 +82,7 @@ class ComicsList extends Component<RouteComponentProps> {
     const { store } = this.injected;
 
     store.setFilters({
-      ...toJS<any>(store.filters),
+      ...toJS(store.filters),
       "comic.title": [this.searchText],
     });
 

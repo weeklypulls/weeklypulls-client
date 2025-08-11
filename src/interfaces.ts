@@ -19,6 +19,7 @@ export interface IPull {
 }
 
 export interface IWeek {
+  week_of: string;
   comics: IComic[];
 }
 

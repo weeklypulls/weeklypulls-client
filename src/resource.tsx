@@ -1,30 +1,32 @@
 import { AxiosInstance } from "axios";
-import autoBindMethods from "class-autobind-decorator";
-import { observable, action } from "mobx";
+import { makeObservable, observable } from "mobx";
 import store from "store";
 
-@autoBindMethods
-class Resource<T> {
+class Resource<T extends { [key: string]: any } = any> {
+  public objects = new Map<string, T>();
+  public isLoading = true;
   public client: AxiosInstance;
   public endpoint: string;
-  public idKey: string;
-
-  @observable public objects = new Map<string, T>();
-  @observable public isLoading = true;
-
-  @observable public fetchedOn = new Map<string, number>();
+  public fetchedOn = new Map<string, number>();
   private maxCacheMs: number;
+  private idKey: keyof T;
 
   public constructor(
     client: AxiosInstance,
     endpoint: string,
-    maxCache: { minutes?: number; weeks?: number },
-    idKey = "id"
+    cache: { minutes?: number; weeks?: number } = { minutes: 60 },
+    idKey: keyof T = "id" as keyof T
   ) {
+    makeObservable(this, {
+      objects: observable,
+      isLoading: observable,
+      fetchedOn: observable,
+    });
     this.client = client;
     this.endpoint = endpoint;
-    this.maxCacheMs = ((maxCache.minutes || 0) * 60 + (maxCache.weeks || 0) * 7 * 24 * 60) * 1000;
     this.idKey = idKey;
+
+    this.maxCacheMs = ((cache.minutes || 0) * 60 + (cache.weeks || 0) * 7 * 24 * 60) * 1000;
 
     this.load();
   }
@@ -94,7 +96,6 @@ class Resource<T> {
     return Array.from(this.objects.values());
   }
 
-  @action
   public async listIfCold() {
     if (this.cacheTooCold("list")) {
       // tslint:disable-next-line no-console
@@ -104,7 +105,6 @@ class Resource<T> {
     return this.all;
   }
 
-  @action
   public async list(): Promise<T[]> {
     this.isLoading = true;
     const response = await this.client.get(`${this.endpoint}/`),
@@ -128,7 +128,6 @@ class Resource<T> {
     return this.objects.get(id);
   }
 
-  @action
   public async fetchIfCold(id: string): Promise<T> {
     if (this.cacheTooCold(id)) {
       // tslint:disable-next-line no-console
@@ -138,7 +137,6 @@ class Resource<T> {
     return this.get(id) as T;
   }
 
-  @action
   public async fetch(id: string): Promise<T> {
     try {
       this.isLoading = true;
@@ -155,7 +153,6 @@ class Resource<T> {
     return this.objects.get(id) as T;
   }
 
-  @action
   public async patch(id: string, data: Record<string, unknown>) {
     this.isLoading = true;
     const response = await this.client.patch(`${this.endpoint}/${id}/`, data);
@@ -166,7 +163,6 @@ class Resource<T> {
     return response.data as T;
   }
 
-  @action
   public async post(data: Record<string, unknown>) {
     this.isLoading = true;
     const response = await this.client.post(`${this.endpoint}/`, data),
@@ -179,7 +175,6 @@ class Resource<T> {
     return response.data as T;
   }
 
-  @action
   public async delete(id: string) {
     this.isLoading = true;
     await this.client.delete(`${this.endpoint}/${id}/`);

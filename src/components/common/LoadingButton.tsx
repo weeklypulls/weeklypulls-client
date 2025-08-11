@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { ButtonProps } from "antd/lib/button/button";
+import type { ButtonProps } from "antd";
 import autoBindMethods from "class-autobind-decorator";
 import { observer } from "mobx-react";
 import React, { Component } from "react";
@@ -23,9 +23,10 @@ class LoadingButton extends Component<IProps> {
   }
 
   public render() {
+    const { children, ...rest } = this.props;
     return (
-      <Button {...this.props} loading={this.state.isLoading} onClick={this.onClick}>
-        {this.props.children}
+      <Button {...rest} loading={this.state.isLoading} onClick={this.onClick}>
+        {children}
       </Button>
     );
   }

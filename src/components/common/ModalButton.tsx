@@ -1,6 +1,6 @@
 import { Button, Modal } from "antd";
 import autoBindMethods from "class-autobind-decorator";
-import { action, observable } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import { observer } from "mobx-react";
 import React, { Component, ReactNode } from "react";
 
