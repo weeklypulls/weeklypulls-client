@@ -1,60 +1,49 @@
 import { Table, Button, Input } from "antd";
 import type { TableProps } from "antd";
 import { ColumnProps } from "antd/lib/table";
-import autoBindMethods from "class-autobind-decorator";
-import { toJS, observable } from "mobx";
-import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
-import { RouteComponentProps } from "react-router";
+import { toJS } from "mobx";
+import { observer } from "mobx-react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import COLUMNS from "./ComicsListColumns";
 import { IComic, IComicPullPair } from "../../../interfaces";
 import Store from "../../../store";
+import { StoreContext } from "../../../storeContext";
 import utils from "../../../utils";
 
 const { future, stringSort } = utils;
 
 const isRead = (comicPair: IComicPullPair) => comicPair.read;
 
-interface IInjected extends RouteComponentProps {
-  store: Store;
-}
+function ComicsList() {
+  const store = useContext<Store>(StoreContext);
+  const history = useHistory();
+  const [searchText, setSearchText] = useState("");
+  const [filterDropdownVisible, setFilterDropdownVisible] = useState(false);
 
-@inject("store")
-@autoBindMethods
-@observer
-class ComicsList extends Component<RouteComponentProps> {
-  @observable public searchText = "";
-  @observable public filterDropdownVisible = false;
-
-  private get injected() {
-    return this.props as IInjected;
-  }
-
-  public componentDidMount() {
-    this.getAllSeries();
-  }
-
-  public async getAllSeries() {
-    try {
-      await Promise.all([
-        this.injected.store.pullLists.listIfCold(),
-        this.injected.store.getAllSeries(),
-      ]);
-    } catch (e) {
-      // tslint:disable-next-line no-console
-      console.error(e);
-      if ((e as any)?.response?.status === 401) {
-        this.props.history.push("/login");
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await Promise.all([store.pullLists.listIfCold(), store.getAllSeries()]);
+      } catch (e: any) {
+        // tslint:disable-next-line no-console
+        console.error(e);
+        if (mounted && e?.response?.status === 401) {
+          history.push("/login");
+        }
       }
-    }
-  }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [store, history]);
 
-  public handleChange: NonNullable<TableProps<IComicPullPair>["onChange"]> = (
+  const handleChange: NonNullable<TableProps<IComicPullPair>["onChange"]> = (
     _pagination,
     filters
   ) => {
-    // Convert all filter values to string arrays, replacing null/undefined with []
     const normalizedFilters: Record<string, string[]> = {};
     const isString = (value: any): value is string => typeof value === "string";
 
@@ -67,126 +56,115 @@ class ComicsList extends Component<RouteComponentProps> {
         normalizedFilters[key] = [];
       }
     });
-    this.injected.store.setFilters(normalizedFilters);
+    store.setFilters(normalizedFilters);
   };
 
-  public onInputChange(event: any) {
-    this.searchText = event.target.value;
-  }
+  const onInputChange = useCallback((event: any) => {
+    setSearchText(event.target.value);
+  }, []);
 
-  public onFilterDropdownVisibleChange(visible: boolean) {
-    this.filterDropdownVisible = visible;
-  }
-
-  public onSearch() {
-    const { store } = this.injected;
-
+  const onSearch = useCallback(() => {
     store.setFilters({
       ...toJS(store.filters),
-      "comic.title": [this.searchText],
+      "comic.title": [searchText],
     });
+    setFilterDropdownVisible(false);
+  }, [searchText, store]);
 
-    this.filterDropdownVisible = false;
-  }
-
-  public onClear() {
-    const { store } = this.injected;
-
-    this.searchText = "";
+  const onClear = useCallback(() => {
+    setSearchText("");
     store.setFilters({
       ...toJS<any>(store.filters),
       "comic.title": [],
     });
+    setFilterDropdownVisible(false);
+  }, [store]);
 
-    this.filterDropdownVisible = false;
-  }
-
-  public get columns(): Array<ColumnProps<IComicPullPair>> {
-    const filters = this.injected.store.filters;
-
+  const columns: Array<ColumnProps<IComicPullPair>> = useMemo(() => {
+    const filters = store.filters as any;
     return COLUMNS.map((column) => {
-      column.filteredValue = toJS((filters as any)?.[column.key || ""] ?? []);
+      const col: ColumnProps<IComicPullPair> = { ...column };
+      col.filteredValue = toJS(filters?.[column.key || ""] ?? []);
 
       if (column.key === "pull.pull_list_id") {
-        column.filters = this.injected.store.pullLists.all.map((pullList) => ({
+        col.filters = store.pullLists.all.map((pullList) => ({
           text: pullList.title,
           value: pullList.id,
         }));
       }
 
       if (column.key === "comic.title") {
-        column.onFilterDropdownVisibleChange = this.onFilterDropdownVisibleChange;
-        column.filterDropdownVisible = this.filterDropdownVisible;
-        column.filterDropdown = (
+        col.onFilterDropdownVisibleChange = (visible: boolean) => setFilterDropdownVisible(visible);
+        col.filterDropdownVisible = filterDropdownVisible;
+        col.filterDropdown = (
           <div className="custom-filter-dropdown">
             <Input
-              onChange={this.onInputChange}
-              onPressEnter={this.onSearch}
+              onChange={onInputChange}
+              onPressEnter={onSearch}
               placeholder="Search name"
-              value={this.searchText}
+              value={searchText}
             />
-            <Button type="primary" onClick={this.onSearch}>
+            <Button type="primary" onClick={onSearch}>
               Search
             </Button>
-            <Button onClick={this.onClear}>Clear</Button>
+            <Button onClick={onClear}>Clear</Button>
           </div>
         );
       }
 
-      return column;
+      return col;
     });
-  }
+  }, [
+    store.filters,
+    store.pullLists.all,
+    filterDropdownVisible,
+    onInputChange,
+    onSearch,
+    onClear,
+    searchText,
+  ]);
 
-  public filterByRegex(key: string, record: IComicPullPair) {
-    const filters = ((this.injected.store.filters as any)?.[key] ?? []) as string[],
-      value = (record as any)?.[key]?.toString?.() ?? "";
+  const filterByRegex = useCallback(
+    (key: string, record: IComicPullPair) => {
+      const filters = ((store.filters as any)?.[key] ?? []) as string[];
+      const value = (record as any)?.[key]?.toString?.() ?? "";
+      if (!filters.length) return true;
+      const filter = filters[0];
+      const reg = new RegExp(filter, "gi");
+      return !!value.match(reg);
+    },
+    [store.filters]
+  );
 
-    if (!filters.length) {
-      return true;
-    }
+  const filterBy = useCallback(
+    (key: string, record: IComicPullPair) => {
+      const filters = ((store.filters as any)?.[key] ?? []) as string[];
+      const value = (record as any)?.[key]?.toString?.() ?? "";
+      if (!filters.length) return true;
+      return filters.includes(value);
+    },
+    [store.filters]
+  );
 
-    const filter = filters[0],
-      reg = new RegExp(filter, "gi");
+  const dataSource = useMemo(() => {
+    const pulls = store.pulls.all;
 
-    return !!value.match(reg);
-  }
-
-  public filterBy(key: string, record: IComicPullPair) {
-    const filters = ((this.injected.store.filters as any)?.[key] ?? []) as string[],
-      value = (record as any)?.[key]?.toString?.() ?? "";
-
-    if (!filters.length) {
-      return true;
-    }
-
-    return filters.includes(value);
-  }
-
-  public dataSource(): IComicPullPair[] {
-    const { store } = this.injected,
-      pulls = store.pulls.all;
-
-    // Build out data
     let earliestUnread = "";
     let seriesComics = pulls.map((pull) => {
       const series = store.series.get(pull.series_id);
-
-      if (!series) {
-        return [];
-      }
-
-      const comics: IComic[] = ((series as any)?.comics ?? []) as IComic[],
-        pullComicPairs = comics
-          .map((comic: IComic) => ({
-            comic,
-            key: comic.id,
-            pull,
-            read: pull.read.includes(comic.id),
-          }))
-          .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
+      if (!series) return [] as IComicPullPair[];
+      const comics: IComic[] = ((series as any)?.comics ?? []) as IComic[];
+      const pullComicPairs = comics
+        .map((comic: IComic) => ({
+          comic,
+          key: comic.id,
+          pull,
+          read: pull.read.includes(comic.id),
+        }))
+        .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
 
       if (!pullComicPairs.length || pullComicPairs.every(isRead)) {
-        return [];
+        return [] as IComicPullPair[];
       }
 
       const unreadDate = pullComicPairs
@@ -197,50 +175,44 @@ class ComicsList extends Component<RouteComponentProps> {
       if (!earliestUnread || earliestUnread > unreadDate) {
         earliestUnread = unreadDate;
       }
-
       return pullComicPairs;
     });
 
-    // Filter out series
+    // Filter out series with all read
     seriesComics = seriesComics.filter((comicPair) => !comicPair.every(isRead));
 
     // flatten list
-    const comicPairs = seriesComics.reduce((flat, toFlatten) => flat.concat(toJS(toFlatten)), []);
+    const comicPairs = seriesComics.reduce(
+      (flat: IComicPullPair[], toFlatten: IComicPullPair[]) => flat.concat(toJS(toFlatten)),
+      [] as IComicPullPair[]
+    );
 
     const comicsPairsFiltered = comicPairs.filter((comicPair: IComicPullPair) => {
-      let filter = true;
-
-      if (comicPair.comic.on_sale < earliestUnread) {
-        return false;
-      }
-
-      filter = filter && this.filterBy("read", comicPair);
-      filter = filter && this.filterBy("pull.pull_list_id", comicPair);
-      filter = filter && this.filterByRegex("comic.title", comicPair);
-
-      return filter;
+      if (comicPair.comic.on_sale < earliestUnread) return false;
+      return (
+        filterBy("read", comicPair) &&
+        filterBy("pull.pull_list_id", comicPair) &&
+        filterByRegex("comic.title", comicPair)
+      );
     });
 
     return comicsPairsFiltered;
-  }
+  }, [store.pulls.all, store.series, filterBy, filterByRegex]);
 
-  public render() {
-    const { store } = this.injected;
-    return (
-      <div>
-        <h2>Comics</h2>
-        <Table
-          columns={this.columns}
-          dataSource={this.dataSource()}
-          loading={store.isLoading}
-          onChange={this.handleChange}
-          pagination={{ pageSize: 50 }}
-          rowClassName={utils.rowClassName}
-          size="small"
-        />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h2>Comics</h2>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        loading={store.isLoading}
+        onChange={handleChange}
+        pagination={{ pageSize: 50 }}
+        rowClassName={utils.rowClassName}
+        size="small"
+      />
+    </div>
+  );
 }
 
-export default ComicsList;
+export default observer(ComicsList);

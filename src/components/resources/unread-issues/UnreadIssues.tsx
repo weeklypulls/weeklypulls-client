@@ -1,13 +1,12 @@
 import { Table, Button, Input, Row, Col } from "antd";
-import { RouteComponentProps } from "react-router";
-import { action, observable } from "mobx";
-import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { ACTIONS } from "../../../consts";
 import { IUnreadIssue } from "../../../interfaces";
 import Store from "../../../store";
+import { StoreContext } from "../../../storeContext";
 import Title from "../../common/Title";
 
 interface IFilters {
@@ -15,58 +14,21 @@ interface IFilters {
   since?: string;
 }
 
-interface IInjected extends RouteComponentProps {
-  store: Store;
-}
+export default observer(function UnreadIssues() {
+  const store = useContext<Store>(StoreContext);
+  const [filters, setFilters] = useState<IFilters>({ limit: 50 });
+  const rowLoading = useRef<Set<number>>(new Set());
+  const [, forceTick] = useState(0); // to trigger rerenders for rowLoading changes
 
-@inject("store")
-@observer
-class UnreadIssues extends Component<RouteComponentProps> {
-  @observable public filters: IFilters = { limit: 50 };
-  @observable public rowLoading: Set<number> = new Set();
-
-  private get injected() {
-    return this.props as IInjected;
-  }
-
-  public componentDidMount() {
-    this.init();
-  }
-
-  @action
-  private async init() {
-    // Ensure pulls are loaded so store.mark can find the pull to patch
+  const fetchUnreadIssues = useCallback(async () => {
     try {
-      await this.injected.store.pulls.listIfCold();
-    } catch (e) {
-      // tslint:disable-next-line no-console
-      console.warn("Failed to pre-load pulls", e);
-    }
-    this.fetchUnreadIssues();
-  }
-
-  @action
-  public async fetchUnreadIssues() {
-    try {
-      const { store } = this.injected;
       store.unreadIssues.isLoading = true;
-
-      // Build query parameters
       const params = new URLSearchParams();
-      if (this.filters.limit) {
-        params.append("limit", this.filters.limit.toString());
-      }
-      if (this.filters.since) {
-        params.append("since", this.filters.since);
-      }
-
-      // Use trailing slash to match DRF action route
+      if (filters.limit) params.append("limit", filters.limit.toString());
+      if (filters.since) params.append("since", filters.since);
       const queryString = params.toString();
       const endpoint = queryString ? `pulls/unread_issues/?${queryString}` : "pulls/unread_issues/";
-
       const response = await store.client.user.get(endpoint);
-
-      // Clear existing data and populate with new data
       store.unreadIssues.objects.clear();
       store.unreadIssues.fetchedOn.clear();
       if (Array.isArray(response.data)) {
@@ -78,184 +40,182 @@ class UnreadIssues extends Component<RouteComponentProps> {
     } catch (e) {
       // tslint:disable-next-line no-console
       console.error("Error fetching unread issues:", e);
-      if ((e as any)?.response?.status === 401) {
-        this.injected.history.push("/login");
-      }
     } finally {
-      this.injected.store.unreadIssues.isLoading = false;
+      store.unreadIssues.isLoading = false;
     }
-  }
+  }, [store, filters]);
 
-  @action
-  public onLimitChange(event: React.ChangeEvent<HTMLInputElement>) {
+  useEffect(() => {
+    (async () => {
+      try {
+        await store.pulls.listIfCold();
+      } catch (e) {
+        // tslint:disable-next-line no-console
+        console.warn("Failed to pre-load pulls", e);
+      }
+      fetchUnreadIssues();
+    })();
+  }, [store.pulls, fetchUnreadIssues]);
+
+  const onLimitChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const limit = parseInt(event.target.value, 10);
-    this.filters = {
-      ...this.filters,
+    setFilters((prev) => ({
+      ...prev,
       limit: isNaN(limit) ? undefined : Math.max(1, Math.min(200, limit)),
-    };
-  }
+    }));
+  }, []);
 
-  @action
-  public onDateChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const onDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const since = e.target.value || undefined;
-    this.filters = { ...this.filters, since };
-  }
+    setFilters((prev) => ({ ...prev, since }));
+  }, []);
 
-  @action
-  public onRefresh() {
-    this.fetchUnreadIssues();
-  }
+  const onRefresh = useCallback(() => {
+    fetchUnreadIssues();
+  }, [fetchUnreadIssues]);
 
-  @action
-  private async markAsRead(issue: IUnreadIssue) {
-    const { store } = this.injected;
-    const issueId = issue.cv_id.toString();
-
-    if (this.rowLoading.has(issue.cv_id)) {
-      return;
-    }
-    this.rowLoading.add(issue.cv_id);
-    try {
-      if (issue.pull_id) {
-        await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, {
-          issue_id: issue.cv_id,
-        });
-        const existingPull = store.pulls.get(issue.pull_id.toString());
-        if (existingPull) {
-          const set = new Set<string>(existingPull.read || []);
-          set.add(issueId);
-          (existingPull as any).read = Array.from(set);
-          store.pulls.setObject(existingPull.id, existingPull);
+  const markAsRead = useCallback(
+    async (issue: IUnreadIssue) => {
+      const issueId = issue.cv_id.toString();
+      const loadSet = rowLoading.current;
+      if (loadSet.has(issue.cv_id)) return;
+      loadSet.add(issue.cv_id);
+      forceTick((x) => x + 1);
+      try {
+        if (issue.pull_id) {
+          await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, {
+            issue_id: issue.cv_id,
+          });
+          const existingPull = store.pulls.get(issue.pull_id.toString());
+          if (existingPull) {
+            const set = new Set<string>(existingPull.read || []);
+            set.add(issueId);
+            (existingPull as any).read = Array.from(set);
+            store.pulls.setObject(existingPull.id, existingPull);
+          }
+        } else {
+          const seriesId = issue.volume_id.toString();
+          if (!store.pulls.all.length) await store.pulls.list();
+          if (!store.pulls.getBy("series_id", seriesId)) await store.pulls.list();
+          await store.mark(seriesId, issueId, ACTIONS.READ);
         }
-      } else {
-        const seriesId = issue.volume_id.toString();
-        // Ensure pulls are loaded so we can resolve pull.id
-        if (!store.pulls.all.length) {
-          await store.pulls.list();
-        }
-        if (!store.pulls.getBy("series_id", seriesId)) {
-          // Try a refresh in case cache was cold
-          await store.pulls.list();
-        }
-        await store.mark(seriesId, issueId, ACTIONS.READ);
+        store.unreadIssues.deleteObject(issueId);
+        store.unreadIssues.save();
+      } catch (e) {
+        // tslint:disable-next-line no-console
+        console.error("Failed to mark as read", e);
+      } finally {
+        loadSet.delete(issue.cv_id);
+        forceTick((x) => x + 1);
       }
-      store.unreadIssues.deleteObject(issueId);
-      store.unreadIssues.save();
-    } catch (e) {
-      // tslint:disable-next-line no-console
-      console.error("Failed to mark as read", e);
-    } finally {
-      this.rowLoading.delete(issue.cv_id);
-    }
-  }
+    },
+    [store]
+  );
 
-  public dataSource(): IUnreadIssue[] {
-    const { store } = this.injected;
-    return store.unreadIssues.all;
-  }
+  const data = store.unreadIssues.all;
 
-  public render() {
-    const { store } = this.injected;
-
-    const actionColumn = {
+  const actionColumn = useMemo(
+    () => ({
       key: "actions",
       title: "Actions",
       width: 120,
       render: (_text: unknown, record: IUnreadIssue) => (
         <Button
           type="link"
-          onClick={() => this.markAsRead(record)}
-          loading={this.rowLoading.has(record.cv_id)}
+          onClick={() => markAsRead(record)}
+          loading={rowLoading.current.has(record.cv_id)}
         >
           Mark Read
         </Button>
       ),
-    };
+    }),
+    [markAsRead]
+  );
 
-    const columns = [...COLUMNS, actionColumn] as any;
+  const columns = useMemo(() => [...(COLUMNS as any), actionColumn], [actionColumn]);
 
-    // Build dynamic filters (Volume Title and Year) like Comics page
-    const data = this.dataSource();
-    const titleOptions = Array.from(
-      new Set(data.map((i) => (i.volume_name || "").trim()).filter((n) => !!n))
-    ).sort();
-    const yearOptions = Array.from(
-      new Set(
-        data
-          .map((i) => i.volume_start_year)
-          .filter((y) => y !== null && y !== undefined)
-          .map((y) => String(y))
-      )
-    ).sort((a, b) => Number(a) - Number(b));
+  const titleOptions = useMemo(
+    () =>
+      Array.from(new Set(data.map((i) => (i.volume_name || "").trim()).filter((n) => !!n))).sort(),
+    [data]
+  );
+  const yearOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          data
+            .map((i) => i.volume_start_year)
+            .filter((y) => y !== null && y !== undefined)
+            .map((y) => String(y))
+        )
+      ).sort((a, b) => Number(a) - Number(b)),
+    [data]
+  );
 
-    // Inject filters into the appropriate columns (values must be strings)
-    columns.forEach((col: any) => {
-      if (col.key === "title") {
-        col.filters = titleOptions.map((name) => ({ text: name, value: name }));
-      }
-      if (col.key === "year") {
-        col.filters = yearOptions.map((y) => ({ text: y, value: y }));
-      }
-    });
+  columns.forEach((col: any) => {
+    if (col.key === "title") {
+      col.filters = titleOptions.map((name) => ({ text: name, value: name }));
+    }
+    if (col.key === "year") {
+      col.filters = yearOptions.map((y) => ({ text: y, value: y }));
+    }
+  });
 
-    return (
-      <div>
-        <Title title="Unread Issues">
-          <Button type="primary" onClick={this.onRefresh} loading={store.unreadIssues.isLoading}>
-            Refresh
+  return (
+    <div>
+      <Title title="Unread Issues">
+        <Button type="primary" onClick={onRefresh} loading={store.unreadIssues.isLoading}>
+          Refresh
+        </Button>
+      </Title>
+
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={8}>
+          <label htmlFor="limit-input" style={{ display: "block" }}>
+            Limit:
+          </label>
+          <Input
+            id="limit-input"
+            type="number"
+            value={filters.limit || ""}
+            onChange={onLimitChange}
+            placeholder="Limit (max 200)"
+            style={{ marginTop: 4 }}
+          />
+        </Col>
+
+        <Col span={8}>
+          <label htmlFor="since-date" style={{ display: "block" }}>
+            Since Date:
+          </label>
+          <Input
+            id="since-date"
+            type="date"
+            value={filters.since || ""}
+            onChange={onDateChange}
+            style={{ width: "100%", marginTop: 4 }}
+          />
+        </Col>
+        <Col span={8} style={{ paddingTop: 24 }}>
+          <Button type="default" onClick={onRefresh}>
+            Apply Filters
           </Button>
-        </Title>
+        </Col>
+      </Row>
 
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={8}>
-            <label htmlFor="limit-input" style={{ display: "block" }}>
-              Limit:
-            </label>
-            <Input
-              id="limit-input"
-              type="number"
-              value={this.filters.limit || ""}
-              onChange={this.onLimitChange}
-              placeholder="Limit (max 200)"
-              style={{ marginTop: 4 }}
-            />
-          </Col>
-
-          <Col span={8}>
-            <label htmlFor="since-date" style={{ display: "block" }}>
-              Since Date:
-            </label>
-            <Input
-              id="since-date"
-              type="date"
-              value={this.filters.since || ""}
-              onChange={this.onDateChange}
-              style={{ width: "100%", marginTop: 4 }}
-            />
-          </Col>
-          <Col span={8} style={{ paddingTop: 24 }}>
-            <Button type="default" onClick={this.onRefresh}>
-              Apply Filters
-            </Button>
-          </Col>
-        </Row>
-
-        <Table
-          columns={columns}
-          dataSource={this.dataSource()}
-          loading={store.unreadIssues.isLoading}
-          pagination={{
-            pageSize: 50,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
-          }}
-          rowKey="cv_id"
-          size="small"
-        />
-      </div>
-    );
-  }
-}
-
-export default UnreadIssues;
+      <Table
+        columns={columns}
+        dataSource={data}
+        loading={store.unreadIssues.isLoading}
+        pagination={{
+          pageSize: 50,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
+        }}
+        rowKey="cv_id"
+        size="small"
+      />
+    </div>
+  );
+});

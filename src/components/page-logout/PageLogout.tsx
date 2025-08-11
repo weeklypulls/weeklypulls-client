@@ -1,26 +1,14 @@
-import autoBindMethods from "class-autobind-decorator";
-import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react";
+import React, { useContext, useEffect } from "react";
 import { Redirect, RouteComponentProps } from "react-router";
 
 import Store from "../../store";
+import { StoreContext } from "../../storeContext";
 
-interface IProps extends RouteComponentProps {
-  store: Store;
-}
-
-@inject("store")
-@autoBindMethods
-@observer
-class PageLogout extends Component<IProps> {
-  public constructor(props: IProps) {
-    super(props);
-    this.props.store.logout();
-  }
-
-  public render() {
-    return <Redirect to={{ pathname: "/login" }} />;
-  }
-}
-
-export default PageLogout;
+export default observer(function PageLogout(_props: RouteComponentProps) {
+  const store = useContext<Store>(StoreContext);
+  useEffect(() => {
+    store.logout();
+  }, [store]);
+  return <Redirect to={{ pathname: "/login" }} />;
+});

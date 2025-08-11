@@ -1,75 +1,63 @@
 import { Button, Input, Modal, Table } from "antd";
-import autoBindMethods from "class-autobind-decorator";
-import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 
 import Store from "../../store";
+import { StoreContext } from "../../storeContext";
 import Title from "../common/Title";
 
 type IModel = Record<string, any>;
 
-interface IInjected extends RouteComponentProps {
-  store: Store;
-}
+function PagePullLists(_props: RouteComponentProps) {
+  const store = useContext<Store>(StoreContext);
+  const [isAddVisible, setIsAddVisible] = useState(false);
+  const [title, setTitle] = useState("");
 
-@inject("store")
-@autoBindMethods
-@observer
-class PagePullLists extends Component<
-  RouteComponentProps,
-  { isAddVisible: boolean; title: string }
-> {
-  public state = { isAddVisible: false, title: "" };
+  useEffect(() => {
+    store.pullLists.listIfCold();
+  }, [store.pullLists]);
 
-  private get injected() {
-    return this.props as IInjected;
-  }
+  const onAddNew = useCallback(
+    async (data: IModel) => {
+      await store.pullLists.post(data);
+    },
+    [store.pullLists]
+  );
 
-  private onAddNew(data: IModel) {
-    console.log(data);
-  }
-
-  private openAdd = () => this.setState({ isAddVisible: true });
-  private closeAdd = () => this.setState({ isAddVisible: false });
-  private submitAdd = () => {
-    const { title } = this.state;
+  const openAdd = useCallback(() => setIsAddVisible(true), []);
+  const closeAdd = useCallback(() => setIsAddVisible(false), []);
+  const submitAdd = useCallback(() => {
     if (!title.trim()) return;
-    this.onAddNew({ title: title.trim() });
-    this.setState({ isAddVisible: false, title: "" });
-  };
+    onAddNew({ title: title.trim() });
+    setIsAddVisible(false);
+    setTitle("");
+  }, [onAddNew, title]);
 
-  public render() {
-    const all = this.injected.store.pullLists.all;
-    const columns = [{ title: "Title", dataIndex: "title", key: "title" }];
+  const all = store.pullLists.all;
+  const columns = [{ title: "Title", dataIndex: "title", key: "title" }];
 
-    return (
-      <>
-        <Title title="Pull Lists">
-          <Button onClick={this.openAdd}>Add new</Button>
-        </Title>
+  return (
+    <>
+      <Title title="Pull Lists">
+        <Button onClick={openAdd}>Add new</Button>
+      </Title>
 
-        <Table rowKey="id" dataSource={all} columns={columns} pagination={false} />
+      <Table rowKey="id" dataSource={all} columns={columns} pagination={false} />
 
-        <Modal
-          visible={this.state.isAddVisible}
-          title="Add Pull List"
-          onCancel={this.closeAdd}
-          onOk={this.submitAdd}
-        >
-          <label htmlFor="pull-list-title" style={{ display: "block", marginBottom: 4 }}>
-            Title
-          </label>
-          <Input
-            id="pull-list-title"
-            value={this.state.title}
-            onChange={(e) => this.setState({ title: e.target.value })}
-            placeholder="Pull list title"
-          />
-        </Modal>
-      </>
-    );
-  }
+      <Modal visible={isAddVisible} title="Add Pull List" onCancel={closeAdd} onOk={submitAdd}>
+        <label htmlFor="pull-list-title" style={{ display: "block", marginBottom: 4 }}>
+          Title
+        </label>
+        <Input
+          id="pull-list-title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Pull list title"
+        />
+      </Modal>
+    </>
+  );
 }
 
-export default PagePullLists;
+export default observer(PagePullLists);

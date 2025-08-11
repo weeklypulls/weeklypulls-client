@@ -1,70 +1,52 @@
 import { Modal, Select, Table, Spin, Empty, Button } from "antd";
 import { ColumnProps } from "antd/lib/table";
-import autoBindMethods from "class-autobind-decorator";
-import { action, observable } from "mobx";
-import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { Link } from "react-router-dom";
 
 import { IComic, IComicPullSeriesPair } from "../../../interfaces";
 import Store from "../../../store";
+import { StoreContext } from "../../../storeContext";
 import utils from "../../../utils";
 import Images from "../../common/Images";
 import LoadingButton from "../../common/LoadingButton";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
-interface IInjected extends RouteComponentProps {
-  store: Store;
-}
+export default observer(function PullsDetail(props: RouteComponentProps) {
+  const store = useContext<Store>(StoreContext);
+  const pullId = (props.match.params as any)?.pullId ?? "";
 
-@inject("store")
-@autoBindMethods
-@observer
-class PullsDetail extends Component<RouteComponentProps> {
-  @observable public isLoading = false;
-  @observable private isEditVisible = false;
-  @observable private editPullListId: any = undefined;
+  const [isBusy, setIsBusy] = useState(false);
+  const [isEditVisible, setIsEditVisible] = useState(false);
+  const [editPullListId, setEditPullListId] = useState<number | undefined>(undefined);
 
-  private get injected() {
-    return this.props as IInjected;
-  }
-
-  private get pullId(): string {
-    return (this.injected.match.params as any)?.pullId ?? "";
-  }
-
-  public componentWillMount() {
-    this.getSeries();
-  }
-
-  public async getSeries() {
-    const { store } = this.injected;
-
-    try {
-      const pull = await store.pulls.fetchIfCold(this.pullId);
-      await Promise.all([
-        store.pullLists.fetchIfCold(pull.pull_list_id),
-        // Fetch series from ComicVine-backed data API
-        store.series.fetchIfCold(pull.series_id),
-      ]);
-    } catch (e) {
-      // tslint:disable-next-line no-console
-      console.error(e);
-      if ((e as any)?.response?.status === 401) {
-        this.props.history.push("/login");
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const pull = await store.pulls.fetchIfCold(pullId);
+        await Promise.all([
+          store.pullLists.fetchIfCold(pull.pull_list_id),
+          store.series.fetchIfCold(pull.series_id),
+        ]);
+      } catch (e: any) {
+        // tslint:disable-next-line no-console
+        console.error(e);
+        if (mounted && e?.response?.status === 401) {
+          props.history.push("/login");
+        }
       }
-    }
-  }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [store, pullId, props.history]);
 
-  public dataSource(): IComicPullSeriesPair[] {
-    const { store } = this.injected,
-      pullWithSeries = store.pullWithSeries(this.pullId);
-
-    if (!pullWithSeries) {
-      return [];
-    }
+  const dataSource: IComicPullSeriesPair[] = useMemo(() => {
+    const pullWithSeries = store.pullWithSeries(pullId);
+    if (!pullWithSeries) return [];
     const { series, pull } = pullWithSeries;
     return series.comics.map((comic: IComic) => ({
       comic,
@@ -73,10 +55,10 @@ class PullsDetail extends Component<RouteComponentProps> {
       read: pull.read.includes(comic.id),
       series,
     }));
-  }
+  }, [store, pullId]);
 
-  private get columns(): Array<ColumnProps<IComicPullSeriesPair>> {
-    return [
+  const columns: Array<ColumnProps<IComicPullSeriesPair>> = useMemo(
+    () => [
       {
         dataIndex: "read",
         key: "read",
@@ -97,9 +79,7 @@ class PullsDetail extends Component<RouteComponentProps> {
         title: "On Sale",
         render: (_: any, record: IComicPullSeriesPair) => {
           const text = record.comic.on_sale;
-          if (!text) {
-            return "--";
-          }
+          if (!text) return "--";
           const date = text.slice(0, 10);
           return <Link to={`/weeks/${date}`}>{date}</Link>;
         },
@@ -109,105 +89,89 @@ class PullsDetail extends Component<RouteComponentProps> {
         key: "comic.title",
         title: "Title",
       },
-    ];
-  }
+    ],
+    []
+  );
 
-  public async onSave(model: any) {
-    const { store } = this.injected,
-      pullWithSeries = store.pullWithSeries(this.pullId);
+  const onSave = useCallback(
+    async (model: any) => {
+      const pullWithSeries = store.pullWithSeries(pullId);
+      if (!pullWithSeries) return;
+      const { pull } = pullWithSeries;
+      if (pull.id) {
+        await store.pulls.patch(pull.id, model);
+      } else {
+        await store.pulls.post({ ...model, series_id: pull.series_id });
+      }
+      setIsEditVisible(false);
+    },
+    [store, pullId]
+  );
 
-    if (!pullWithSeries) {
-      return;
-    }
-    const { pull } = pullWithSeries;
-
-    if (pull.id) {
-      await store.pulls.patch(pull.id, model);
-    } else {
-      await store.pulls.post({ ...model, series_id: pull.series_id });
-    }
-    this.isEditVisible = false;
-  }
-
-  @action
-  public async onDelete() {
-    const { store } = this.injected;
-    const pull = await store.pulls.fetchIfCold(this.pullId);
-
-    this.isLoading = true;
+  const onDelete = useCallback(async () => {
+    setIsBusy(true);
+    const pull = await store.pulls.fetchIfCold(pullId);
     await store.pulls.delete(pull.id);
     await store.pullLists.fetch(pull.pull_list_id);
-    this.injected.history.goBack();
-    this.isLoading = false;
-  }
+    props.history.goBack();
+    setIsBusy(false);
+  }, [store, pullId, props.history]);
 
-  @action.bound private openEdit(pullListId: any) {
-    this.editPullListId = pullListId;
-    this.isEditVisible = true;
-  }
+  const openEdit = useCallback((pullListId: any) => {
+    setEditPullListId(pullListId);
+    setIsEditVisible(true);
+  }, []);
 
-  @action.bound private closeEdit() {
-    this.isEditVisible = false;
-  }
+  const closeEdit = useCallback(() => setIsEditVisible(false), []);
+  const onEditOk = useCallback(
+    () => onSave({ pull_list_id: editPullListId }),
+    [onSave, editPullListId]
+  );
 
-  @action.bound private onEditOk() {
-    this.onSave({ pull_list_id: this.editPullListId });
-  }
+  const pullSeriesPair = store.pullWithSeries(pullId);
+  if (isBusy) return <Spin size="large" />;
+  if (!pullSeriesPair) return <Empty description="Pull not found" />;
 
-  public render() {
-    const { store } = this.injected,
-      pullSeriesPair = store.pullWithSeries(this.pullId);
-    if (this.isLoading) {
-      return <Spin size="large" />;
-    }
+  return (
+    <div>
+      <Title title={pullSeriesPair.series.title}>
+        <LoadingButton danger onClick={onDelete}>
+          Delete
+        </LoadingButton>
+        <Button onClick={() => openEdit(pullSeriesPair.pull.pull_list_id)}>Edit</Button>
+      </Title>
 
-    if (!pullSeriesPair) {
-      return <Empty description="Pull not found" />;
-    }
-
-    return (
-      <div>
-        <Title title={pullSeriesPair.series.title}>
-          <LoadingButton danger onClick={this.onDelete}>
-            Delete
-          </LoadingButton>
-          <Button onClick={() => this.openEdit(pullSeriesPair.pull.pull_list_id)}>Edit</Button>
-        </Title>
-
-        <Modal
-          visible={this.isEditVisible}
-          title={pullSeriesPair.series.title}
-          onCancel={this.closeEdit}
-          onOk={this.onEditOk}
+      <Modal
+        visible={isEditVisible}
+        title={pullSeriesPair.series.title}
+        onCancel={closeEdit}
+        onOk={onEditOk}
+      >
+        <label htmlFor="edit-pull-list" style={{ display: "block", marginBottom: 4 }}>
+          Pull List
+        </label>
+        <Select
+          id="edit-pull-list"
+          value={editPullListId}
+          onChange={(val: number) => setEditPullListId(val)}
+          style={{ width: "100%" }}
         >
-          <label htmlFor="edit-pull-list" style={{ display: "block", marginBottom: 4 }}>
-            Pull List
-          </label>
-          <Select
-            id="edit-pull-list"
-            value={this.editPullListId}
-            onChange={(val: number) => (this.editPullListId = val)}
-            style={{ width: "100%" }}
-          >
-            {store.pullLists.all.map((pl: any) => (
-              <Select.Option value={pl.id} key={pl.id}>
-                {pl.title}
-              </Select.Option>
-            ))}
-          </Select>
-        </Modal>
+          {store.pullLists.all.map((pl: any) => (
+            <Select.Option value={pl.id} key={pl.id}>
+              {pl.title}
+            </Select.Option>
+          ))}
+        </Select>
+      </Modal>
 
-        <Table
-          columns={this.columns}
-          dataSource={this.dataSource()}
-          loading={store.isLoading}
-          pagination={{ pageSize: 50 }}
-          rowClassName={utils.rowClassName}
-          size="small"
-        />
-      </div>
-    );
-  }
-}
-
-export default PullsDetail;
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        loading={store.isLoading}
+        pagination={{ pageSize: 50 }}
+        rowClassName={utils.rowClassName}
+        size="small"
+      />
+    </div>
+  );
+});

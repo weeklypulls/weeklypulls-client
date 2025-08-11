@@ -1,12 +1,12 @@
+import { PictureOutlined } from "@ant-design/icons";
 import { Popover } from "antd";
 import React from "react";
-import { PictureOutlined } from "@ant-design/icons";
 
 interface IProps {
   images: string[];
 }
 
-export default function Images({ images }: IProps): JSX.Element {
+export default function Images({ images }: IProps): React.ReactElement {
   return (
     <>
       {images.map((image) => (

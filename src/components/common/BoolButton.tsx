@@ -1,7 +1,7 @@
+import { CheckOutlined, CloseOutlined, DoubleRightOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext } from "react";
-import { CheckOutlined, CloseOutlined, DoubleRightOutlined } from "@ant-design/icons";
 
 import { IComic } from "../../interfaces";
 import Store from "../../store";

@@ -1,5 +1,4 @@
 import { AxiosInstance } from "axios";
-import autoBindMethods from "class-autobind-decorator";
 import { makeObservable, observable } from "mobx";
 import store from "store";
 
@@ -20,7 +19,6 @@ export type Resources = {
   weeks: Resource<IWeek>;
 };
 
-@autoBindMethods
 class Store {
   public _filters: IFilters = {};
   public client: Client;

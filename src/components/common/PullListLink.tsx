@@ -1,37 +1,20 @@
-import autoBindMethods from "class-autobind-decorator";
-import { observer, inject } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
 import Store from "../../store";
+import { StoreContext } from "../../storeContext";
 
 interface IProps {
   pullId: string;
   pullListId: string;
 }
 
-interface IInjected extends IProps {
-  store: Store;
-}
-
-@inject("store")
-@autoBindMethods
-@observer
-class PullListLink extends Component<IProps> {
-  private get injected() {
-    return this.props as IInjected;
+export default observer(function PullListLink({ pullListId, pullId }: IProps) {
+  const store = useContext<Store>(StoreContext);
+  const pullList = store.pullLists.get(pullListId);
+  if (!pullList) {
+    return <>--</>;
   }
-
-  public render() {
-    const { store, pullListId, pullId } = this.injected,
-      pullList = store.pullLists.get(pullListId);
-
-    if (!pullList) {
-      return "--";
-    }
-
-    return <Link to={`/pulls/${pullId}`}>{pullList.title}</Link>;
-  }
-}
-
-export default PullListLink;
+  return <Link to={`/pulls/${pullId}`}>{pullList.title}</Link>;
+});

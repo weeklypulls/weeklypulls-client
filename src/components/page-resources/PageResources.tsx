@@ -1,82 +1,60 @@
 import { Button, Table } from "antd";
-import autoBindMethods from "class-autobind-decorator";
-import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
+import { observer } from "mobx-react";
+import React, { useCallback, useContext, useState } from "react";
 import { RouteComponentProps } from "react-router";
 
 import Store, { Resources } from "../../store";
-
-interface IInjected extends RouteComponentProps {
-  store: Store;
-}
+import { StoreContext } from "../../storeContext";
 
 interface ISmartButton {
   onClick: () => Promise<any> | any;
 }
 
-@autoBindMethods
-@observer
-class SmartButton extends Component<ISmartButton, { isLoading: boolean }> {
-  public state = { isLoading: false };
-
-  private onClick = async () => {
+const SmartButton = ({ onClick, children }: React.PropsWithChildren<ISmartButton>) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const handleClick = useCallback(async () => {
     try {
-      this.setState({ isLoading: true });
-      await this.props.onClick();
+      setIsLoading(true);
+      await onClick();
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
-  };
+  }, [onClick]);
+  return (
+    <Button loading={isLoading} onClick={handleClick}>
+      {children}
+    </Button>
+  );
+};
 
-  public render() {
-    return (
-      <Button loading={this.state.isLoading} onClick={this.onClick}>
-        {this.props.children}
-      </Button>
-    );
-  }
-}
+export default observer(function PageResources(_props: RouteComponentProps) {
+  const store = useContext<Store>(StoreContext);
 
-@inject("store")
-@autoBindMethods
-@observer
-class PageResources extends Component<RouteComponentProps> {
-  private get injected() {
-    return this.props as IInjected;
-  }
+  const renderClickable = useCallback(
+    (value: keyof Resources) => {
+      const resource = store.resources[value];
+      if (!resource) return "--";
+      return <SmartButton onClick={() => resource.clear()}>Clear</SmartButton>;
+    },
+    [store]
+  );
 
-  private renderClickable(value: keyof Resources) {
-    const resource = this.injected.store.resources[value];
+  const model = (Object.keys(store.resources) as Array<keyof Resources>).map((key) => ({
+    clearKey: key,
+    key,
+    cachedValues: store.resources[key].all.length,
+  }));
 
-    if (!resource) {
-      return "--";
-    }
+  const columns = [
+    { title: "Key", dataIndex: "key", key: "key" },
+    {
+      title: "Clear",
+      dataIndex: "clearKey",
+      key: "clearKey",
+      render: (value: keyof Resources) => renderClickable(value),
+    },
+    { title: "Cached Values", dataIndex: "cachedValues", key: "cachedValues" },
+  ];
 
-    return <SmartButton onClick={resource.clear}>Clear</SmartButton>;
-  }
-
-  public render() {
-    const model = (Object.keys(this.injected.store.resources) as Array<keyof Resources>).map(
-      (key) => ({
-        clearKey: key,
-        key,
-        cachedValues: this.injected.store.resources[key].all.length,
-      })
-    );
-
-    const columns = [
-      { title: "Key", dataIndex: "key", key: "key" },
-      {
-        title: "Clear",
-        dataIndex: "clearKey",
-        key: "clearKey",
-        render: (value: keyof Resources) => this.renderClickable(value),
-      },
-      { title: "Cached Values", dataIndex: "cachedValues", key: "cachedValues" },
-    ];
-
-    return <Table rowKey="key" columns={columns} dataSource={model} pagination={false} />;
-  }
-}
-
-export default PageResources;
+  return <Table rowKey="key" columns={columns} dataSource={model} pagination={false} />;
+});

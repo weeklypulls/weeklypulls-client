@@ -8,7 +8,7 @@ import { StoreContext } from "./storeContext";
 const store = new Store();
 ReactDOM.render(
   <StoreContext.Provider value={store}>
-    <App store={store} />
+    <App />
   </StoreContext.Provider>,
   document.getElementById("root")
 );
