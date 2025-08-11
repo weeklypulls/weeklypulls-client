@@ -1,23 +1,16 @@
 import { Table } from "antd";
 import type { TableProps } from "antd";
 import { observer } from "mobx-react";
-import React, { Component } from "react";
+import React from "react";
 
-@observer
-class ObserverTable<T extends Record<string, any>> extends Component<TableProps<T>> {
-  private get dataSource() {
-    const { dataSource } = this.props;
-
-    if (dataSource && dataSource.length) {
-      return dataSource.slice();
-    }
-
-    return dataSource;
-  }
-
-  public render() {
-    return <Table<T> {...this.props} dataSource={this.dataSource} />;
-  }
+function ObserverTableInner<T extends Record<string, any>>(props: TableProps<T>) {
+  const { dataSource } = props;
+  const cloned = Array.isArray(dataSource) && dataSource.length ? dataSource.slice() : dataSource;
+  return <Table<T> {...props} dataSource={cloned as any} />;
 }
+
+const ObserverTable = observer(ObserverTableInner) as <T extends Record<string, any>>(
+  props: TableProps<T>
+) => React.ReactElement;
 
 export default ObserverTable;
