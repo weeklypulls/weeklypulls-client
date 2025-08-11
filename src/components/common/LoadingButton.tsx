@@ -1,35 +1,25 @@
 import { Button } from "antd";
 import type { ButtonProps } from "antd";
-import autoBindMethods from "class-autobind-decorator";
-import { observer } from "mobx-react";
-import React, { Component } from "react";
+import React, { useCallback, useState } from "react";
 
 interface IProps extends ButtonProps {
   onClick: () => Promise<any> | any;
 }
 
-@autoBindMethods
-@observer
-class LoadingButton extends Component<IProps> {
-  state = { isLoading: false } as { isLoading: boolean };
-
-  private async onClick() {
+export default function LoadingButton({ children, onClick, ...rest }: IProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const handleClick = useCallback(async () => {
     try {
-      this.setState({ isLoading: true });
-      await this.props.onClick();
+      setIsLoading(true);
+      await onClick();
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
-  }
+  }, [onClick]);
 
-  public render() {
-    const { children, ...rest } = this.props;
-    return (
-      <Button {...rest} loading={this.state.isLoading} onClick={this.onClick}>
-        {children}
-      </Button>
-    );
-  }
+  return (
+    <Button {...rest} loading={isLoading} onClick={handleClick}>
+      {children}
+    </Button>
+  );
 }
-
-export default LoadingButton;

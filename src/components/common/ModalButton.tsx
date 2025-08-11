@@ -1,8 +1,5 @@
 import { Button, Modal } from "antd";
-import autoBindMethods from "class-autobind-decorator";
-import { action, makeObservable, observable } from "mobx";
-import { observer } from "mobx-react";
-import React, { Component, ReactNode } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 
 interface IProps {
   label: string;
@@ -11,30 +8,17 @@ interface IProps {
   title?: string;
 }
 
-@autoBindMethods
-@observer
-class ModalButton extends Component<IProps> {
-  @observable private isVisible = false;
+export default function ModalButton({ label, render, title }: IProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const open = useCallback(() => setIsVisible(true), []);
+  const close = useCallback(() => setIsVisible(false), []);
 
-  @action.bound private open() {
-    this.isVisible = true;
-  }
-  @action.bound private close() {
-    this.isVisible = false;
-  }
-
-  public render() {
-    const { label, render, title } = this.props;
-
-    return (
-      <>
-        <Button onClick={this.open}>{label}</Button>
-        <Modal visible={this.isVisible} onCancel={this.close} onOk={this.close} title={title}>
-          {render ? render(this.close) : null}
-        </Modal>
-      </>
-    );
-  }
+  return (
+    <>
+      <Button onClick={open}>{label}</Button>
+      <Modal visible={isVisible} onCancel={close} onOk={close} title={title}>
+        {render ? render(close) : null}
+      </Modal>
+    </>
+  );
 }
-
-export default ModalButton;
