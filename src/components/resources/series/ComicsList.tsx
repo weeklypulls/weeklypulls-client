@@ -4,7 +4,7 @@ import { ColumnProps } from "antd/lib/table";
 import { toJS } from "mobx";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import COLUMNS from "./ComicsListColumns";
 import { IComic, IComicPullPair } from "../../../interfaces";
@@ -18,7 +18,7 @@ const isRead = (comicPair: IComicPullPair) => comicPair.read;
 
 function ComicsList() {
   const store = useContext<Store>(StoreContext);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [filterDropdownVisible, setFilterDropdownVisible] = useState(false);
 
@@ -31,21 +31,21 @@ function ComicsList() {
         // tslint:disable-next-line no-console
         console.error(e);
         if (mounted && e?.response?.status === 401) {
-          history.push("/login");
+          navigate("/login");
         }
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [store, history]);
+  }, [store, navigate]);
 
   const handleChange: NonNullable<TableProps<IComicPullPair>["onChange"]> = (
     _pagination,
     filters
   ) => {
     const normalizedFilters: Record<string, string[]> = {};
-    const isString = (value: any): value is string => typeof value === "string";
+    const isString = (value: unknown): value is string => typeof value === "string";
 
     Object.entries(filters).forEach(([key, value]) => {
       if (Array.isArray(value)) {
@@ -147,14 +147,14 @@ function ComicsList() {
     [store.filters]
   );
 
-  const dataSource = useMemo(() => {
+  const dataSource: IComicPullPair[] = useMemo(() => {
     const pulls = store.pulls.all;
 
     let earliestUnread = "";
     let seriesComics = pulls.map((pull) => {
       const series = store.series.get(pull.series_id);
-      if (!series) return [] as IComicPullPair[];
-      const comics: IComic[] = ((series as any)?.comics ?? []) as IComic[];
+      if (!series) return [];
+      const comics: IComic[] = (series?.comics ?? []) as IComic[];
       const pullComicPairs = comics
         .map((comic: IComic) => ({
           comic,
@@ -165,7 +165,7 @@ function ComicsList() {
         .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
 
       if (!pullComicPairs.length || pullComicPairs.every(isRead)) {
-        return [] as IComicPullPair[];
+        return [];
       }
 
       const unreadDate = pullComicPairs

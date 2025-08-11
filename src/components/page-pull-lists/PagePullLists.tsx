@@ -1,7 +1,6 @@
 import { Button, Input, Modal, Table } from "antd";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { RouteComponentProps } from "react-router";
 
 import Store from "../../store";
 import { StoreContext } from "../../storeContext";
@@ -9,7 +8,7 @@ import Title from "../common/Title";
 
 type IModel = Record<string, any>;
 
-function PagePullLists(_props: RouteComponentProps) {
+function PagePullLists() {
   const store = useContext<Store>(StoreContext);
   const [isAddVisible, setIsAddVisible] = useState(false);
   const [title, setTitle] = useState("");

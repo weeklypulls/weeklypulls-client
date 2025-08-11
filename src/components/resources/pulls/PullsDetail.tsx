@@ -2,8 +2,7 @@ import { Modal, Select, Table, Spin, Empty, Button } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { RouteComponentProps } from "react-router";
-import { Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
 import { IComic, IComicPullSeriesPair } from "../../../interfaces";
 import Store from "../../../store";
@@ -14,13 +13,14 @@ import LoadingButton from "../../common/LoadingButton";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
-export default observer(function PullsDetail(props: RouteComponentProps) {
+export default observer(function PullsDetail() {
   const store = useContext<Store>(StoreContext);
-  const pullId = (props.match.params as any)?.pullId ?? "";
+  const { pullId = "" } = useParams<{ pullId: string }>();
+  const navigate = useNavigate();
 
   const [isBusy, setIsBusy] = useState(false);
   const [isEditVisible, setIsEditVisible] = useState(false);
-  const [editPullListId, setEditPullListId] = useState<number | undefined>(undefined);
+  const [editPullListId, setEditPullListId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let mounted = true;
@@ -35,20 +35,20 @@ export default observer(function PullsDetail(props: RouteComponentProps) {
         // tslint:disable-next-line no-console
         console.error(e);
         if (mounted && e?.response?.status === 401) {
-          props.history.push("/login");
+          navigate("/login");
         }
       }
     })();
     return () => {
       mounted = false;
     };
-  }, [store, pullId, props.history]);
+  }, [store, pullId, navigate]);
 
   const dataSource: IComicPullSeriesPair[] = useMemo(() => {
     const pullWithSeries = store.pullWithSeries(pullId);
     if (!pullWithSeries) return [];
     const { series, pull } = pullWithSeries;
-    return series.comics.map((comic: IComic) => ({
+    return (series?.comics ?? []).map((comic: IComic) => ({
       comic,
       key: comic.id,
       pull,
@@ -63,7 +63,7 @@ export default observer(function PullsDetail(props: RouteComponentProps) {
         dataIndex: "read",
         key: "read",
         title: "Read",
-        render: (_: any, record: IComicPullSeriesPair) => (
+        render: (_: unknown, record: IComicPullSeriesPair) => (
           <ReadButton comic={record.comic} value={record.read} />
         ),
       },
@@ -71,13 +71,15 @@ export default observer(function PullsDetail(props: RouteComponentProps) {
         dataIndex: "comic.images",
         key: "comic.images",
         title: "Covers",
-        render: (_: any, record: IComicPullSeriesPair) => <Images images={record.comic.images} />,
+        render: (_: unknown, record: IComicPullSeriesPair) => (
+          <Images images={record.comic.images} />
+        ),
       },
       {
         dataIndex: "comic.on_sale",
         key: "comic.on_sale",
         title: "On Sale",
-        render: (_: any, record: IComicPullSeriesPair) => {
+        render: (_: unknown, record: IComicPullSeriesPair) => {
           const text = record.comic.on_sale;
           if (!text) return "--";
           const date = text.slice(0, 10);
@@ -94,7 +96,7 @@ export default observer(function PullsDetail(props: RouteComponentProps) {
   );
 
   const onSave = useCallback(
-    async (model: any) => {
+    async (model: Record<string, unknown>) => {
       const pullWithSeries = store.pullWithSeries(pullId);
       if (!pullWithSeries) return;
       const { pull } = pullWithSeries;
@@ -113,11 +115,11 @@ export default observer(function PullsDetail(props: RouteComponentProps) {
     const pull = await store.pulls.fetchIfCold(pullId);
     await store.pulls.delete(pull.id);
     await store.pullLists.fetch(pull.pull_list_id);
-    props.history.goBack();
+    navigate(-1);
     setIsBusy(false);
-  }, [store, pullId, props.history]);
+  }, [store, pullId, navigate]);
 
-  const openEdit = useCallback((pullListId: any) => {
+  const openEdit = useCallback((pullListId: string) => {
     setEditPullListId(pullListId);
     setIsEditVisible(true);
   }, []);
@@ -134,34 +136,29 @@ export default observer(function PullsDetail(props: RouteComponentProps) {
 
   return (
     <div>
-      <Title title={pullSeriesPair.series.title}>
+      <Title title={pullSeriesPair.series?.title || ""}>
         <LoadingButton danger onClick={onDelete}>
           Delete
         </LoadingButton>
-        <Button onClick={() => openEdit(pullSeriesPair.pull.pull_list_id)}>Edit</Button>
+        <Button onClick={() => openEdit(pullSeriesPair.pull?.pull_list_id)}>Edit</Button>
       </Title>
 
       <Modal
         visible={isEditVisible}
-        title={pullSeriesPair.series.title}
+        title={pullSeriesPair.series?.title || ""}
         onCancel={closeEdit}
         onOk={onEditOk}
       >
         <label htmlFor="edit-pull-list" style={{ display: "block", marginBottom: 4 }}>
           Pull List
         </label>
-        <Select
+        <Select<string>
           id="edit-pull-list"
           value={editPullListId}
-          onChange={(val: number) => setEditPullListId(val)}
+          onChange={(val) => setEditPullListId(val)}
           style={{ width: "100%" }}
-        >
-          {store.pullLists.all.map((pl: any) => (
-            <Select.Option value={pl.id} key={pl.id}>
-              {pl.title}
-            </Select.Option>
-          ))}
-        </Select>
+          options={store.pullLists.all.map((pl) => ({ label: pl.title, value: pl.id }))}
+        />
       </Modal>
 
       <Table

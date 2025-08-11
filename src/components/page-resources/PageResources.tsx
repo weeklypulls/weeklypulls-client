@@ -1,7 +1,6 @@
 import { Button, Table } from "antd";
 import { observer } from "mobx-react";
 import React, { useCallback, useContext, useState } from "react";
-import { RouteComponentProps } from "react-router";
 
 import Store, { Resources } from "../../store";
 import { StoreContext } from "../../storeContext";
@@ -27,7 +26,7 @@ const SmartButton = ({ onClick, children }: React.PropsWithChildren<ISmartButton
   );
 };
 
-export default observer(function PageResources(_props: RouteComponentProps) {
+export default observer(function PageResources() {
   const store = useContext<Store>(StoreContext);
 
   const renderClickable = useCallback(

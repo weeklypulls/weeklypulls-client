@@ -25,14 +25,14 @@ class Client {
 
     // Stub all Marvel API calls to fail
     this.marvel.interceptors.request.use(
-      (config: any) => {
+      (config) => {
         const method = config.method ? config.method.toUpperCase() : "UNKNOWN";
         console.warn(`Marvel API call stubbed to fail: ${method} ${config.url}`);
         return Promise.reject(
           new Error("Marvel API temporarily unavailable - all calls stubbed to fail")
         );
       },
-      (error: any) => Promise.reject(error)
+      (error) => Promise.reject(error)
     );
   }
 

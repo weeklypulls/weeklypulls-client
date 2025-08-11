@@ -7,7 +7,7 @@ import utils from "../../../utils";
 import Images from "../../common/Images";
 
 function coverCell(_text: string, record: IUnreadIssue) {
-  const url = record.image_medium_url || (record as any).image_url;
+  const url = record.image_medium_url || record.image_url;
   if (!url) {
     return "--";
   }
@@ -56,7 +56,7 @@ const COLUMNS: Array<ColumnProps<IUnreadIssue>> = [
       { text: "No cover", value: "none" },
     ],
     onFilter: (value, record) => {
-      const has = !!(record.image_medium_url || (record as any).image_url);
+      const has = !!(record.image_medium_url || record.image_url);
       return value === "has" ? has : !has;
     },
   },

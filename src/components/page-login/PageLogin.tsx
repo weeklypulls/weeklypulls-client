@@ -1,27 +1,27 @@
 import { Button, Card, Input } from "antd";
 import { observer } from "mobx-react";
 import React, { useContext, useEffect, useState } from "react";
-import { RouteComponentProps, useHistory } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 import Store from "../../store";
 import { StoreContext } from "../../storeContext";
 
-export default observer(function PageLogin(_props: RouteComponentProps) {
+export default observer(function PageLogin() {
   const store = useContext<Store>(StoreContext);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (store.isAuthenticated) {
-      history.push("/");
+      navigate("/");
     }
-  }, [store.isAuthenticated, history]);
+  }, [store.isAuthenticated, navigate]);
 
   const onSave = async (model: { username: string; password: string }) => {
     await store.login(model.username, model.password);
-    history.push("/");
+    navigate("/");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

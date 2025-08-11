@@ -21,14 +21,12 @@ export default observer(function WeeksDetailPage() {
   }, [store.weeks, weekId]);
 
   const comics: IComic[] = useMemo(() => {
-      const week = store.weeks.get(weekId) as any;
-      return (week?.comics ?? []) as IComic[];
+      const week = store.weeks.get(weekId);
+      return week?.comics ?? [];
     }, [store.weeks, weekId]),
     dataSource: IComicPullPair[] = useMemo(() => {
       return comics.map((comic: IComic) => {
-        const pull = (store.pulls.all as any[]).find(
-          (p) => String(p.series_id) === String(comic.series_id)
-        );
+        const pull = store.pulls.all.find((p) => String(p.series_id) === String(comic.series_id));
         if (!pull) {
           return {
             comic,
@@ -36,7 +34,7 @@ export default observer(function WeeksDetailPage() {
             pull,
             read: false,
             store,
-          } as any;
+          };
         }
         return {
           comic,
@@ -44,7 +42,7 @@ export default observer(function WeeksDetailPage() {
           pull,
           read: pull.read.includes(comic.id),
           store,
-        } as any;
+        };
       });
     }, [comics, store]),
     nextWeek = utils.nextWeek(weekId),
@@ -76,7 +74,7 @@ export default observer(function WeeksDetailPage() {
       </Row>
 
       <ObserverTable
-        columns={COLUMNS as any}
+        columns={COLUMNS}
         dataSource={dataSource}
         loading={store.isLoading}
         pagination={false}

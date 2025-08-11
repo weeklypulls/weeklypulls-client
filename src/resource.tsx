@@ -166,7 +166,7 @@ class Resource<T extends { [key: string]: any } = any> {
   public async post(data: Record<string, unknown>) {
     this.isLoading = true;
     const response = await this.client.post(`${this.endpoint}/`, data),
-      id = (response.data as any)[this.idKey];
+      id = response.data[this.idKey];
 
     this.setObject(id, response.data as T);
 

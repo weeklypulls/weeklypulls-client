@@ -123,7 +123,7 @@ class Store {
     return this._filters;
   }
 
-  public pullsWithSeries() {
+  public pullsWithSeries(): IPullSeriesPair[] {
     return this.pulls.all.map((pull) => ({
       key: pull.id,
       pull,
@@ -155,8 +155,8 @@ class Store {
       return null;
     }
     const comics = series.comics,
-      comicsUnread = comics.filter((comic: any) => !pull.read.includes(comic.id)),
-      weeks = comicsUnread.map((comic: any) => comic.on_sale),
+      comicsUnread = comics.filter((comic) => !pull.read.includes(comic.id)),
+      weeks = comicsUnread.map((comic) => comic.on_sale),
       firstWeek = weeks.sort()[0];
     return firstWeek;
   }
@@ -169,7 +169,7 @@ class Store {
 
   public async getAllSeries() {
     const pulls = await this.pulls.listIfCold();
-    for (const pull of pulls as any[]) {
+    for (const pull of pulls) {
       await this.series.fetchIfCold(pull.series_id);
     }
   }

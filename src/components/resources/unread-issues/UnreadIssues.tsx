@@ -8,6 +8,7 @@ import { IUnreadIssue } from "../../../interfaces";
 import Store from "../../../store";
 import { StoreContext } from "../../../storeContext";
 import Title from "../../common/Title";
+import { ColumnProps } from "antd/lib/table";
 
 interface IFilters {
   limit?: number;
@@ -90,7 +91,7 @@ export default observer(function UnreadIssues() {
           if (existingPull) {
             const set = new Set<string>(existingPull.read || []);
             set.add(issueId);
-            (existingPull as any).read = Array.from(set);
+            existingPull.read = Array.from(set);
             store.pulls.setObject(existingPull.id, existingPull);
           }
         } else {
@@ -132,7 +133,10 @@ export default observer(function UnreadIssues() {
     [markAsRead]
   );
 
-  const columns = useMemo(() => [...(COLUMNS as any), actionColumn], [actionColumn]);
+  const columns: ColumnProps<IUnreadIssue>[] = useMemo(
+    () => [...COLUMNS, actionColumn],
+    [actionColumn]
+  );
 
   const titleOptions = useMemo(
     () =>
@@ -152,7 +156,7 @@ export default observer(function UnreadIssues() {
     [data]
   );
 
-  columns.forEach((col: any) => {
+  columns.forEach((col) => {
     if (col.key === "title") {
       col.filters = titleOptions.map((name) => ({ text: name, value: name }));
     }

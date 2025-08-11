@@ -56,7 +56,7 @@ export default observer(function PullButton({ comic, pull }: IProps) {
             style={{ width: "100%" }}
             placeholder="Select a pull list"
           >
-            {store.pullLists.all.map((pl: any) => (
+            {store.pullLists.all.map((pl) => (
               <Select.Option key={pl.id} value={pl.id}>
                 {pl.title}
               </Select.Option>

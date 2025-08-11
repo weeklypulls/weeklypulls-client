@@ -1,9 +1,9 @@
 import { observer } from "mobx-react";
 import React from "react";
-import { RouteComponentProps } from "react-router";
+// react-router v6: no RouteComponentProps
 
 import Comics from "./ComicsList";
 
-export default observer(function ComicsListPage(_props: RouteComponentProps) {
+export default observer(function ComicsListPage() {
   return <Comics />;
 });

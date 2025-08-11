@@ -39,14 +39,14 @@ export interface IComicPullPair extends IPair {
 }
 
 export interface IComicPullSeriesPair extends IComicPullPair {
-  series: ISeries;
+  series?: ISeries;
 }
 
 export interface IPullSeriesPair extends IPair {
   key: string;
   pull: IPull;
-  pullList: IPullList;
-  series: ISeries;
+  pullList?: IPullList;
+  series?: ISeries;
 }
 
 export interface IUnreadIssue {

@@ -17,13 +17,13 @@
     "prod": " node server.cjs",
     "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "test": "react-scripts test --env=jsdom",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "preinstall": "npm config set legacy-peer-deps true"
   },
   "dependencies": {
     "@types/node": "^18.19.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
-    "@types/react-router-dom": "^5.3.3",
     "@types/store": "^2.0.2",
     "antd": "^4.24.15",
     "axios": "^1.6.8",
@@ -32,13 +32,15 @@
     "mobx-react": "^7.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router": "^5.3.4",
-    "react-router-dom": "^5.3.4",
+    "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
     "store": "^2.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "ajv": "8.17.1",
+    "ajv-formats": "2.1.1",
+    "ajv-keywords": "5.1.0",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -61,5 +63,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "schema-utils@^4": {
+      "ajv": "8.17.1",
+      "ajv-formats": "2.1.1",
+      "ajv-keywords": "5.1.0"
+    }
   }
 }

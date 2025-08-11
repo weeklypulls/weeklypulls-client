@@ -1,14 +1,8 @@
 import { Layout, Menu } from "antd";
 import { observer } from "mobx-react";
 import React, { useContext } from "react";
-import {
-  BrowserRouter as Router,
-  NavLink,
-  Redirect,
-  Route,
-  RouteComponentProps,
-  RouteProps,
-} from "react-router-dom";
+import { BrowserRouter as Router, NavLink } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Store from "../store";
 import { StoreContext } from "../storeContext";
@@ -27,24 +21,13 @@ import "antd/dist/antd.css";
 
 const { Header, Content, Footer } = Layout;
 
-const PrivateRoute = ({
-  component,
-  isAuthenticated,
-  ...rest
-}: RouteProps & { isAuthenticated: boolean }) => {
-  if (!component) {
-    throw Error("component is undefined");
-  }
+type PrivateRouteProps = {
+  isAuthenticated: boolean;
+  element: React.ReactElement;
+};
 
-  const PageComponent = component; // JSX Elements have to be uppercase.
-  const render = (props: RouteComponentProps<any>): React.ReactNode => {
-    if (isAuthenticated) {
-      return <PageComponent {...props} />;
-    }
-    return <Redirect to={{ pathname: "/login" }} />;
-  };
-
-  return <Route {...rest} render={render} />;
+const PrivateRoute = ({ isAuthenticated, element }: PrivateRouteProps) => {
+  return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
 
 export default observer(function App() {
@@ -58,8 +41,6 @@ export default observer(function App() {
       </NavLink>
     </Menu.Item>
   );
-
-  const renderLoginPage = (props: RouteComponentProps) => <PageLogin {...props} />;
 
   return (
     <Router>
@@ -86,34 +67,51 @@ export default observer(function App() {
               minHeight: 280,
             }}
           >
-            {/* Redirect root to Unread Issues now that Comics page is removed */}
-            <Route path="/" exact render={() => <Redirect to="/unread-issues" />} />
-            <PrivateRoute
-              isAuthenticated={isAuthenticated}
-              path="/unread-issues"
-              component={UnreadIssuesPage}
-            />
-            <PrivateRoute
-              isAuthenticated={isAuthenticated}
-              path="/pull-lists"
-              component={PagePullLists}
-            />
-            <PrivateRoute isAuthenticated={isAuthenticated} path="/pulls" component={PullsPages} />
-            <PrivateRoute
-              isAuthenticated={isAuthenticated}
-              path="/weeks/:weekId"
-              component={WeeksDetailPage}
-            />
-            <PrivateRoute
-              isAuthenticated={isAuthenticated}
-              path="/resources"
-              component={PageResources}
-            />
-            <PrivateRoute isAuthenticated={isAuthenticated} path="/logout" component={PageLogout} />
-            <Route path="/login" render={renderLoginPage} />
-          </Content>
+            <Routes>
+              {/* Redirect root to Unread Issues now that Comics page is removed */}
+              <Route path="/" element={<Navigate to="/unread-issues" replace />} />
 
-          <Footer style={{ textAlign: "center" }}>Read more comics</Footer>
+              <Route
+                path="/unread-issues"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<UnreadIssuesPage />} />
+                }
+              />
+              <Route
+                path="/pull-lists"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PagePullLists />} />
+                }
+              />
+              <Route
+                path="/pulls/*"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PullsPages />} />
+                }
+              />
+              <Route
+                path="/weeks/:weekId"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<WeeksDetailPage />} />
+                }
+              />
+              <Route
+                path="/resources"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PageResources />} />
+                }
+              />
+              <Route
+                path="/logout"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PageLogout />} />
+                }
+              />
+              <Route path="/login" element={<PageLogin />} />
+            </Routes>
+
+            <Footer style={{ textAlign: "center" }}>Read more comics</Footer>
+          </Content>
         </Layout>
       </Layout>
     </Router>
