@@ -6,7 +6,7 @@ const app = express();
 const buildDir = path.join(__dirname, "build");
 app.use(express.static(buildDir));
 
-app.get("*", function (_req, res) {
+app.get(/^\/.*$/, function (_req, res) {
   res.sendFile(path.join(buildDir, "index.html"));
 });
 
