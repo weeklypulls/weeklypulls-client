@@ -84,7 +84,8 @@ function ComicsList() {
     const filters = store.filters as any;
     return COLUMNS.map((column) => {
       const col: ColumnProps<IComicPullPair> = { ...column };
-      col.filteredValue = toJS(filters?.[column.key || ""] ?? []);
+      const key = String(column.key ?? "");
+      col.filteredValue = toJS(filters?.[key] ?? []);
 
       if (column.key === "pull.pull_list_id") {
         col.filters = store.pullLists.all.map((pullList) => ({

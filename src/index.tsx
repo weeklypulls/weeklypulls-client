@@ -1,14 +1,17 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import App from "./components/App";
 import Store from "./store";
 import { StoreContext } from "./storeContext";
 
 const store = new Store();
-ReactDOM.render(
-  <StoreContext.Provider value={store}>
-    <App />
-  </StoreContext.Provider>,
-  document.getElementById("root")
-);
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <StoreContext.Provider value={store}>
+      <App />
+    </StoreContext.Provider>
+  );
+}
