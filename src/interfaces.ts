@@ -3,6 +3,8 @@ export interface IComic {
   images: string[];
   on_sale: string;
   series_id: string;
+  title: string;
+  cover_date?: string;
 }
 
 export interface ISeries {

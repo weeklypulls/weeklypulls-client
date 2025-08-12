@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { IComicPullPair } from "../../../interfaces";
 import utils from "../../../utils";
+import { renderWeekLinkFromISO } from "../../common/columnHelpers";
 import Images from "../../common/Images";
 import PullListLink from "../../common/PullListLink";
 import ReadButton from "../../common/ReadButton";
@@ -32,10 +33,7 @@ const titleSort = (a: IComicPullPair, b: IComicPullPair) =>
 const onSaleSort = (a: IComicPullPair, b: IComicPullPair) =>
   utils.stringAttrsSort(a, b, ["comic.on_sale", "comic.title"]);
 
-function weekCell(text: string) {
-  const date = text.slice(0, 10);
-  return <Link to={`/weeks/${date}`}>{date}</Link>;
-}
+const weekCell = renderWeekLinkFromISO((r: IComicPullPair) => r.comic.on_sale);
 
 function readCell(text: string, record: IComicPullPair) {
   return <ReadButton comic={record.comic} value={record.read} />;
@@ -73,7 +71,7 @@ const COLUMNS: ColumnsType<IComicPullPair> = [
     key: "comic.on_sale",
     render: weekCell,
     sorter: onSaleSort,
-    title: "On Sale",
+    title: "Store Date",
   },
   {
     dataIndex: "comic.title",

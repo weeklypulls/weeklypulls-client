@@ -17,7 +17,7 @@ import WeeksDetailPage from "./resources/weeks/WeeksDetailPage";
 
 import "antd/dist/reset.css";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 type PrivateRouteProps = {
   isAuthenticated: boolean;
@@ -98,8 +98,6 @@ export default function App() {
               />
               <Route path="/login" element={<PageLogin />} />
             </Routes>
-
-            <Footer style={{ textAlign: "center" }}>Read more comics</Footer>
           </Content>
         </Layout>
       </Layout>

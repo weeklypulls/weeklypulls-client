@@ -1,45 +1,8 @@
 import type { ColumnsType } from "antd/es/table";
-import React from "react";
-import { Link } from "react-router-dom";
 
 import { IUnreadIssue } from "../../../interfaces";
 import utils from "../../../utils";
-import Images from "../../common/Images";
-
-function coverCell(_text: string, record: IUnreadIssue) {
-  const url = record.image_medium_url || record.image_url;
-  if (!url) return null; // blank cell when no image
-  return <Images images={[url]} />;
-}
-
-function titleCell(_text: string, record: IUnreadIssue) {
-  const content = (
-    <span title={record.description}>
-      <strong>
-        {record.volume_name} #{record.number}
-      </strong>
-      <br />
-      <small>{record.name}</small>
-    </span>
-  );
-  if (!record.site_url) return content;
-  return (
-    <a href={record.site_url} target="_blank" rel="noopener noreferrer" title={record.description}>
-      {content}
-    </a>
-  );
-}
-
-function pullCell(_text: string, record: IUnreadIssue) {
-  if (!record.pull_id) return "--";
-  const title = record.volume_name || "Series";
-  const year = record.volume_start_year ? ` (${record.volume_start_year})` : "";
-  return <Link to={`/pulls/${String(record.pull_id)}`}>{title + year}</Link>;
-}
-
-function dateCell(text: string) {
-  return text || "--";
-}
+import { buildIssueColumns } from "../../common/issueColumns";
 
 const titleSort = (a: IUnreadIssue, b: IUnreadIssue) =>
   utils.stringAttrsSort(a, b, ["volume_name", "number"]);
@@ -47,51 +10,43 @@ const titleSort = (a: IUnreadIssue, b: IUnreadIssue) =>
 const storeDateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
   utils.stringAttrsSort(a, b, ["store_date", "volume_name", "number"]);
 
-const COLUMNS: ColumnsType<IUnreadIssue> = [
-  {
-    dataIndex: "image_medium_url",
-    key: "cover",
-    render: coverCell,
-    title: "Cover",
-    width: 80,
-  },
-  {
-    dataIndex: "volume_name",
-    key: "title",
-    render: titleCell,
-    sorter: titleSort,
-    title: "Title",
-    // filters now applied on pull column combining title + year
-  },
-  {
-    dataIndex: "pull_id",
-    key: "pull",
-    render: pullCell,
-    title: "Pull",
-    width: 200,
-    filterMultiple: true,
-    filters: [], // dynamically populated (volume title + year)
-    onFilter: (value, record) => {
-      const text = `${record.volume_name || ""}$${record.volume_start_year || ""}`;
-      return text === String(value);
-    },
-  },
-  {
-    dataIndex: "store_date",
-    defaultSortOrder: "descend",
-    key: "store_date",
-    render: dateCell,
-    sorter: storeDateSort,
-    title: "Store Date",
-    width: 100,
-  },
-  {
-    dataIndex: "cover_date",
-    key: "cover_date",
-    render: dateCell,
-    title: "Cover Date",
-    width: 100,
-  },
-];
+const coverDateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
+  utils.stringAttrsSort(a, b, ["cover_date", "volume_name", "number"]);
+
+const base = buildIssueColumns<IUnreadIssue>({
+  getCoverUrls: (r) => r.image_medium_url || r.image_url || undefined,
+  getTitlePrimary: (r) => `${r.volume_name} #${r.number}`,
+  getTitleSecondary: (r) => r.name,
+  getTitleHref: (r) => r.site_url || undefined,
+  getTitleTooltip: (r) => r.description,
+  getPullLink: (r) => ({ pull_id: r.pull_id, title: r.volume_name, year: r.volume_start_year }),
+  getStoreDate: (r) => r.store_date,
+  getCoverDate: (r) => r.cover_date,
+});
+
+// Preserve sorting and filter behavior on top of the shared columns
+const COLUMNS: ColumnsType<IUnreadIssue> = base.map((col) => {
+  if (col.key === "title") {
+    return { ...col, sorter: titleSort } as any;
+  }
+  if (col.key === "store_date") {
+    return { ...col, defaultSortOrder: "descend", sorter: storeDateSort } as any;
+  }
+  if (col.key === "cover_date") {
+    return { ...col, sorter: coverDateSort } as any;
+  }
+  if (col.key === "pull") {
+    return {
+      ...col,
+      filterMultiple: true,
+      filters: [], // dynamically populated (volume title + year)
+      onFilter: (value: any, record: IUnreadIssue) => {
+        const text = `${record.volume_name || ""}$${record.volume_start_year || ""}`;
+        return text === String(value);
+      },
+    } as any;
+  }
+  return col;
+});
 
 export default COLUMNS;
