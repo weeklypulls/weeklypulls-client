@@ -11,12 +11,19 @@ export interface StoreApi {
 export function createStore(): StoreApi {
   const client = createClient();
 
+  const broadcast = () => {
+    // Custom event to signal auth state toggles within same tab
+    window.dispatchEvent(new Event("auth-changed"));
+  };
+
   async function login(username: string, password: string) {
     await client.login(username, password);
+    broadcast();
   }
 
   function logout() {
     client.logout();
+    broadcast();
   }
 
   async function mark(seriesId: string, issueId: string, actionKey: string) {
