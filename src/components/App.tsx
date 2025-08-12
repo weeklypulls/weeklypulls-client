@@ -1,5 +1,6 @@
-import { Layout, Menu } from "antd";
-import React, { useContext } from "react";
+import { UserOutlined } from "@ant-design/icons";
+import { Layout, Menu, Dropdown, Button } from "antd";
+import React, { useContext, useMemo } from "react";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -8,6 +9,7 @@ import { StoreContext } from "../storeContext";
 // Removed legacy ComicsListPage
 // import ComicsListPage from './resources/series/ComicsListPage';
 import utils from "../utils";
+import Logo from "./common/Logo";
 import PageLogin from "./page-login/PageLogin";
 import PageLogout from "./page-logout/PageLogout";
 import PagePullLists from "./page-pull-lists/PagePullLists";
@@ -32,26 +34,45 @@ export default function App() {
   const store = useContext<StoreApi>(StoreContext);
   const isAuthenticated = store.isAuthenticated;
 
-  const renderNavLink = (to: string, label: string) => (
-    <Menu.Item key={to}>
-      <NavLink to={to}>
-        <span>{label}</span>
-      </NavLink>
-    </Menu.Item>
+  const currentWeek = useMemo(() => utils.nearestWed(), []);
+
+  const navItems = [
+    { key: "/unread-issues", label: <NavLink to="/unread-issues">Unread Issues</NavLink> },
+    { key: "/pull-lists", label: <NavLink to="/pull-lists">Pull Lists</NavLink> },
+    { key: `/weeks/${currentWeek}`, label: <NavLink to={`/weeks/${currentWeek}`}>Weeks</NavLink> },
+    { key: "/pulls", label: <NavLink to="/pulls">Pulls</NavLink> },
+  ];
+
+  const userMenu = (
+    <Menu
+      items={[
+        {
+          key: "logout",
+          label: <NavLink to="/logout">Log out</NavLink>,
+        },
+      ]}
+    />
   );
 
   return (
     <Router>
       <Layout style={{ minHeight: "100vh" }}>
-        <Header>
-          <div className="logo" />
-          <Menu mode="horizontal" selectedKeys={[]} theme="dark">
-            {renderNavLink("/unread-issues", "Unread Issues")}
-            {renderNavLink("/pull-lists", "Pull Lists")}
-            {renderNavLink(`/weeks/${utils.nearestWed()}`, "Weeks")}
-            {renderNavLink("/pulls", "Pulls")}
-            {renderNavLink("/logout", "Logout")}
-          </Menu>
+        <Header style={{ display: "flex", alignItems: "center", gap: 32, paddingInline: 24 }}>
+          <Logo />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Menu
+              mode="horizontal"
+              selectedKeys={[]}
+              theme="dark"
+              items={navItems}
+              style={{ borderBottom: "none" }}
+            />
+          </div>
+          {isAuthenticated && (
+            <Dropdown overlay={userMenu} placement="bottomRight" trigger={["click"]}>
+              <Button icon={<UserOutlined />}>Account</Button>
+            </Dropdown>
+          )}
         </Header>
 
         <Layout>
