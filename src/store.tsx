@@ -1,37 +1,26 @@
-import { AxiosInstance } from "axios";
-
-import Client from "./client";
+import createClient, { ApiClient } from "./client";
 import { ACTIONS } from "./consts";
+export interface StoreApi {
+  client: ApiClient;
+  readonly isAuthenticated: boolean;
+  login(username: string, password: string): Promise<void>;
+  logout(): void;
+  mark(seriesId: string, issueId: string, actionKey: string): Promise<any>;
+}
 
-class Store {
-  public client: Client;
-  public constructor() {
-    this.client = new Client();
+export function createStore(): StoreApi {
+  const client = createClient();
+
+  async function login(username: string, password: string) {
+    await client.login(username, password);
   }
 
-  public get isAuthenticated() {
-    return this.client.hasToken;
+  function logout() {
+    client.logout();
   }
 
-  public async getEndpoint(arg: string) {
-    // /marvel:search/series/?search=
-    const [client, url] = arg.slice(1).split(":"),
-      axiosInstance = (this.client as unknown as { [key: string]: AxiosInstance })[client];
-
-    return await axiosInstance.get(url);
-  }
-
-  public async login(username: string, password: string) {
-    await this.client.login(username, password);
-  }
-
-  public logout() {
-    this.client.logout();
-  }
-
-  public async mark(seriesId: string, issueId: string, actionKey: string) {
-    // Fetch pull by series id
-    const pullsResp = await this.client.user.get("pulls/");
+  async function mark(seriesId: string, issueId: string, actionKey: string) {
+    const pullsResp = await client.user.get("pulls/");
     const pulls: any[] = pullsResp.data || [];
     const pull = pulls.find((p) => String(p.series_id) === String(seriesId));
     if (!pull) return null;
@@ -42,9 +31,19 @@ class Store {
     ];
     verb(issueId);
     const payload = { [noun]: Array.from(set) };
-    const updated = await this.client.user.patch(`pulls/${pull.id}/`, payload);
+    const updated = await client.user.patch(`pulls/${pull.id}/`, payload);
     return updated.data;
   }
+
+  return {
+    client,
+    get isAuthenticated() {
+      return client.hasToken;
+    },
+    login,
+    logout,
+    mark,
+  };
 }
 
-export default Store;
+export default createStore;

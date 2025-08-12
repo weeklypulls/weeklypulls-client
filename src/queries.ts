@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import type Store from "./store";
+import type { StoreApi } from "./store";
 import { StoreContext } from "./storeContext";
 
 // Mapping old cache durations to staleTime (ms)
@@ -10,7 +10,7 @@ const weeks = (w: number) => w * 7 * 24 * 60 * 1000;
 
 // Pull Lists
 export function usePullLists() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useQuery({
     queryKey: ["pull-lists"],
     queryFn: async () => {
@@ -22,7 +22,7 @@ export function usePullLists() {
 }
 
 export function useCreatePullList() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: { title: string }) => {
@@ -37,7 +37,7 @@ export function useCreatePullList() {
 
 // Pulls
 export function usePulls() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useQuery({
     queryKey: ["pulls"],
     queryFn: async () => {
@@ -49,7 +49,7 @@ export function usePulls() {
 }
 
 export function useCreatePull() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (data: { pull_list_id: number; series_id: string | number }) => {
@@ -64,7 +64,7 @@ export function useCreatePull() {
 
 // Series (fetch individual series for each pull like previous getAllSeries)
 export function useSeriesForPulls(enabled: boolean) {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const pullsQuery = usePulls();
   return useQuery({
     queryKey: ["series", { ids: pullsQuery.data?.map((p: any) => p.series_id) }],
@@ -88,7 +88,7 @@ export function useSeriesForPulls(enabled: boolean) {
 // Mutation to mark read/unread replicating store.mark logic (simplified to READ only for now)
 export function useMarkIssue() {
   const queryClient = useQueryClient();
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useMutation({
     mutationFn: async ({
       seriesId,
@@ -131,7 +131,7 @@ export function useMarkIssue() {
 
 // Single pull
 export function usePull(pullId: string | undefined) {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useQuery({
     queryKey: ["pull", pullId],
     queryFn: async () => {
@@ -145,7 +145,7 @@ export function usePull(pullId: string | undefined) {
 }
 
 export function useSeries(seriesId: string | number | undefined) {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useQuery({
     queryKey: ["series", seriesId],
     queryFn: async () => {
@@ -159,7 +159,7 @@ export function useSeries(seriesId: string | number | undefined) {
 }
 
 export function useUpdatePull() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ pullId, data }: { pullId: string; data: Record<string, unknown> }) => {
@@ -174,7 +174,7 @@ export function useUpdatePull() {
 }
 
 export function useDeletePull() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (pullId: string) => {
@@ -189,7 +189,7 @@ export function useDeletePull() {
 
 // Week detail
 export function useWeek(weekId: string | undefined) {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useQuery({
     queryKey: ["week", weekId],
     queryFn: async () => {
@@ -209,7 +209,7 @@ export interface UnreadIssuesFilters {
 }
 
 export function useUnreadIssues(filters: UnreadIssuesFilters) {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useQuery({
     queryKey: ["unread-issues", filters],
     queryFn: async () => {
@@ -228,7 +228,7 @@ export function useUnreadIssues(filters: UnreadIssuesFilters) {
 
 export function useMarkUnreadIssue() {
   const qc = useQueryClient();
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   return useMutation({
     mutationFn: async (issue: { cv_id: number; pull_id?: number; volume_id: number }) => {
       const issueId = issue.cv_id;

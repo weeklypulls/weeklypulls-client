@@ -2,11 +2,11 @@ import { Button, Card, Input } from "antd";
 import { useContext, useEffect, useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Store from "../../store";
+import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
 
 export default function PageLogin() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import Store from "../store";
+import type { StoreApi } from "../store";
 import { StoreContext } from "../storeContext";
 // Removed legacy ComicsListPage
 // import ComicsListPage from './resources/series/ComicsListPage';
@@ -29,7 +29,7 @@ const PrivateRoute = ({ isAuthenticated, element }: PrivateRouteProps) => {
 };
 
 export default function App() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   const isAuthenticated = store.isAuthenticated;
 
   const renderNavLink = (to: string, label: string) => (

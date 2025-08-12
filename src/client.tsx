@@ -1,58 +1,58 @@
-import axios, { AxiosInstance } from "axios";
+import axios from "axios";
 import store from "store";
 
-const URL_DATA = "https://weeklypulls-data.herokuapp.com/",
-  URL_MARVEL = "https://weeklypulls-marvel.herokuapp.com/",
-  JSON_HEADERS = {
-    Accept: "application/json; charset=utf-8;",
-    "Content-Type": "application/json",
-  };
-class Client {
-  public user: AxiosInstance;
-  public marvel: AxiosInstance;
+const URL_DATA = "https://weeklypulls-data.herokuapp.com/";
+const JSON_HEADERS = {
+  Accept: "application/json; charset=utf-8;",
+  "Content-Type": "application/json",
+};
 
-  public constructor() {
-    this.user = axios.create({
-      baseURL: URL_DATA,
-      headers: JSON_HEADERS,
-    });
-    this.user.defaults.headers.common["Authorization"] = this.token;
-
-    this.marvel = axios.create({
-      baseURL: URL_MARVEL,
-      headers: JSON_HEADERS,
-    });
-
-    // Stub all Marvel API calls to fail
-    this.marvel.interceptors.request.use(
-      (config) => {
-        const method = config.method ? config.method.toUpperCase() : "UNKNOWN";
-        console.warn(`Marvel API call stubbed to fail: ${method} ${config.url}`);
-        return Promise.reject(
-          new Error("Marvel API temporarily unavailable - all calls stubbed to fail")
-        );
-      },
-      (error) => Promise.reject(error)
-    );
-  }
-
-  public async login(username: string, password: string) {
-    const response = await axios.post(`${URL_DATA}api-token-auth/`, { username, password });
-    store.set("api-token", `TOKEN ${response.data.token}`);
-    axios.defaults.headers.common.Authorization = this.token;
-  }
-
-  public logout() {
-    store.remove("api-token");
-  }
-
-  public get token() {
-    return store.get("api-token");
-  }
-
-  public get hasToken() {
-    return !!this.token;
-  }
+export interface ApiClient {
+  user: ReturnType<typeof axios.create>;
+  login(username: string, password: string): Promise<void>;
+  logout(): void;
+  readonly token: string | undefined;
+  readonly hasToken: boolean;
 }
 
-export default Client;
+export function createClient(): ApiClient {
+  const user = axios.create({
+    baseURL: URL_DATA,
+    headers: JSON_HEADERS,
+  });
+
+  const getToken = () => store.get("api-token");
+  // initialize auth header if token exists
+  const existing = getToken();
+  if (existing) {
+    user.defaults.headers.common["Authorization"] = existing;
+  }
+
+  async function login(username: string, password: string) {
+    const response = await axios.post(`${URL_DATA}api-token-auth/`, { username, password });
+    store.set("api-token", `TOKEN ${response.data.token}`);
+    const t = getToken();
+    if (t) {
+      user.defaults.headers.common["Authorization"] = t;
+    }
+  }
+
+  function logout() {
+    store.remove("api-token");
+    delete user.defaults.headers.common["Authorization"];
+  }
+
+  return {
+    user,
+    login,
+    logout,
+    get token() {
+      return getToken();
+    },
+    get hasToken() {
+      return !!getToken();
+    },
+  };
+}
+
+export default createClient;

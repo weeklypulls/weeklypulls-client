@@ -3,13 +3,13 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
 
 import App from "./components/App";
-import Store from "./store";
+import createStore from "./store";
 import { StoreContext } from "./storeContext";
 
 // Central QueryClient instance; cacheTime approximates previous custom cache windows per query via staleTime options
 const queryClient = new QueryClient();
 
-const store = new Store();
+const store = createStore();
 const container = document.getElementById("root");
 if (container) {
   const root = createRoot(container);

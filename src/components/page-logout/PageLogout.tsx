@@ -1,11 +1,11 @@
 import { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
-import Store from "../../store";
+import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
 
 export default function PageLogout() {
-  const store = useContext<Store>(StoreContext);
+  const store = useContext<StoreApi>(StoreContext);
   useEffect(() => {
     store.logout();
   }, [store]);

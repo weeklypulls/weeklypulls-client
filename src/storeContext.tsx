@@ -1,7 +1,7 @@
 import React from "react";
 
-import Store from "./store";
+import type { StoreApi } from "./store";
 
-export const StoreContext = React.createContext<Store>(null as unknown as Store);
+export const StoreContext = React.createContext<StoreApi>(null as unknown as StoreApi);
 
 export default StoreContext;
