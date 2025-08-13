@@ -129,6 +129,50 @@ export function useMarkIssue() {
   });
 }
 
+// Mark all issues in a pull as read (batch patch of read array)
+export function useMarkAllRead() {
+  const qc = useQueryClient();
+  const store = useContext<StoreApi>(StoreContext);
+  return useMutation({
+    mutationFn: async ({ pullId, issueIds }: { pullId: string; issueIds: string[] }) => {
+      const resp = await store.client.user.patch(`pulls/${pullId}/`, { read: issueIds });
+      return resp.data;
+    },
+    onMutate: async (vars) => {
+      // Cancel relevant queries
+      await Promise.all([
+        qc.cancelQueries({ queryKey: ["pull", vars.pullId] }),
+        qc.cancelQueries({ queryKey: ["pulls"] }),
+      ]);
+      const previousPull = qc.getQueryData<any>(["pull", vars.pullId]);
+      const previousPulls = qc.getQueryData<any[]>(["pulls"]);
+      // Optimistically update single pull
+      if (previousPull) {
+        qc.setQueryData(["pull", vars.pullId], { ...previousPull, read: vars.issueIds });
+      }
+      // Optimistically update pulls list
+      if (previousPulls) {
+        qc.setQueryData(
+          ["pulls"],
+          previousPulls.map((p) =>
+            String(p.id) === String(vars.pullId) ? { ...p, read: vars.issueIds } : p
+          )
+        );
+      }
+      return { previousPull, previousPulls };
+    },
+    onError: (_err, vars, ctx) => {
+      if (ctx?.previousPull) qc.setQueryData(["pull", vars.pullId], ctx.previousPull);
+      if (ctx?.previousPulls) qc.setQueryData(["pulls"], ctx.previousPulls);
+    },
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: ["pull", vars.pullId] });
+      qc.invalidateQueries({ queryKey: ["pulls"] });
+      qc.invalidateQueries({ queryKey: ["unread-issues"] });
+    },
+  });
+}
+
 // Single pull
 export function usePull(pullId: string | undefined) {
   const store = useContext<StoreApi>(StoreContext);

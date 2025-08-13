@@ -4,7 +4,14 @@ import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { IComic, IComicPullSeriesPair } from "../../../interfaces";
-import { usePull, useSeries, usePullLists, useUpdatePull, useDeletePull } from "../../../queries";
+import {
+  usePull,
+  useSeries,
+  usePullLists,
+  useUpdatePull,
+  useDeletePull,
+  useMarkAllRead,
+} from "../../../queries";
 import utils from "../../../utils";
 import { buildIssueColumns, buildReadColumn } from "../../common/issueColumns";
 import LoadingButton from "../../common/LoadingButton";
@@ -22,6 +29,7 @@ export default function PullsDetail() {
   const seriesQuery = useSeries(pullQuery.data?.series_id);
   const updatePull = useUpdatePull();
   const deletePull = useDeletePull();
+  const markAllRead = useMarkAllRead();
 
   const dataSource: IComicPullSeriesPair[] = useMemo(() => {
     const pull = pullQuery.data;
@@ -80,13 +88,31 @@ export default function PullsDetail() {
   );
 
   const pull = pullQuery.data;
+  const series = seriesQuery.data;
+  const allIssueIds = (series?.comics || []).map((c: IComic) => c.id);
+  const isAllRead = !!(
+    pull?.read &&
+    allIssueIds.length > 0 &&
+    pull.read.length >= allIssueIds.length
+  );
+  const onMarkAllRead = useCallback(() => {
+    if (!pull?.id || isAllRead) return;
+    markAllRead.mutate({ pullId: String(pull.id), issueIds: allIssueIds });
+  }, [pull?.id, isAllRead, markAllRead, allIssueIds]);
+
   if (isBusy || pullQuery.isLoading || seriesQuery.isLoading) return <Spin size="large" />;
   if (!pull) return <Empty description="Pull not found" />;
-  const series = seriesQuery.data;
 
   return (
     <div>
       <Title title={series?.title || ""}>
+        <LoadingButton
+          onClick={onMarkAllRead}
+          disabled={isAllRead || !allIssueIds.length}
+          loading={markAllRead.isPending}
+        >
+          {isAllRead ? "All Read" : "Mark All Read"}
+        </LoadingButton>
         <LoadingButton danger onClick={onDelete}>
           Delete
         </LoadingButton>
