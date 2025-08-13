@@ -1,5 +1,5 @@
 import { UserOutlined } from "@ant-design/icons";
-import { Layout, Menu, Dropdown, Button } from "antd";
+import { Layout, Menu, Dropdown, Button, ConfigProvider, theme } from "antd";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter as Router, NavLink } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -50,39 +50,39 @@ export default function App() {
     { key: "/pulls", label: <NavLink to="/pulls">Pulls</NavLink> },
   ];
 
-  const userMenu = (
-    <Menu
-      items={[
-        {
-          key: "logout",
-          label: <NavLink to="/logout">Log out</NavLink>,
-        },
-      ]}
-    />
-  );
+  const userMenu = {
+    items: [
+      {
+        key: "logout",
+        label: <NavLink to="/logout">Log out</NavLink>,
+      },
+    ],
+  };
 
   return (
     <Router>
       <Layout style={{ minHeight: "100vh" }}>
-        <Header style={{ display: "flex", alignItems: "center", gap: 32, paddingInline: 24 }}>
-          <Logo />
-          {isAuthenticated && (
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Menu
-                mode="horizontal"
-                selectedKeys={[]}
-                theme="dark"
-                items={navItems}
-                style={{ borderBottom: "none" }}
-              />
-            </div>
-          )}
-          {isAuthenticated && (
-            <Dropdown overlay={userMenu} placement="bottomRight" trigger={["click"]}>
-              <Button icon={<UserOutlined />}>Account</Button>
-            </Dropdown>
-          )}
-        </Header>
+        <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+          <Header style={{ display: "flex", alignItems: "center", gap: 32, paddingInline: 24 }}>
+            <Logo />
+            {isAuthenticated && (
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Menu
+                  mode="horizontal"
+                  selectedKeys={[]}
+                  theme="dark"
+                  items={navItems}
+                  style={{ borderBottom: "none" }}
+                />
+              </div>
+            )}
+            {isAuthenticated && (
+              <Dropdown menu={userMenu} placement="bottomRight" trigger={["click"]}>
+                <Button icon={<UserOutlined />}>Account</Button>
+              </Dropdown>
+            )}
+          </Header>
+        </ConfigProvider>
 
         <Layout>
           <Content

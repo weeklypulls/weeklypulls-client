@@ -18,6 +18,8 @@ export interface IPull {
   pull_list_id: string;
   read: string[];
   series_id: string;
+  series_title?: string;
+  series_start_year?: number;
 }
 
 export interface IWeek {
@@ -48,7 +50,6 @@ export interface IPullSeriesPair extends IPair {
   key: string;
   pull: IPull;
   pullList?: IPullList;
-  series?: ISeries;
 }
 
 export interface IUnreadIssue {

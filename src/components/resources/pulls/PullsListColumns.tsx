@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 import { IPullSeriesPair } from "../../../interfaces";
@@ -6,10 +5,17 @@ import utils from "../../../utils";
 import PullListLink from "../../common/PullListLink";
 
 const titleSort = (a: IPullSeriesPair, b: IPullSeriesPair) =>
-  utils.stringAttrsSort(a, b, ["series.title", "pull.series_id"]);
+  utils.stringAttrsSort(a, b, ["pull.series_title", "pull.series_id"]);
 
-function pullLinkCell(text: string, record: IPullSeriesPair) {
-  return <Link to={`/pulls/${record.pull.id}`}>{text}</Link>;
+function pullLinkCell(_text: string, record: IPullSeriesPair) {
+  const title = record.pull.series_title || record.pull.series_id;
+  const year = record.pull.series_start_year ? ` (${record.pull.series_start_year})` : "";
+  return (
+    <Link to={`/pulls/${record.pull.id}`}>
+      {title}
+      {year}
+    </Link>
+  );
 }
 
 function pullListCell(_text: string, record: IPullSeriesPair) {
@@ -18,7 +24,7 @@ function pullListCell(_text: string, record: IPullSeriesPair) {
 
 const COLUMNS = [
   {
-    dataIndex: "series.title",
+    dataIndex: "pull.series_title",
     key: "api_title",
     render: pullLinkCell,
     sorter: titleSort,

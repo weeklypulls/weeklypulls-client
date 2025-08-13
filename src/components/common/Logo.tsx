@@ -8,7 +8,7 @@ export default function Logo() {
           fontSize: 20,
           fontWeight: 700,
           letterSpacing: 0.5,
-          background: "linear-gradient(90deg,#1677ff 0%,#722ed1 100%)",
+          background: "linear-gradient(135deg,#4ddd74 0%,#8de9a6 100%)",
           WebkitBackgroundClip: "text",
           color: "transparent",
           display: "inline-block",

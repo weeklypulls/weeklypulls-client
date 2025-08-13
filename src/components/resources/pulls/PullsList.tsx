@@ -4,14 +4,13 @@ import { useCallback, useMemo, useState } from "react";
 
 import COLUMNS from "./PullsListColumns";
 import { IPullSeriesPair } from "../../../interfaces";
-import { usePulls, useSeriesForPulls, usePullLists } from "../../../queries";
+import { usePulls, usePullLists } from "../../../queries";
 import Title from "../../common/Title";
 
 function PullsList() {
   // const navigate = useNavigate(); // reserved for future navigation needs
   const pullsQuery = usePulls();
   const pullListsQuery = usePullLists();
-  const seriesQuery = useSeriesForPulls(!pullsQuery.isLoading);
   const [isAddVisible, setIsAddVisible] = useState(false);
   const [addSeriesId, setAddSeriesId] = useState("");
   const [addPullList, setAddPullList] = useState<number | undefined>(undefined);
@@ -21,9 +20,8 @@ function PullsList() {
       key: pull.id,
       pull,
       pullList: pullListsQuery.data?.find((pl: any) => pl.id === pull.pull_list_id),
-      series: seriesQuery.data?.[pull.series_id],
     }));
-  }, [pullsQuery.data, pullListsQuery.data, seriesQuery.data]);
+  }, [pullsQuery.data, pullListsQuery.data]);
 
   const onAddNew = useCallback((data: Record<string, unknown>) => {
     // Preserve existing behavior
@@ -81,7 +79,7 @@ function PullsList() {
       <Table<IPullSeriesPair>
         columns={COLUMNS}
         dataSource={dataSource}
-        loading={pullsQuery.isLoading || seriesQuery.isLoading || pullListsQuery.isLoading}
+        loading={pullsQuery.isLoading || pullListsQuery.isLoading}
         pagination={false}
         size="small"
       />
