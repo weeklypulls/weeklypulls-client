@@ -23,12 +23,24 @@ export default function WeeksDetailPage() {
   const dataSource: IComicPullPair[] = useMemo(() => {
     const pulls = pullsQuery.data ?? [];
     return comics.map((comic: IComic) => {
-      const pull = pulls.find((p) => String(p.series_id) === String(comic.series_id));
+      // Prefer server-provided pull context if present
+      let pull = undefined as any;
+      if (comic.pull_id) {
+        pull = pulls.find((p) => String(p.id) === String(comic.pull_id));
+      } else {
+        pull = pulls.find((p) => String(p.series_id) === String(comic.series_id));
+      }
+      let read = false;
+      if (typeof comic.read === "boolean") {
+        read = comic.read;
+      } else if (pull) {
+        read = pull.read.includes(comic.id);
+      }
       return {
         comic,
         key: comic.id,
         pull,
-        read: pull ? pull.read.includes(comic.id) : false,
+        read,
       };
     });
   }, [comics, pullsQuery.data]);

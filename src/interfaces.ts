@@ -5,6 +5,10 @@ export interface IComic {
   series_id: string;
   title: string;
   cover_date?: string;
+  // Optional fields provided by Weeks API when available
+  pulled?: boolean;
+  pull_id?: string | null;
+  read?: boolean;
 }
 
 export interface ISeries {
