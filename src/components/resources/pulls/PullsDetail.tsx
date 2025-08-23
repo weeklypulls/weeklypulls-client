@@ -49,6 +49,8 @@ export default function PullsDetail() {
       getCoverUrls: (r) => r.comic.images,
       getTitlePrimary: (r) => r.comic.title,
       getTitleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
+      getTitleHref: (r) => r.comic.site_url,
+      getTitleTooltip: (r) => r.comic.description,
       getStoreDate: (r) => r.comic.on_sale,
       getCoverDate: (r) => r.comic.cover_date,
     });
