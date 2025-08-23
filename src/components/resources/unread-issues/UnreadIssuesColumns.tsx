@@ -20,32 +20,38 @@ const base = buildIssueColumns<IUnreadIssue>({
   getTitleHref: (r) => r.site_url || undefined,
   getTitleTooltip: (r) => r.description,
   getPullLink: (r) => ({ pull_id: r.pull_id, title: r.volume_name, year: r.volume_start_year }),
-  getStoreDate: (r) => r.store_date,
-  getCoverDate: (r) => r.cover_date,
+  getStoreDate: (r) => r.store_date || r.cover_date,
+  getCoverDate: (r) => r.cover_date || r.store_date,
 });
 
 // Preserve sorting and filter behavior on top of the shared columns
 const COLUMNS: ColumnsType<IUnreadIssue> = base.map((col) => {
   if (col.key === "title") {
-    return { ...col, sorter: titleSort } as any;
+    return { ...col, sorter: titleSort };
   }
+
   if (col.key === "store_date") {
-    return { ...col, defaultSortOrder: "descend", sorter: storeDateSort } as any;
+    return { ...col, defaultSortOrder: "descend", sorter: storeDateSort };
   }
+
   if (col.key === "cover_date") {
-    return { ...col, sorter: coverDateSort } as any;
+    return { ...col, sorter: coverDateSort };
   }
+
   if (col.key === "pull") {
+    type Value = Parameters<NonNullable<typeof col.onFilter>>[0];
+
     return {
       ...col,
       filterMultiple: true,
-      filters: [], // dynamically populated (volume title + year)
-      onFilter: (value: any, record: IUnreadIssue) => {
+      filters: [],
+      onFilter: (value: Value, record: IUnreadIssue) => {
         const text = `${record.volume_name || ""}$${record.volume_start_year || ""}`;
         return text === String(value);
       },
-    } as any;
+    };
   }
+
   return col;
 });
 

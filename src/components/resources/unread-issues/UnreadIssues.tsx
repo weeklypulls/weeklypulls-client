@@ -57,7 +57,7 @@ export default function UnreadIssues() {
         };
         return <ReadButton comic={comicLike} value={false} />; // unread list only shows unread items
       },
-    } as any;
+    };
     return [readCol, ...COLUMNS];
   }, []);
 
@@ -127,7 +127,7 @@ export default function UnreadIssues() {
         dataSource={data}
         loading={unreadIssuesQuery.isLoading}
         pagination={{
-          pageSize: 50,
+          pageSize: 500,
           showSizeChanger: true,
           showQuickJumper: true,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
