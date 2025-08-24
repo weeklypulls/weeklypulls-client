@@ -9,24 +9,21 @@ import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
 interface IFilters {
-  limit?: number;
+  page?: number;
+  limit?: number; // page_size
   since?: string;
+  ordering?: "date" | "-date";
 }
 
 export default function UnreadIssues() {
-  const [filters, setFilters] = useState<IFilters>({ limit: 50 });
+  // Server-side pagination defaults
+  const [filters, setFilters] = useState<IFilters>({ page: 1, limit: 50, ordering: "-date" });
   const unreadIssuesQuery = useUnreadIssues(filters);
   // marking handled via ReadButton (uses optimistic cache + invalidation)
 
   // Refetch unread issues when filters change handled automatically via query key
 
-  const onLimitChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const limit = parseInt(event.target.value, 10);
-    setFilters((prev) => ({
-      ...prev,
-      limit: isNaN(limit) ? undefined : Math.max(1, Math.min(200, limit)),
-    }));
-  }, []);
+  // page size handled via Table's built-in size changer
 
   const onDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const since = e.target.value || undefined;
@@ -35,7 +32,10 @@ export default function UnreadIssues() {
 
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
-  const data = useMemo(() => unreadIssuesQuery.data || [], [unreadIssuesQuery.data]);
+  const envelope = unreadIssuesQuery.data as
+    | { count: number; next: string | null; previous: string | null; results: IUnreadIssue[] }
+    | undefined;
+  const data = useMemo(() => envelope?.results || [], [envelope]);
   const columns: ColumnsType<IUnreadIssue> = useMemo(() => {
     const readCol = {
       key: "read",
@@ -60,6 +60,23 @@ export default function UnreadIssues() {
     };
     return [readCol, ...COLUMNS];
   }, []);
+
+  // reflect server sort state in the Date column
+  const columnsWithSort = useMemo(() => {
+    return columns.map((c: any) =>
+      c.key === "date"
+        ? {
+            ...c,
+            sortOrder:
+              filters.ordering === "date"
+                ? "ascend"
+                : filters.ordering === "-date"
+                  ? "descend"
+                  : null,
+          }
+        : c
+    );
+  }, [columns, filters.ordering]);
 
   const pullFilterOptions = useMemo(() => {
     const map = new Map<string, { text: string; value: string }>();
@@ -89,21 +106,7 @@ export default function UnreadIssues() {
       </Title>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <label htmlFor="limit-input" style={{ display: "block" }}>
-            Limit:
-          </label>
-          <Input
-            id="limit-input"
-            type="number"
-            value={filters.limit || ""}
-            onChange={onLimitChange}
-            placeholder="Limit (max 200)"
-            style={{ marginTop: 4 }}
-          />
-        </Col>
-
-        <Col span={8}>
+        <Col span={12}>
           <label htmlFor="since-date" style={{ display: "block" }}>
             Since Date:
           </label>
@@ -115,7 +118,7 @@ export default function UnreadIssues() {
             style={{ width: "100%", marginTop: 4 }}
           />
         </Col>
-        <Col span={8} style={{ paddingTop: 24 }}>
+        <Col span={24} style={{ paddingTop: 12 }}>
           <Button type="default" onClick={onRefresh}>
             Apply Filters
           </Button>
@@ -123,14 +126,41 @@ export default function UnreadIssues() {
       </Row>
 
       <Table
-        columns={columns}
+        columns={columnsWithSort}
         dataSource={data}
         loading={unreadIssuesQuery.isLoading}
         pagination={{
-          pageSize: 500,
+          current: filters.page || 1,
+          pageSize: filters.limit || 50,
+          total: envelope?.count || 0,
           showSizeChanger: true,
           showQuickJumper: true,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
+        }}
+        onChange={(pagination, _filters, sorter) => {
+          // Map table sort for date column to server-side ordering
+          // sorter can be an array in multi-sort; we only use the first
+          const s = Array.isArray(sorter) ? sorter[0] : sorter;
+          const isDateColumn = s && (s.columnKey === "date" || s.field === "date");
+          if (isDateColumn) {
+            let order: IFilters["ordering"] | undefined;
+            if (s.order === "ascend") order = "date";
+            else if (s.order === "descend") order = "-date";
+            else order = undefined;
+            setFilters((prev) => ({ ...prev, ordering: order, page: 1 }));
+            // Proactively refetch so the user sees results immediately
+            unreadIssuesQuery.refetch();
+          }
+          // Handle page/pageSize changes
+          if (pagination) {
+            const nextPage = pagination.current;
+            const nextSize = pagination.pageSize;
+            setFilters((prev) => ({
+              ...prev,
+              page: nextPage || 1,
+              limit: nextSize || prev.limit,
+            }));
+          }
         }}
         rowKey="cv_id"
         size="small"

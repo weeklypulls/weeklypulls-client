@@ -7,8 +7,7 @@ import { buildIssueColumns } from "../../common/issueColumns";
 const titleSort = (a: IUnreadIssue, b: IUnreadIssue) =>
   utils.stringAttrsSort(a, b, ["volume_name", "number"]);
 
-const dateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
-  utils.stringAttrsSort(a, b, ["date", "volume_name", "number"]);
+// Server-side sorting for date; keep client-side title sort only
 
 const base = buildIssueColumns<IUnreadIssue>({
   getCoverUrls: (r) => r.image_medium_url || r.image_url || undefined,
@@ -27,7 +26,7 @@ const COLUMNS: ColumnsType<IUnreadIssue> = base.map((col) => {
   }
 
   if (col.key === "date") {
-    return { ...col, defaultSortOrder: "descend", sorter: dateSort };
+    return { ...col, defaultSortOrder: "descend", sorter: true };
   }
 
   if (col.key === "pull") {

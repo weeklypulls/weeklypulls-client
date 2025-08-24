@@ -1,5 +1,3 @@
-import React from "react";
-
 import BoolButton from "./BoolButton";
 import { ACTIONS } from "../../consts";
 import { IComic } from "../../interfaces";

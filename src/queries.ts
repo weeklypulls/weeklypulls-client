@@ -248,8 +248,10 @@ export function useWeek(weekId: string | undefined) {
 
 // Unread Issues
 export interface UnreadIssuesFilters {
-  limit?: number;
+  page?: number;
+  limit?: number; // page_size
   since?: string;
+  ordering?: "date" | "-date";
 }
 
 export function useUnreadIssues(filters: UnreadIssuesFilters) {
@@ -258,12 +260,20 @@ export function useUnreadIssues(filters: UnreadIssuesFilters) {
     queryKey: ["unread-issues", filters],
     queryFn: async () => {
       const params = new URLSearchParams();
+      if (filters.page) params.append("page", String(filters.page));
       if (filters.limit) params.append("limit", String(filters.limit));
       if (filters.since) params.append("since", filters.since);
+      if (filters.ordering) params.append("ordering", filters.ordering);
       const qs = params.toString();
       const endpoint = qs ? `pulls/unread_issues/?${qs}` : "pulls/unread_issues/";
       const resp = await store.client.user.get(endpoint);
-      return resp.data as any[];
+      // DRF pagination envelope: { count, next, previous, results }
+      return resp.data as {
+        count: number;
+        next: string | null;
+        previous: string | null;
+        results: any[];
+      };
     },
     // short cache; original resource used 5 minute freshness
     staleTime: minutes(5),
