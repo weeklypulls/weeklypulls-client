@@ -10,15 +10,18 @@ import ReadButton from "./ReadButton";
 import { IIssue } from "../../interfaces";
 
 type IssueColumnsOptions = {
+  includeRead?: boolean; // default true
   includeCover?: boolean; // default true
   includeTitle?: boolean; // default true
   includePull?: boolean; // default false
   includeDate?: boolean; // default true
   widths?: {
+    read?: number;
     cover?: number;
     pull?: number;
     date?: number;
   };
+  readTitle?: string; // default "Read"
   overrides?: {
     coverUrls?: (record: IIssue) => string[] | string | undefined | null;
     titlePrimary?: (record: IIssue) => string;
@@ -36,11 +39,13 @@ type IssueColumnsOptions = {
 
 export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsType<IIssue> {
   const {
+    includeRead = true,
     includeCover = true,
     includeTitle = true,
     includePull = false,
     includeDate = true,
     widths = {},
+    readTitle = "Read",
     overrides = {},
   } = options;
 
@@ -55,6 +60,19 @@ export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsTyp
   const date = overrides.date ?? ((r: IIssue) => r.date);
 
   const cols: ColumnsType<IIssue> = [];
+
+  if (includeRead) {
+    const readCol: ColumnType<IIssue> = {
+      dataIndex: "read",
+      key: "read",
+      title: readTitle,
+      width: widths.read ?? 48,
+      render: (_: unknown, record: IIssue) => (
+        <ReadButton issue={record} value={record.pull?.read ?? false} />
+      ),
+    };
+    cols.push(readCol);
+  }
 
   if (includeCover) {
     const coverCol: ColumnType<IIssue> = {
@@ -104,23 +122,4 @@ export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsTyp
   }
 
   return cols;
-}
-
-export function buildReadColumn<T>(args: {
-  getIssue: (record: T) => IIssue;
-  getValue: (record: T) => boolean;
-  title?: string;
-  width?: number;
-}) {
-  const { getIssue, getValue, title = "Read", width = 48 } = args;
-  const col: ColumnType<T> = {
-    dataIndex: "read",
-    key: "read",
-    title,
-    width,
-    render: (_: unknown, record: T) => (
-      <ReadButton issue={getIssue(record)} value={getValue(record)} />
-    ),
-  } as ColumnType<T>;
-  return col;
 }

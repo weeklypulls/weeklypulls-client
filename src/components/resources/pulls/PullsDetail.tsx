@@ -13,7 +13,7 @@ import {
   useMarkAllRead,
 } from "../../../queries";
 import utils from "../../../utils";
-import { buildIssueColumns, buildReadColumn } from "../../common/issueColumns";
+import { buildIssueColumns } from "../../common/issueColumns";
 import LoadingButton from "../../common/LoadingButton";
 import Title from "../../common/Title";
 
@@ -54,16 +54,11 @@ export default function PullsDetail() {
   }, [pullQuery.data, seriesQuery.data]);
 
   const columns: ColumnsType<IIssue> = useMemo(() => {
-    const base = buildIssueColumns({
+    return buildIssueColumns({
       overrides: {
         titleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
       },
     });
-    const readCol = buildReadColumn<IIssue>({
-      getIssue: (r) => r,
-      getValue: (r) => r.pull?.read ?? false,
-    });
-    return [readCol, ...base];
   }, [seriesQuery.data]);
 
   const onSave = useCallback(

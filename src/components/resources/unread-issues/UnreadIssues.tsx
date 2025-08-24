@@ -1,12 +1,11 @@
 import { Table, Button, Input, Row, Col } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import type { SorterResult } from "antd/es/table/interface";
+import type { SorterResult, TablePaginationConfig } from "antd/es/table/interface";
 import { useCallback, useMemo, useState, useEffect, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { IIssue } from "../../../interfaces";
 import { useUnreadIssues } from "../../../queries";
-import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
 
 interface IFilters {
@@ -21,6 +20,7 @@ export default function UnreadIssues() {
   const [tableSorter, setTableSorter] = useState<
     SorterResult<IIssue> | SorterResult<IIssue>[] | null
   >(null);
+  const [tablePagination, setTablePagination] = useState<TablePaginationConfig | null>(null);
   const unreadIssuesQuery = useUnreadIssues(filters);
 
   const onDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -30,35 +30,34 @@ export default function UnreadIssues() {
 
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
-  const envelope = unreadIssuesQuery.data as
-    | { count: number; next: string | null; previous: string | null; results: IIssue[] }
-    | undefined;
+  const envelope = unreadIssuesQuery.data;
   const unreadRows = useMemo(() => envelope?.results || [], [envelope]);
   const data: IIssue[] = useMemo(() => unreadRows, [unreadRows]);
-  const columns: ColumnsType<IIssue> = useMemo(() => {
-    const readCol = {
-      key: "read",
-      dataIndex: "read",
-      title: "",
-      width: 48,
-      render: (_: unknown, issue: IIssue) => {
-        return <ReadButton issue={issue} value={issue.pull?.read ?? false} />;
-      },
-    };
-    return [readCol, ...COLUMNS];
-  }, []);
+  const columns: ColumnsType<IIssue> = useMemo(() => COLUMNS, []);
 
   // Interpret AntD's sorter to backend ordering param
   useEffect(() => {
     if (!tableSorter) return;
     const s = Array.isArray(tableSorter) ? tableSorter[0] : tableSorter;
-    const field = (s?.columnKey as string | undefined) || (s?.field as string | undefined);
-    const ord = s?.order as "ascend" | "descend" | undefined;
+    const field = s?.columnKey || s?.field;
+    const ord = s?.order;
     if (field === "date") {
       const ordering = ord === "ascend" ? "date" : ord === "descend" ? "-date" : undefined;
       setFilters((prev) => ({ ...prev, ordering, page: 1 }));
     }
   }, [tableSorter]);
+
+  // Interpret AntD's pagination to backend page/limit params
+  useEffect(() => {
+    if (!tablePagination) return;
+    const nextPage = tablePagination.current || 1;
+    const nextSize = tablePagination.pageSize;
+    setFilters((prev) => ({
+      ...prev,
+      page: nextPage,
+      limit: nextSize || prev.limit,
+    }));
+  }, [tablePagination]);
 
   return (
     <div>
@@ -102,16 +101,7 @@ export default function UnreadIssues() {
         }}
         onChange={(pagination, _filters, sorter) => {
           setTableSorter(sorter);
-
-          if (pagination) {
-            const nextPage = pagination.current;
-            const nextSize = pagination.pageSize;
-            setFilters((prev) => ({
-              ...prev,
-              page: nextPage || 1,
-              limit: nextSize || prev.limit,
-            }));
-          }
+          if (pagination) setTablePagination(pagination);
         }}
         rowKey={(r) => r.id}
         size="small"
