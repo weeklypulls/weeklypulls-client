@@ -138,7 +138,7 @@ function ComicsList() {
           pull,
           read: pull.read.includes(comic.id),
         }))
-        .filter((comicPair: IComicPullPair) => !future(comicPair.comic.on_sale));
+        .filter((comicPair: IComicPullPair) => !future(comicPair.comic.date));
 
       if (!pullComicPairs.length || pullComicPairs.every(isRead)) {
         return [];
@@ -146,7 +146,7 @@ function ComicsList() {
 
       const unreadDate = pullComicPairs
         .filter((cp: IComicPullPair) => !cp.read)
-        .map((cp: IComicPullPair) => cp.comic.on_sale)
+        .map((cp: IComicPullPair) => cp.comic.date)
         .sort(stringSort)[0];
 
       if (!earliestUnread || earliestUnread > unreadDate) {
@@ -162,7 +162,7 @@ function ComicsList() {
     const comicPairs = seriesComics.flat();
 
     const comicsPairsFiltered = comicPairs.filter((comicPair: IComicPullPair) => {
-      if (comicPair.comic.on_sale < earliestUnread) return false;
+      if (comicPair.comic.date < earliestUnread) return false;
       return (
         filterBy("read", comicPair) &&
         filterBy("pull.pull_list_id", comicPair) &&

@@ -27,12 +27,12 @@ function pullLinkCell(text: string, record: IComicPullPair) {
 }
 
 const titleSort = (a: IComicPullPair, b: IComicPullPair) =>
-  utils.stringAttrsSort(a, b, ["comic.title", "comic.series_id", "comic.on_sale"]);
+  utils.stringAttrsSort(a, b, ["comic.title", "comic.series_id", "comic.date"]);
 
-const onSaleSort = (a: IComicPullPair, b: IComicPullPair) =>
-  utils.stringAttrsSort(a, b, ["comic.on_sale", "comic.title"]);
+const dateSort = (a: IComicPullPair, b: IComicPullPair) =>
+  utils.stringAttrsSort(a, b, ["comic.date", "comic.title"]);
 
-const weekCell = renderWeekLinkFromISO((r: IComicPullPair) => r.comic.on_sale);
+const weekCell = renderWeekLinkFromISO((r: IComicPullPair) => r.comic.date);
 
 function readCell(_text: string, record: IComicPullPair) {
   return <ReadButton comic={record.comic} value={record.read} />;
@@ -65,11 +65,11 @@ const COLUMNS: ColumnsType<IComicPullPair> = [
     title: "List",
   },
   {
-    dataIndex: "comic.on_sale",
+    dataIndex: "comic.date",
     defaultSortOrder: "ascend",
-    key: "comic.on_sale",
+    key: "comic.date",
     render: weekCell,
-    sorter: onSaleSort,
+    sorter: dateSort,
     title: "Date",
   },
   {

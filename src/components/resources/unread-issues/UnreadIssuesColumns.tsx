@@ -17,7 +17,7 @@ const base = buildIssueColumns<IUnreadIssue>({
   getTitleHref: (r) => r.site_url || undefined,
   getTitleTooltip: (r) => r.description,
   getPullLink: (r) => ({ pull_id: r.pull_id, title: r.volume_name, year: r.volume_start_year }),
-  getDate: (r) => r.date || r.store_date || r.cover_date,
+  getDate: (r) => r.date,
 });
 
 // Preserve sorting and filter behavior on top of the shared columns

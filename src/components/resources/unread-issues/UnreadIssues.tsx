@@ -46,8 +46,8 @@ export default function UnreadIssues() {
         // adapt unread issue into minimal IComic shape needed by ReadButton
         const comicLike: any = {
           id: String(issue.cv_id),
-          // fall back chain for date fields
-          on_sale: issue.date || issue.store_date || issue.cover_date || "",
+          // canonical date only
+          date: issue.date || "",
           series_id: String(issue.volume_id),
           images: issue.image_url
             ? [issue.image_url]

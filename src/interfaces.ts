@@ -1,12 +1,10 @@
 export interface IComic {
   id: string;
   images: string[];
-  on_sale: string;
-  // Canonical local date when available (YYYY-MM-DD). Some endpoints still use on_sale.
-  date?: string;
+  // Canonical date (YYYY-MM-DD) for display and sorting
+  date: string;
   series_id: string;
   title: string;
-  cover_date?: string;
   site_url?: string;
   description?: string;
   // Optional fields provided by Weeks API when available
@@ -66,8 +64,6 @@ export interface IUnreadIssue {
   number: string;
   // Canonical date when provided by API
   date?: string;
-  store_date: string;
-  cover_date: string;
   volume_id: number;
   volume_name: string;
   volume_start_year: number;
