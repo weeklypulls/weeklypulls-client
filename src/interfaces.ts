@@ -2,6 +2,8 @@ export interface IComic {
   id: string;
   images: string[];
   on_sale: string;
+  // Canonical local date when available (YYYY-MM-DD). Some endpoints still use on_sale.
+  date?: string;
   series_id: string;
   title: string;
   cover_date?: string;
@@ -62,6 +64,8 @@ export interface IUnreadIssue {
   cv_id: number;
   name: string;
   number: string;
+  // Canonical date when provided by API
+  date?: string;
   store_date: string;
   cover_date: string;
   volume_id: number;

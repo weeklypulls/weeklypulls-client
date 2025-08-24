@@ -47,7 +47,7 @@ export default function UnreadIssues() {
         const comicLike: any = {
           id: String(issue.cv_id),
           // fall back chain for date fields
-          on_sale: issue.store_date || issue.cover_date || "",
+          on_sale: issue.date || issue.store_date || issue.cover_date || "",
           series_id: String(issue.volume_id),
           images: issue.image_url
             ? [issue.image_url]

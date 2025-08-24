@@ -51,8 +51,7 @@ export default function PullsDetail() {
       getTitleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
       getTitleHref: (r) => r.comic.site_url,
       getTitleTooltip: (r) => r.comic.description,
-      getStoreDate: (r) => r.comic.on_sale,
-      getCoverDate: (r) => r.comic.cover_date,
+      getDate: (r) => r.comic.date || r.comic.on_sale || r.comic.cover_date,
     });
     const readCol = buildReadColumn<IComicPullSeriesPair>({
       getComic: (r) => r.comic,

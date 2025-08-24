@@ -1,5 +1,4 @@
 import type { ColumnsType } from "antd/es/table";
-import React from "react";
 import { Link } from "react-router-dom";
 
 import { IComicPullPair } from "../../../interfaces";
@@ -35,7 +34,7 @@ const onSaleSort = (a: IComicPullPair, b: IComicPullPair) =>
 
 const weekCell = renderWeekLinkFromISO((r: IComicPullPair) => r.comic.on_sale);
 
-function readCell(text: string, record: IComicPullPair) {
+function readCell(_text: string, record: IComicPullPair) {
   return <ReadButton comic={record.comic} value={record.read} />;
 }
 
@@ -71,7 +70,7 @@ const COLUMNS: ColumnsType<IComicPullPair> = [
     key: "comic.on_sale",
     render: weekCell,
     sorter: onSaleSort,
-    title: "Store Date",
+    title: "Date",
   },
   {
     dataIndex: "comic.title",

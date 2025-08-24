@@ -7,11 +7,8 @@ import { buildIssueColumns } from "../../common/issueColumns";
 const titleSort = (a: IUnreadIssue, b: IUnreadIssue) =>
   utils.stringAttrsSort(a, b, ["volume_name", "number"]);
 
-const storeDateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
-  utils.stringAttrsSort(a, b, ["store_date", "volume_name", "number"]);
-
-const coverDateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
-  utils.stringAttrsSort(a, b, ["cover_date", "volume_name", "number"]);
+const dateSort = (a: IUnreadIssue, b: IUnreadIssue) =>
+  utils.stringAttrsSort(a, b, ["date", "volume_name", "number"]);
 
 const base = buildIssueColumns<IUnreadIssue>({
   getCoverUrls: (r) => r.image_medium_url || r.image_url || undefined,
@@ -20,8 +17,7 @@ const base = buildIssueColumns<IUnreadIssue>({
   getTitleHref: (r) => r.site_url || undefined,
   getTitleTooltip: (r) => r.description,
   getPullLink: (r) => ({ pull_id: r.pull_id, title: r.volume_name, year: r.volume_start_year }),
-  getStoreDate: (r) => r.store_date || r.cover_date,
-  getCoverDate: (r) => r.cover_date || r.store_date,
+  getDate: (r) => r.date || r.store_date || r.cover_date,
 });
 
 // Preserve sorting and filter behavior on top of the shared columns
@@ -30,12 +26,8 @@ const COLUMNS: ColumnsType<IUnreadIssue> = base.map((col) => {
     return { ...col, sorter: titleSort };
   }
 
-  if (col.key === "store_date") {
-    return { ...col, defaultSortOrder: "descend", sorter: storeDateSort };
-  }
-
-  if (col.key === "cover_date") {
-    return { ...col, sorter: coverDateSort };
+  if (col.key === "date") {
+    return { ...col, defaultSortOrder: "descend", sorter: dateSort };
   }
 
   if (col.key === "pull") {

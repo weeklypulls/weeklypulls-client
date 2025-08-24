@@ -20,8 +20,8 @@ export type IssueColumnGetters<T> = {
     title?: string;
     year?: string | number | null;
   };
-  getStoreDate: (record: T) => string | undefined | null;
-  getCoverDate?: (record: T) => string | undefined | null;
+  // Canonical date for display (YYYY-MM-DD). Callers may coalesce multiple fields.
+  getDate: (record: T) => string | undefined | null;
 };
 
 export function buildIssueColumns<T>(getters: IssueColumnGetters<T>): ColumnsType<T> {
@@ -65,22 +65,12 @@ export function buildIssueColumns<T>(getters: IssueColumnGetters<T>): ColumnsTyp
   }
 
   cols.push({
-    dataIndex: "store_date",
-    key: "store_date",
-    title: "Store Date",
+    dataIndex: "date",
+    key: "date",
+    title: "Date",
     width: 100,
-    render: renderWeekLinkFromISO(getters.getStoreDate),
+    render: renderWeekLinkFromISO(getters.getDate),
   } as ColumnType<T>);
-
-  if (getters.getCoverDate) {
-    cols.push({
-      dataIndex: "cover_date",
-      key: "cover_date",
-      title: "Cover Date",
-      width: 100,
-      render: renderWeekLinkFromISO(getters.getCoverDate),
-    } as ColumnType<T>);
-  }
 
   return cols;
 }
