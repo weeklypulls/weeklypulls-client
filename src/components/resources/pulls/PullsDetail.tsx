@@ -54,13 +54,10 @@ export default function PullsDetail() {
   }, [pullQuery.data, seriesQuery.data]);
 
   const columns: ColumnsType<IIssue> = useMemo(() => {
-    const base = buildIssueColumns<IIssue>({
-      getCoverUrls: (r) => r.images,
-      getTitlePrimary: (r) => r.title,
-      getTitleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
-      getTitleHref: (r) => r.site_url,
-      getTitleTooltip: (r) => r.description,
-      getDate: (r) => r.date,
+    const base = buildIssueColumns({
+      overrides: {
+        titleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
+      },
     });
     const readCol = buildReadColumn<IIssue>({
       getIssue: (r) => r,

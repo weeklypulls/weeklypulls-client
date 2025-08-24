@@ -9,68 +9,98 @@ import {
 import ReadButton from "./ReadButton";
 import { IIssue } from "../../interfaces";
 
-type IssueColumnGetters<T> = {
-  getCoverUrls: (record: T) => string[] | string | undefined | null;
-  getTitlePrimary: (record: T) => string;
-  getTitleSecondary?: (record: T) => string | undefined;
-  getTitleHref?: (record: T) => string | undefined;
-  getTitleTooltip?: (record: T) => string | undefined;
-  getPullLink?: (record: T) => {
-    pull_id?: string | number | null;
-    title?: string;
-    year?: string | number | null;
+type IssueColumnsOptions = {
+  includeCover?: boolean; // default true
+  includeTitle?: boolean; // default true
+  includePull?: boolean; // default false
+  includeDate?: boolean; // default true
+  widths?: {
+    cover?: number;
+    pull?: number;
+    date?: number;
   };
-  // Canonical date for display (YYYY-MM-DD). Callers may coalesce multiple fields.
-  getDate: (record: T) => string | undefined | null;
+  overrides?: {
+    coverUrls?: (record: IIssue) => string[] | string | undefined | null;
+    titlePrimary?: (record: IIssue) => string;
+    titleSecondary?: (record: IIssue) => string | undefined;
+    titleHref?: (record: IIssue) => string | undefined;
+    titleTooltip?: (record: IIssue) => string | undefined;
+    pullLink?: (record: IIssue) => {
+      pull_id?: string | number | null;
+      title?: string;
+      year?: string | number | null;
+    };
+    date?: (record: IIssue) => string | undefined | null;
+  };
 };
 
-export function buildIssueColumns<T>(getters: IssueColumnGetters<T>): ColumnsType<T> {
-  const coverCol: ColumnType<T> = {
-    dataIndex: "cover",
-    key: "cover",
-    title: "Cover",
-    width: 80,
-    render: renderCoverFromUrls(getters.getCoverUrls),
-  };
+export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsType<IIssue> {
+  const {
+    includeCover = true,
+    includeTitle = true,
+    includePull = false,
+    includeDate = true,
+    widths = {},
+    overrides = {},
+  } = options;
 
-  const titleCol: ColumnType<T> = {
-    dataIndex: "title",
-    key: "title",
-    title: "Title",
-    render: renderTitleBlock((r: T) => ({
-      primary: getters.getTitlePrimary(r),
-      secondary: getters.getTitleSecondary?.(r),
-      href: getters.getTitleHref?.(r),
-      title: getters.getTitleTooltip?.(r),
-    })),
-  };
+  const coverUrls = overrides.coverUrls ?? ((r: IIssue) => r.images);
+  const titlePrimary = overrides.titlePrimary ?? ((r: IIssue) => r.title);
+  const titleSecondary = overrides.titleSecondary ?? ((r: IIssue) => r.name);
+  const titleHref = overrides.titleHref ?? ((r: IIssue) => r.site_url);
+  const titleTooltip = overrides.titleTooltip ?? ((r: IIssue) => r.description);
+  const pullLink =
+    overrides.pullLink ??
+    ((r: IIssue) => ({ pull_id: r.pull?.id, title: r.volume?.name, year: r.volume?.start_year }));
+  const date = overrides.date ?? ((r: IIssue) => r.date);
 
-  const cols: ColumnsType<T> = [coverCol, titleCol];
+  const cols: ColumnsType<IIssue> = [];
 
-  if (getters.getPullLink) {
+  if (includeCover) {
+    const coverCol: ColumnType<IIssue> = {
+      dataIndex: "cover",
+      key: "cover",
+      title: "Cover",
+      width: widths.cover ?? 80,
+      render: renderCoverFromUrls(coverUrls),
+    };
+    cols.push(coverCol);
+  }
+
+  if (includeTitle) {
+    const titleCol: ColumnType<IIssue> = {
+      dataIndex: "title",
+      key: "title",
+      title: "Title",
+      render: renderTitleBlock((r: IIssue) => ({
+        primary: titlePrimary(r),
+        secondary: titleSecondary?.(r),
+        href: titleHref?.(r),
+        title: titleTooltip?.(r),
+      })),
+    };
+    cols.push(titleCol);
+  }
+
+  if (includePull) {
     cols.push({
       dataIndex: "pull",
       key: "pull",
       title: "Pull",
-      width: 200,
-      render: renderPullLink(getters.getPullLink),
-      filterMultiple: true,
-      filters: [],
-      onFilter: (value, record) => {
-        const p = getters.getPullLink!(record as T);
-        const text = `${p.title || ""}$${p.year || ""}`;
-        return text === String(value);
-      },
-    } as ColumnType<T>);
+      width: widths.pull ?? 200,
+      render: renderPullLink(pullLink),
+    });
   }
 
-  cols.push({
-    dataIndex: "date",
-    key: "date",
-    title: "Date",
-    width: 100,
-    render: renderWeekLinkFromISO(getters.getDate),
-  } as ColumnType<T>);
+  if (includeDate) {
+    cols.push({
+      dataIndex: "date",
+      key: "date",
+      title: "Date",
+      width: widths.date ?? 100,
+      render: renderWeekLinkFromISO(date),
+    });
+  }
 
   return cols;
 }

@@ -3,7 +3,7 @@ import type { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
 
 import { IIssue, IPull } from "../../../interfaces";
-import utils from "../../../utils";
+// no utils used here
 import { renderCoverFromUrls } from "../../common/columnHelpers";
 import PullButton from "../../common/PullButton";
 
@@ -21,10 +21,6 @@ function pullCell(_text: string, record: IIssue) {
   return <PullButton issue={record} pull={pull} />;
 }
 
-function titleSort(a: IIssue, b: IIssue) {
-  return utils.stringAttrsSort(a, b, ["title", "volume.id"]);
-}
-
 const coverCell = renderCoverFromUrls((r: IIssue) => r.images);
 
 const COLUMNS: ColumnsType<IIssue> = [
@@ -38,7 +34,6 @@ const COLUMNS: ColumnsType<IIssue> = [
     dataIndex: ["title"],
     key: "title",
     render: pullLinkCell,
-    sorter: titleSort,
     title: "Title",
   },
   {

@@ -1,19 +1,3 @@
-// Tiny path getter: safely access nested properties by dot path
-function getPath<T extends object, R = unknown>(obj: T, path: string, fallback?: R): R | unknown {
-  if (!obj || !path) return fallback;
-  const parts = path.split(".");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let cur: any = obj;
-  for (const p of parts) {
-    if (cur != null && Object.prototype.hasOwnProperty.call(cur, p)) {
-      cur = cur[p];
-    } else {
-      return fallback;
-    }
-  }
-  return cur === undefined ? fallback : cur;
-}
-
 import { IIssue } from "./interfaces";
 
 // Helper: format a Date to YYYY-MM-DD using local time
@@ -28,16 +12,6 @@ function formatISODateLocal(d: Date) {
 function parseISODateLocal(iso: string) {
   const [y, m, d] = iso.split("-").map((n) => parseInt(n, 10));
   return new Date(y, (m || 1) - 1, d || 1);
-}
-
-function stringSort(a: string, b: string) {
-  if (a < b) {
-    return -1;
-  }
-  if (a > b) {
-    return 1;
-  }
-  return 0;
 }
 
 function future(week: string) {
@@ -80,26 +54,7 @@ function prevWeek(weekIso: string) {
   return formatISODateLocal(d);
 }
 
-function stringAttrsSort<T extends object>(a: T, b: T, attrs: string[]) {
-  for (const attr of attrs) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const av = String(getPath(a as any, attr) ?? "");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bv = String(getPath(b as any, attr) ?? "");
-    if (av < bv) {
-      return -1;
-    }
-    if (av > bv) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 function rowClassName(record: IIssue) {
-  // Legacy pair shape
-  // kept for safety if mixed shapes appear; but IIssue path used now
-  // New IIssue shape uses pull.read
   const read = record.pull?.read ?? false;
   return read ? "comic-read" : "comic-toread";
 }
@@ -112,6 +67,4 @@ export default {
   nextWeek,
   prevWeek,
   rowClassName,
-  stringAttrsSort,
-  stringSort,
 };

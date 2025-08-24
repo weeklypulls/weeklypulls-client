@@ -1,11 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { IPull } from "../../../interfaces";
-import utils from "../../../utils";
 import PullListLink from "../../common/PullListLink";
-
-const titleSort = (a: IPull, b: IPull) =>
-  utils.stringAttrsSort(a, b, ["series_title", "series_id"]);
 
 function pullLinkCell(_text: string, record: IPull) {
   const title = record.series_title || record.series_id;
@@ -27,7 +23,6 @@ const COLUMNS = [
     dataIndex: "series_title",
     key: "api_title",
     render: pullLinkCell,
-    sorter: titleSort,
     title: "Title",
   },
   {

@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { usePullLists, useCreatePullList } from "../../queries";
 import Title from "../common/Title";
 
-type IModel = Record<string, any>;
+type IModel = Record<string, unknown>;
 
 function PagePullLists() {
   const { data: pullLists = [], isLoading } = usePullLists();

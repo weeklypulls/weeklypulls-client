@@ -50,42 +50,6 @@ export default function UnreadIssues() {
     return [readCol, ...COLUMNS];
   }, []);
 
-  // reflect server sort state in the Date column
-  const columnsWithSort: ColumnsType<IIssue> = useMemo(() => {
-    return columns.map((c) =>
-      c.key === "date"
-        ? {
-            ...c,
-            sortOrder:
-              filters.ordering === "date"
-                ? "ascend"
-                : filters.ordering === "-date"
-                  ? "descend"
-                  : null,
-          }
-        : c
-    );
-  }, [columns, filters.ordering]);
-
-  const pullFilterOptions = useMemo(() => {
-    const map = new Map<string, { text: string; value: string }>();
-    data.forEach((i) => {
-      const base = (i.volume?.name || "").trim();
-      if (!base) return;
-      const year = i.volume?.start_year ? ` (${i.volume.start_year})` : "";
-      const label = `${base}${year}`;
-      const value = `${base}$${i.volume?.start_year || ""}`;
-      if (!map.has(value)) map.set(value, { text: label, value });
-    });
-    return Array.from(map.values()).sort((a, b) => a.text.localeCompare(b.text));
-  }, [data]);
-
-  columns.forEach((col) => {
-    if (col.key === "pull") {
-      col.filters = pullFilterOptions;
-    }
-  });
-
   return (
     <div>
       <Title title="Unread Issues">
@@ -115,7 +79,7 @@ export default function UnreadIssues() {
       </Row>
 
       <Table
-        columns={columnsWithSort}
+        columns={columns}
         dataSource={data}
         loading={unreadIssuesQuery.isLoading}
         pagination={{
@@ -126,21 +90,8 @@ export default function UnreadIssues() {
           showQuickJumper: true,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
         }}
-        onChange={(pagination, _filters, sorter) => {
-          // Map table sort for date column to server-side ordering
-          // sorter can be an array in multi-sort; we only use the first
-          const s = Array.isArray(sorter) ? sorter[0] : sorter;
-          const isDateColumn = s && (s.columnKey === "date" || s.field === "date");
-          if (isDateColumn) {
-            let order: IFilters["ordering"] | undefined;
-            if (s.order === "ascend") order = "date";
-            else if (s.order === "descend") order = "-date";
-            else order = undefined;
-            setFilters((prev) => ({ ...prev, ordering: order, page: 1 }));
-            // Proactively refetch so the user sees results immediately
-            unreadIssuesQuery.refetch();
-          }
-          // Handle page/pageSize changes
+        onChange={(pagination) => {
+          // Handle page/pageSize changes only
           if (pagination) {
             const nextPage = pagination.current;
             const nextSize = pagination.pageSize;
