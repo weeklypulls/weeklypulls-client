@@ -40,7 +40,7 @@ export interface IIssue {
   name?: string; // issue title/subtitle
   title: string; // recommended display title (e.g., `${volume.name} #${number}`)
   date: string; // canonical YYYY-MM-DD
-  images: string[]; // ordered by preference (first is best)
+  images: string[]; // currently only the original; first (and only) item is best
   site_url?: string;
   description?: string;
   volume: IVolume; // associated volume (series)

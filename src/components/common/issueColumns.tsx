@@ -17,10 +17,6 @@ export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsTyp
   const { includePull = false } = options;
 
   const coverUrls = (r: IIssue) => r.images;
-  const titlePrimary = (r: IIssue) => r.title;
-  const titleSecondary = (r: IIssue) => r.name;
-  const titleHref = (r: IIssue) => r.site_url;
-  const titleTooltip = (r: IIssue) => r.description;
   const pullLink = (r: IIssue) => ({
     pull_id: r.pull?.id,
     title: r.volume?.name,
@@ -49,12 +45,7 @@ export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsTyp
       dataIndex: "title",
       key: "title",
       title: "Title",
-      render: renderTitleBlock((r: IIssue) => ({
-        primary: titlePrimary(r),
-        secondary: titleSecondary?.(r),
-        href: titleHref?.(r),
-        title: titleTooltip?.(r),
-      })),
+      render: renderTitleBlock,
     },
     ...(includePull
       ? [
