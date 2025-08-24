@@ -1,4 +1,4 @@
-import type { ColumnsType, ColumnType } from "antd/es/table";
+import type { ColumnsType } from "antd/es/table";
 
 import {
   renderCoverFromUrls,

@@ -1,6 +1,6 @@
-import { Table, Button, Input, Row, Col } from "antd";
+import { Table, Button, Input } from "antd";
 import type { SorterResult, TablePaginationConfig } from "antd/es/table/interface";
-import { useCallback, useMemo, useState, useEffect, ChangeEvent } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { IIssue } from "../../../interfaces";
@@ -10,22 +10,18 @@ import Title from "../../common/Title";
 interface IFilters {
   page?: number;
   limit?: number;
-  since?: string;
+  search?: string;
   ordering?: "date" | "-date";
 }
 
 export default function UnreadIssues() {
   const [filters, setFilters] = useState<IFilters>({ page: 1, limit: 50, ordering: "-date" });
+  const [searchDraft, setSearchDraft] = useState<string>("");
   const [tableSorter, setTableSorter] = useState<
     SorterResult<IIssue> | SorterResult<IIssue>[] | null
   >(null);
   const [tablePagination, setTablePagination] = useState<TablePaginationConfig | null>(null);
   const unreadIssuesQuery = useUnreadIssues(filters);
-
-  const onDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const since = e.target.value || undefined;
-    setFilters((prev) => ({ ...prev, since }));
-  }, []);
 
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
@@ -56,38 +52,35 @@ export default function UnreadIssues() {
     }));
   }, [tablePagination]);
 
+  // Debounce search text into filters.search
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: searchDraft || undefined, page: 1 }));
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [searchDraft]);
+
   return (
     <div>
-      <Title title="Unread Issues">
-        <Button type="primary" onClick={onRefresh} loading={unreadIssuesQuery.isLoading}>
+      <Title title="Unread Issues" allowWrapButtons>
+        <Input.Search
+          placeholder="Search series (e.g. Spider, Batman, X-Men…)"
+          allowClear
+          enterButton
+          value={searchDraft}
+          onChange={(e) => setSearchDraft(e.target.value)}
+          onSearch={(val) => setFilters((prev) => ({ ...prev, search: val || undefined, page: 1 }))}
+          style={{ width: 320 }}
+        />
+        <Button type="primary" onClick={onRefresh} loading={unreadIssuesQuery.isFetching}>
           Refresh
         </Button>
       </Title>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={12}>
-          <label htmlFor="since-date" style={{ display: "block" }}>
-            Since Date:
-          </label>
-          <Input
-            id="since-date"
-            type="date"
-            value={filters.since || ""}
-            onChange={onDateChange}
-            style={{ width: "100%", marginTop: 4 }}
-          />
-        </Col>
-        <Col span={24} style={{ paddingTop: 12 }}>
-          <Button type="default" onClick={onRefresh}>
-            Apply Filters
-          </Button>
-        </Col>
-      </Row>
-
       <Table
         columns={COLUMNS}
         dataSource={data}
-        loading={unreadIssuesQuery.isLoading}
+        loading={unreadIssuesQuery.isFetching}
         pagination={{
           current: filters.page || 1,
           pageSize: filters.limit || 50,

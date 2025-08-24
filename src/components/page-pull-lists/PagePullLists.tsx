@@ -43,6 +43,7 @@ function PagePullLists() {
         columns={columns}
         loading={isLoading}
         pagination={false}
+        size="small"
       />
 
       <Modal open={isAddVisible} title="Add Pull List" onCancel={closeAdd} onOk={submitAdd}>

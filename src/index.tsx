@@ -1,6 +1,8 @@
+import "@ant-design/v5-patch-for-react-19";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import App from "./components/App";
 import createStore from "./store";
@@ -16,7 +18,9 @@ if (container) {
   root.render(
     <StoreContext.Provider value={store}>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <Router>
+          <App />
+        </Router>
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
     </StoreContext.Provider>

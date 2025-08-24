@@ -257,7 +257,7 @@ export function useWeek(weekId: string | undefined) {
 interface UnreadIssuesFilters {
   page?: number;
   limit?: number; // page_size
-  since?: string;
+  search?: string; // matches series/volume name
   ordering?: "date" | "-date";
 }
 
@@ -269,7 +269,7 @@ export function useUnreadIssues(filters: UnreadIssuesFilters) {
       const params = new URLSearchParams();
       if (filters.page) params.append("page", String(filters.page));
       if (filters.limit) params.append("limit", String(filters.limit));
-      if (filters.since) params.append("since", filters.since);
+      if (filters.search) params.append("search", filters.search);
       if (filters.ordering) params.append("ordering", filters.ordering);
       const qs = params.toString();
       const endpoint = qs ? `pulls/unread_issues/?${qs}` : "pulls/unread_issues/";

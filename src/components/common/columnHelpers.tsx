@@ -1,4 +1,4 @@
-import { Popover, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { Link } from "react-router-dom";
 
 import Images from "./Images";
