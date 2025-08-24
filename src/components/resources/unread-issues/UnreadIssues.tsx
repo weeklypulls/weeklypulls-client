@@ -1,6 +1,7 @@
 import { Table, Button, Input, Row, Col } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo, useState, ChangeEvent } from "react";
+import type { SorterResult } from "antd/es/table/interface";
+import { useCallback, useMemo, useState, useEffect, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { IIssue } from "../../../interfaces";
@@ -10,20 +11,17 @@ import Title from "../../common/Title";
 
 interface IFilters {
   page?: number;
-  limit?: number; // page_size
+  limit?: number;
   since?: string;
   ordering?: "date" | "-date";
 }
 
 export default function UnreadIssues() {
-  // Server-side pagination defaults
   const [filters, setFilters] = useState<IFilters>({ page: 1, limit: 50, ordering: "-date" });
+  const [tableSorter, setTableSorter] = useState<
+    SorterResult<IIssue> | SorterResult<IIssue>[] | null
+  >(null);
   const unreadIssuesQuery = useUnreadIssues(filters);
-  // marking handled via ReadButton (uses optimistic cache + invalidation)
-
-  // Refetch unread issues when filters change handled automatically via query key
-
-  // page size handled via Table's built-in size changer
 
   const onDateChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const since = e.target.value || undefined;
@@ -49,6 +47,18 @@ export default function UnreadIssues() {
     };
     return [readCol, ...COLUMNS];
   }, []);
+
+  // Interpret AntD's sorter to backend ordering param
+  useEffect(() => {
+    if (!tableSorter) return;
+    const s = Array.isArray(tableSorter) ? tableSorter[0] : tableSorter;
+    const field = (s?.columnKey as string | undefined) || (s?.field as string | undefined);
+    const ord = s?.order as "ascend" | "descend" | undefined;
+    if (field === "date") {
+      const ordering = ord === "ascend" ? "date" : ord === "descend" ? "-date" : undefined;
+      setFilters((prev) => ({ ...prev, ordering, page: 1 }));
+    }
+  }, [tableSorter]);
 
   return (
     <div>
@@ -90,8 +100,9 @@ export default function UnreadIssues() {
           showQuickJumper: true,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} unread issues`,
         }}
-        onChange={(pagination) => {
-          // Handle page/pageSize changes only
+        onChange={(pagination, _filters, sorter) => {
+          setTableSorter(sorter);
+
           if (pagination) {
             const nextPage = pagination.current;
             const nextSize = pagination.pageSize;

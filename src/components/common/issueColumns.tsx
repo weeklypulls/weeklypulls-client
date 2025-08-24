@@ -97,6 +97,7 @@ export function buildIssueColumns(options: IssueColumnsOptions = {}): ColumnsTyp
       dataIndex: "date",
       key: "date",
       title: "Date",
+      sorter: true,
       width: widths.date ?? 100,
       render: renderWeekLinkFromISO(date),
     });
