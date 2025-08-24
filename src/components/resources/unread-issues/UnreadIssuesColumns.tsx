@@ -6,7 +6,7 @@ import { buildIssueColumns } from "../../common/issueColumns";
 
 // Title sort for issues: by volume name then by issue number text
 const titleSort = (a: IIssue, b: IIssue) =>
-  utils.stringAttrsSort(a as any, b as any, ["volume.name", "number"]);
+  utils.stringAttrsSort<IIssue>(a, b, ["volume.name", "number"]);
 
 // Server-side sorting for date; keep client-side title sort only
 const base = buildIssueColumns<IIssue>({

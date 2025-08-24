@@ -15,13 +15,9 @@ export default function WeeksDetailPage() {
 
   const weekQuery = useWeek(weekId);
 
-  const comics: any[] = useMemo(() => {
-    return weekQuery.data?.comics ?? [];
-  }, [weekQuery.data]);
-
   const dataSource: IIssue[] = useMemo(() => {
-    return (comics as IIssue[]) || [];
-  }, [comics]);
+    return (weekQuery.data?.comics as IIssue[]) ?? [];
+  }, [weekQuery.data]);
 
   const nextWeek = utils.nextWeek(weekId);
   const lastWeek = utils.prevWeek(weekId);

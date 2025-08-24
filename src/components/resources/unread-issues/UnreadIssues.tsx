@@ -51,8 +51,8 @@ export default function UnreadIssues() {
   }, []);
 
   // reflect server sort state in the Date column
-  const columnsWithSort = useMemo(() => {
-    return columns.map((c: any) =>
+  const columnsWithSort: ColumnsType<IIssue> = useMemo(() => {
+    return columns.map((c) =>
       c.key === "date"
         ? {
             ...c,

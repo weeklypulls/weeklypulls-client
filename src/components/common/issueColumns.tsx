@@ -56,8 +56,8 @@ export function buildIssueColumns<T>(getters: IssueColumnGetters<T>): ColumnsTyp
       render: renderPullLink(getters.getPullLink),
       filterMultiple: true,
       filters: [],
-      onFilter: (value: any, record: any) => {
-        const p = getters.getPullLink!(record);
+      onFilter: (value, record) => {
+        const p = getters.getPullLink!(record as T);
         const text = `${p.title || ""}$${p.year || ""}`;
         return text === String(value);
       },

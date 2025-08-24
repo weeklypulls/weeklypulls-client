@@ -1,16 +1,40 @@
+type PathImpl<T, K extends keyof T> = K extends string
+  ? T[K] extends Record<string, unknown>
+    ? K | `${K}.${PathImpl<T[K], keyof T[K]>}`
+    : K
+  : never;
+
+export type Path<T> = PathImpl<T, keyof T>;
+
+// Given a T and a valid dot path P, get the value type at that path
+export type PathValue<T, P extends Path<T>> = P extends `${infer K}.${infer Rest}`
+  ? K extends keyof T
+    ? PathValue<T[K], Extract<Rest, Path<T[K]>>>
+    : never
+  : P extends keyof T
+    ? T[P]
+    : never;
+
 // Tiny path getter: safely access nested properties by dot path
-function getPath(obj: any, path: string, fallback?: any) {
-  if (!obj || !path) return fallback;
-  const parts = path.split(".");
-  let cur: any = obj;
+export function getPath<T extends object, P extends Path<T>, R = unknown>(
+  obj: T,
+  path: P,
+  fallback?: R
+): PathValue<T, P> | R {
+  if (!obj || !path) return fallback as R;
+
+  const parts = String(path).split(".") as readonly string[];
+  let cur: unknown = obj;
+
   for (const p of parts) {
-    if (cur != null && Object.prototype.hasOwnProperty.call(cur, p)) {
-      cur = cur[p];
+    if (cur !== null && typeof cur === "object" && p in (cur as Record<string, unknown>)) {
+      cur = (cur as Record<string, unknown>)[p];
     } else {
-      return fallback;
+      return fallback as R;
     }
   }
-  return cur === undefined ? fallback : cur;
+
+  return (cur === undefined ? fallback : (cur as PathValue<T, P>)) as PathValue<T, P> | R;
 }
 
 import { IIssue } from "./interfaces";
@@ -79,28 +103,25 @@ function prevWeek(weekIso: string) {
   return formatISODateLocal(d);
 }
 
-function stringAttrsSort(a: Record<string, any>, b: Record<string, any>, attrs: string[]) {
+export function stringAttrsSort<T extends object, P extends Path<T>>(
+  a: T,
+  b: T,
+  attrs: readonly P[]
+): number {
   for (const attr of attrs) {
-    const av = getPath(a, attr);
-    const bv = getPath(b, attr);
-    if (av < bv) {
-      return -1;
-    }
-    if (av > bv) {
-      return 1;
-    }
+    const av = String(getPath<T, P, unknown>(a, attr) ?? "");
+    const bv = String(getPath<T, P, unknown>(b, attr) ?? "");
+    const cmp = av.localeCompare(bv);
+    if (cmp !== 0) return cmp;
   }
   return 0;
 }
 
-function rowClassName(record: any) {
+function rowClassName(record: IIssue) {
   // Legacy pair shape
-  if ((record as any).read !== undefined) {
-    return (record as any).read ? "comic-read" : "comic-toread";
-  }
+  // kept for safety if mixed shapes appear; but IIssue path used now
   // New IIssue shape uses pull.read
-  const issue = record as IIssue;
-  const read = issue.pull?.read ?? false;
+  const read = record.pull?.read ?? false;
   return read ? "comic-read" : "comic-toread";
 }
 

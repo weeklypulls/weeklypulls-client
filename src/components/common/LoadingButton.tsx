@@ -3,7 +3,7 @@ import type { ButtonProps } from "antd";
 import { useCallback, useState } from "react";
 
 interface IProps extends ButtonProps {
-  onClick: () => Promise<any> | any;
+  onClick: () => void | Promise<unknown>;
 }
 
 export default function LoadingButton({ children, onClick, ...rest }: IProps) {

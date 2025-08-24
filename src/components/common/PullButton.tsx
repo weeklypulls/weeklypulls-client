@@ -1,7 +1,7 @@
 import { Button, Input, Modal, Select } from "antd";
 import { useCallback, useMemo, useState } from "react";
 
-import { IIssue, IPull } from "../../interfaces";
+import { IIssue, IPull, IPullList } from "../../interfaces";
 import { usePullLists, useCreatePull } from "../../queries";
 
 interface IProps {
@@ -27,7 +27,7 @@ export default function PullButton({ issue, pull }: IProps) {
   const pullListTitle = useMemo(() => {
     if (!pull) return undefined;
     const pullLists = pullListsQuery.data || [];
-    const pl = pullLists.find((p: any) => String(p.id) === String(pull?.pull_list_id));
+    const pl = (pullLists as IPullList[]).find((p) => String(p.id) === String(pull?.pull_list_id));
     return pl?.title;
   }, [pull, pullListsQuery.data]);
 
@@ -49,13 +49,13 @@ export default function PullButton({ issue, pull }: IProps) {
           <label htmlFor={`pull-list-${series_id}`} style={{ display: "block", marginBottom: 4 }}>
             Pull List
           </label>
-          <Select
+          <Select<number>
             id={`pull-list-${series_id}`}
             value={pullListId}
             onChange={(val: number) => setPullListId(val)}
             style={{ width: "100%" }}
             placeholder="Select a pull list"
-            options={(pullListsQuery.data || []).map((pl: any) => ({
+            options={(pullListsQuery.data || []).map((pl: IPullList) => ({
               label: pl.title,
               value: pl.id,
             }))}

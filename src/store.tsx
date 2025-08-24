@@ -5,7 +5,11 @@ export interface StoreApi {
   readonly isAuthenticated: boolean;
   login(username: string, password: string): Promise<void>;
   logout(): void;
-  mark(seriesId: string, issueId: string, actionKey: string): Promise<any>;
+  mark(
+    seriesId: string,
+    issueId: string,
+    actionKey: string
+  ): Promise<{ id: string | number; series_id: string | number; read: string[] } | null>;
 }
 
 function createStore(): StoreApi {
@@ -28,18 +32,22 @@ function createStore(): StoreApi {
 
   async function mark(seriesId: string, issueId: string, actionKey: string) {
     const pullsResp = await client.user.get("pulls/");
-    const pulls: any[] = pullsResp.data || [];
+    const pulls: Array<{
+      id: string | number;
+      series_id: string | number;
+      read: Array<string | number>;
+    }> = pullsResp.data || [];
     const pull = pulls.find((p) => String(p.series_id) === String(seriesId));
     if (!pull) return null;
     const noun = { [ACTIONS.READ]: "read", [ACTIONS.UNREAD]: "read" }[actionKey] as string;
-    const set = new Set<string>(pull[noun] || []);
+    const set = new Set<string>((pull as unknown as { [k: string]: string[] })[noun] || []);
     const verb = { [ACTIONS.READ]: set.add.bind(set), [ACTIONS.UNREAD]: set.delete.bind(set) }[
       actionKey
     ];
     verb(issueId);
-    const payload = { [noun]: Array.from(set) };
+    const payload = { [noun]: Array.from(set) } as { read: string[] };
     const updated = await client.user.patch(`pulls/${pull.id}/`, payload);
-    return updated.data;
+    return updated.data as { id: string | number; series_id: string | number; read: string[] };
   }
 
   return {

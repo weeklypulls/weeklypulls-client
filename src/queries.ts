@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 
+import type { IPullList, IIssue } from "./interfaces";
 import type { StoreApi } from "./store";
 import { StoreContext } from "./storeContext";
 
@@ -15,7 +16,7 @@ export function usePullLists() {
     queryKey: ["pull-lists"],
     queryFn: async () => {
       const response = await store.client.user.get("pull-lists/");
-      return response.data as any[];
+      return response.data as IPullList[];
     },
     staleTime: weeks(1),
   });
@@ -42,7 +43,14 @@ export function usePulls() {
     queryKey: ["pulls"],
     queryFn: async () => {
       const response = await store.client.user.get("pulls/");
-      return response.data as any[];
+      return response.data as Array<{
+        id: string | number;
+        pull_list_id: string | number;
+        read: string[];
+        series_id: string | number;
+        series_title?: string;
+        series_start_year?: number;
+      }>;
     },
     staleTime: minutes(20),
   });
@@ -89,7 +97,13 @@ export function useMarkIssue() {
     },
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: ["pulls"] });
-      const previousPulls = queryClient.getQueryData<any[]>(["pulls"]);
+      const previousPulls = queryClient.getQueryData<
+        Array<{
+          id: string | number;
+          series_id: string | number;
+          read: string[];
+        }>
+      >(["pulls"]);
       if (previousPulls) {
         const nextPulls = previousPulls.map((p) => {
           if (String(p.series_id) !== String(vars.seriesId)) return p;
@@ -129,8 +143,16 @@ export function useMarkAllRead() {
         qc.cancelQueries({ queryKey: ["pull", vars.pullId] }),
         qc.cancelQueries({ queryKey: ["pulls"] }),
       ]);
-      const previousPull = qc.getQueryData<any>(["pull", vars.pullId]);
-      const previousPulls = qc.getQueryData<any[]>(["pulls"]);
+      const previousPull = qc.getQueryData<{
+        id: string | number;
+        read: string[];
+      } | null>(["pull", vars.pullId]);
+      const previousPulls = qc.getQueryData<
+        Array<{
+          id: string | number;
+          read: string[];
+        }>
+      >(["pulls"]);
       // Optimistically update single pull
       if (previousPull) {
         qc.setQueryData(["pull", vars.pullId], { ...previousPull, read: vars.issueIds });
@@ -257,7 +279,7 @@ export function useUnreadIssues(filters: UnreadIssuesFilters) {
         count: number;
         next: string | null;
         previous: string | null;
-        results: any[];
+        results: IIssue[];
       };
     },
     // short cache; original resource used 5 minute freshness

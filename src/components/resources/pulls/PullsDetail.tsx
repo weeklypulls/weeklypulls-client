@@ -3,7 +3,7 @@ import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { IIssue } from "../../../interfaces";
+import { IIssue, IPullList } from "../../../interfaces";
 import {
   usePull,
   useSeries,
@@ -138,7 +138,7 @@ export default function PullsDetail() {
           value={editPullListId}
           onChange={(val) => setEditPullListId(val)}
           style={{ width: "100%" }}
-          options={(pullListsQuery.data || []).map((pl: any) => ({
+          options={(pullListsQuery.data || [])!.map((pl: IPullList) => ({
             label: pl.title,
             value: pl.id,
           }))}

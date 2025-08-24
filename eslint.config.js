@@ -56,7 +56,8 @@ export default [
       "no-unused-vars": "off",
       "react/prop-types": "off",
       "react/react-in-jsx-scope": "off",
-      "@typescript-eslint/no-explicit-any": "off",
+      // Forbid explicit `any`; prefer unknown and proper narrowing.
+      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {

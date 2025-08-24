@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 
 import COLUMNS from "./PullsListColumns";
-import { IPull } from "../../../interfaces";
+import { IPull, IPullList } from "../../../interfaces";
 import { usePulls, usePullLists } from "../../../queries";
 import Title from "../../common/Title";
 
@@ -57,13 +57,13 @@ function PullsList() {
           <label htmlFor="add-pulllist" style={{ display: "block", marginBottom: 4 }}>
             Pull List
           </label>
-          <Select
+          <Select<number>
             id="add-pulllist"
             value={addPullList}
             onChange={(val: number) => setAddPullList(val)}
             style={{ width: "100%" }}
             placeholder="Select a pull list"
-            options={(pullListsQuery.data || []).map((pl: any) => ({
+            options={(pullListsQuery.data || []).map((pl: IPullList) => ({
               label: pl.title,
               value: pl.id,
             }))}

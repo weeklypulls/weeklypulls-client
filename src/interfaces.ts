@@ -7,6 +7,11 @@ export interface IPull {
   series_start_year?: number;
 }
 
+export interface IPullList {
+  id: number;
+  title: string;
+}
+
 /**
  * Unified domain model: Issue + Volume + optional Pull context
  * Mirrors backend models to reduce client-side joining.
