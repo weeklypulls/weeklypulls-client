@@ -1,5 +1,4 @@
 import { Table, Button, Input, Row, Col } from "antd";
-import type { ColumnsType } from "antd/es/table";
 import type { SorterResult, TablePaginationConfig } from "antd/es/table/interface";
 import { useCallback, useMemo, useState, useEffect, ChangeEvent } from "react";
 
@@ -31,9 +30,7 @@ export default function UnreadIssues() {
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
   const envelope = unreadIssuesQuery.data;
-  const unreadRows = useMemo(() => envelope?.results || [], [envelope]);
-  const data: IIssue[] = useMemo(() => unreadRows, [unreadRows]);
-  const columns: ColumnsType<IIssue> = useMemo(() => COLUMNS, []);
+  const data = useMemo(() => envelope?.results || [], [envelope]);
 
   // Interpret AntD's sorter to backend ordering param
   useEffect(() => {
@@ -88,7 +85,7 @@ export default function UnreadIssues() {
       </Row>
 
       <Table
-        columns={columns}
+        columns={COLUMNS}
         dataSource={data}
         loading={unreadIssuesQuery.isLoading}
         pagination={{

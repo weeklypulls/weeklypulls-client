@@ -1,5 +1,4 @@
 import { Modal, Select, Table, Spin, Empty, Button } from "antd";
-import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -16,6 +15,8 @@ import utils from "../../../utils";
 import { buildIssueColumns } from "../../common/issueColumns";
 import LoadingButton from "../../common/LoadingButton";
 import Title from "../../common/Title";
+
+const COLUMNS = buildIssueColumns();
 
 export default function PullsDetail() {
   const { pullId = "" } = useParams<{ pullId: string }>();
@@ -52,14 +53,6 @@ export default function PullsDetail() {
       } as IIssue;
     });
   }, [pullQuery.data, seriesQuery.data]);
-
-  const columns: ColumnsType<IIssue> = useMemo(() => {
-    return buildIssueColumns({
-      overrides: {
-        titleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
-      },
-    });
-  }, [seriesQuery.data]);
 
   const onSave = useCallback(
     async (model: Record<string, unknown>) => {
@@ -137,7 +130,7 @@ export default function PullsDetail() {
         />
       </Modal>
       <Table
-        columns={columns}
+        columns={COLUMNS}
         dataSource={dataSource}
         loading={pullQuery.isLoading || seriesQuery.isLoading}
         pagination={{ pageSize: 50 }}
