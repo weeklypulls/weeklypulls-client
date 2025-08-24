@@ -2,7 +2,7 @@ import { CheckOutlined, CloseOutlined, DoubleRightOutlined } from "@ant-design/i
 import { Button } from "antd";
 import React, { useCallback } from "react";
 
-import { ComicLike } from "../../interfaces";
+import { IIssue } from "../../interfaces";
 import { useMarkIssue } from "../../queries";
 
 const ICON_MAP: { [key: string]: React.ReactNode } = {
@@ -13,23 +13,20 @@ const ICON_MAP: { [key: string]: React.ReactNode } = {
 
 interface IProps {
   actions: [string, string];
-  comic: ComicLike;
+  issue: IIssue;
   icons: [string, string];
   langs: [string, string];
   value: boolean;
 }
 
-export default function BoolButton({ actions, comic, icons, langs, value }: IProps) {
+export default function BoolButton({ actions, issue, icons, langs, value }: IProps) {
   const markMutation = useMarkIssue();
   const mark = useCallback(() => {
     const action = actions[value ? 1 : 0];
-    markMutation.mutate({
-      seriesId: comic.series_id,
-      issueId: comic.id,
-      actionKey: action,
-      pullId: comic.pull_id || undefined,
-    });
-  }, [actions, comic.id, comic.series_id, comic.pull_id, markMutation, value]);
+    const seriesId = issue.volume.id;
+    const pullId = issue.pull?.id || undefined;
+    markMutation.mutate({ seriesId, issueId: issue.id, actionKey: action, pullId });
+  }, [actions, issue.id, issue.volume.id, issue.pull?.id, markMutation, value]);
 
   const iconKey = icons[value ? 1 : 0];
   const lang = langs[value ? 1 : 0];

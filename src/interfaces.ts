@@ -1,5 +1,3 @@
-// (legacy IComic removed; backend emits IIssue directly)
-
 export interface IPull {
   id: string;
   pull_list_id: string;
@@ -8,8 +6,6 @@ export interface IPull {
   series_title?: string;
   series_start_year?: number;
 }
-
-//
 
 /**
  * Unified domain model: Issue + Volume + optional Pull context
@@ -44,17 +40,4 @@ export interface IIssue {
   description?: string;
   volume: IVolume; // associated volume (series)
   pull?: IPullContext | null; // user context when available
-}
-
-// (legacy IUnreadIssue removed; unread endpoint returns IIssue[] in results)
-
-// (legacy pair types removed in favor of IIssue)
-
-// Minimal shape used by action buttons (Read/Skip) and columns.
-export interface ComicLike {
-  id: string;
-  date: string;
-  series_id: string;
-  images: string[];
-  pull_id?: string | null;
 }

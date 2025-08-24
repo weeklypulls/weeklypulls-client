@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { IIssue } from "../../../interfaces";
-import { comicLikeForReadButton } from "../../../models/issue";
 import { useUnreadIssues } from "../../../queries";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
@@ -45,8 +44,7 @@ export default function UnreadIssues() {
       title: "",
       width: 48,
       render: (_: unknown, issue: IIssue) => {
-        const comicLike = comicLikeForReadButton(issue);
-        return <ReadButton comic={comicLike} value={issue.pull?.read ?? false} />;
+        return <ReadButton issue={issue} value={issue.pull?.read ?? false} />;
       },
     };
     return [readCol, ...COLUMNS];

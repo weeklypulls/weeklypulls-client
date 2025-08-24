@@ -1,15 +1,15 @@
 import { Button, Input, Modal, Select } from "antd";
 import { useCallback, useMemo, useState } from "react";
 
-import { ComicLike, IPull } from "../../interfaces";
+import { IIssue, IPull } from "../../interfaces";
 import { usePullLists, useCreatePull } from "../../queries";
 
 interface IProps {
-  comic: ComicLike;
+  issue: IIssue;
   pull: IPull | undefined;
 }
 
-export default function PullButton({ comic, pull }: IProps) {
+export default function PullButton({ issue, pull }: IProps) {
   const pullListsQuery = usePullLists();
   const [visible, setVisible] = useState(false);
   const [pullListId, setPullListId] = useState<number | undefined>(undefined);
@@ -19,10 +19,10 @@ export default function PullButton({ comic, pull }: IProps) {
   const close = useCallback(() => setVisible(false), []);
   const submit = useCallback(async () => {
     if (!pullListId) return;
-    await createPull.mutateAsync({ pull_list_id: pullListId, series_id: comic.series_id });
+    await createPull.mutateAsync({ pull_list_id: pullListId, series_id: issue.volume.id });
     setVisible(false);
     setPullListId(undefined);
-  }, [comic.series_id, pullListId, createPull]);
+  }, [issue.volume.id, pullListId, createPull]);
 
   const pullListTitle = useMemo(() => {
     if (!pull) return undefined;
@@ -35,7 +35,7 @@ export default function PullButton({ comic, pull }: IProps) {
     return <>{pullListTitle || "--"}</>;
   }
 
-  const { series_id } = comic;
+  const series_id = issue.volume.id;
   return (
     <span>
       <Modal open={visible} title="Add to pull list" onCancel={close} onOk={submit}>

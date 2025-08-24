@@ -7,7 +7,7 @@ import {
   renderWeekLinkFromISO,
 } from "./columnHelpers";
 import ReadButton from "./ReadButton";
-import { ComicLike } from "../../interfaces";
+import { IIssue } from "../../interfaces";
 
 type IssueColumnGetters<T> = {
   getCoverUrls: (record: T) => string[] | string | undefined | null;
@@ -76,19 +76,19 @@ export function buildIssueColumns<T>(getters: IssueColumnGetters<T>): ColumnsTyp
 }
 
 export function buildReadColumn<T>(args: {
-  getComic: (record: T) => ComicLike;
+  getIssue: (record: T) => IIssue;
   getValue: (record: T) => boolean;
   title?: string;
   width?: number;
 }) {
-  const { getComic, getValue, title = "Read", width = 48 } = args;
+  const { getIssue, getValue, title = "Read", width = 48 } = args;
   const col: ColumnType<T> = {
     dataIndex: "read",
     key: "read",
     title,
     width,
     render: (_: unknown, record: T) => (
-      <ReadButton comic={getComic(record)} value={getValue(record)} />
+      <ReadButton issue={getIssue(record)} value={getValue(record)} />
     ),
   } as ColumnType<T>;
   return col;

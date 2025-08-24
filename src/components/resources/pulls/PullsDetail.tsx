@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { IIssue } from "../../../interfaces";
-import { comicLikeForReadButton } from "../../../models/issue";
 import {
   usePull,
   useSeries,
@@ -64,7 +63,7 @@ export default function PullsDetail() {
       getDate: (r) => r.date,
     });
     const readCol = buildReadColumn<IIssue>({
-      getComic: (r) => comicLikeForReadButton(r),
+      getIssue: (r) => r,
       getValue: (r) => r.pull?.read ?? false,
     });
     return [readCol, ...base];

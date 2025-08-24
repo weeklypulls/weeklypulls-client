@@ -7,13 +7,13 @@ interface IProps {
   value: boolean;
 }
 
-export default function ReadButton({ issue, value }: IProps) {
+export default function SkipButton({ issue, value }: IProps) {
   return (
     <BoolButton
-      actions={[ACTIONS.READ, ACTIONS.UNREAD]}
+      actions={[ACTIONS.SKIP, ACTIONS.UNSKIP]}
       issue={issue}
-      icons={["check", "close"]}
-      langs={["Mark read", "Mark unread"]}
+      icons={["double-right", "close"]}
+      langs={["Skip", "Unskip"]}
       value={value}
     />
   );
