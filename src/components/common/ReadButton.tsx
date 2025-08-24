@@ -1,9 +1,9 @@
 import BoolButton from "./BoolButton";
 import { ACTIONS } from "../../consts";
-import { IComic } from "../../interfaces";
+import { ComicLike } from "../../interfaces";
 
 interface IProps {
-  comic: IComic;
+  comic: ComicLike;
   value: boolean;
 }
 

@@ -2,7 +2,7 @@ import type { ColumnsType } from "antd/es/table";
 // no explicit React import needed with automatic JSX runtime
 import { Link } from "react-router-dom";
 
-import { IComic, IIssue, IPull } from "../../../interfaces";
+import { ComicLike, IIssue, IPull } from "../../../interfaces";
 import utils from "../../../utils";
 import { renderCoverFromUrls } from "../../common/columnHelpers";
 import PullButton from "../../common/PullButton";
@@ -16,17 +16,12 @@ function pullLinkCell(_text: string, record: IIssue) {
 
 function pullCell(_text: string, record: IIssue) {
   // Adapt IIssue -> PullButton props
-  const comic: IComic = {
+  const comic: ComicLike = {
     id: record.id,
     images: record.images,
     date: record.date,
     series_id: record.volume.id,
-    title: record.title,
-    site_url: record.site_url,
-    description: record.description,
-    pulled: record.pull?.pulled,
     pull_id: record.pull?.id || null,
-    read: record.pull?.read,
   };
   const pull: IPull | undefined = record.pull?.id
     ? { id: record.pull.id, pull_list_id: "", read: [], series_id: record.volume.id }

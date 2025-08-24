@@ -1,17 +1,4 @@
-export interface IComic {
-  id: string;
-  images: string[];
-  // Canonical date (YYYY-MM-DD) for display and sorting
-  date: string;
-  series_id: string;
-  title: string;
-  site_url?: string;
-  description?: string;
-  // Optional fields provided by Weeks API when available
-  pulled?: boolean;
-  pull_id?: string | null;
-  read?: boolean;
-}
+// (legacy IComic removed; backend emits IIssue directly)
 
 export interface IPull {
   id: string;
@@ -59,22 +46,15 @@ export interface IIssue {
   pull?: IPullContext | null; // user context when available
 }
 
-export interface IUnreadIssue {
-  cv_id: number;
-  name: string;
-  number: string;
-  // Canonical date when provided by API
-  date?: string;
-  volume_id: number;
-  volume_name: string;
-  volume_start_year: number;
-  description: string;
-  image_medium_url: string;
-  site_url: string;
-  // server-provided best image url (annotation)
-  image_url?: string;
-  // id of the corresponding Pull (if available from API)
-  pull_id?: number;
-}
+// (legacy IUnreadIssue removed; unread endpoint returns IIssue[] in results)
 
 // (legacy pair types removed in favor of IIssue)
+
+// Minimal shape used by action buttons (Read/Skip) and columns.
+export interface ComicLike {
+  id: string;
+  date: string;
+  series_id: string;
+  images: string[];
+  pull_id?: string | null;
+}

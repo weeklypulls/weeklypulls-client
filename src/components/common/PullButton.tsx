@@ -1,11 +1,11 @@
 import { Button, Input, Modal, Select } from "antd";
 import { useCallback, useMemo, useState } from "react";
 
-import { IComic, IPull } from "../../interfaces";
+import { ComicLike, IPull } from "../../interfaces";
 import { usePullLists, useCreatePull } from "../../queries";
 
 interface IProps {
-  comic: IComic;
+  comic: ComicLike;
   pull: IPull | undefined;
 }
 

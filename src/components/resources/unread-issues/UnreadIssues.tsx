@@ -3,8 +3,8 @@ import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useState, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
-import { IIssue, IUnreadIssue } from "../../../interfaces";
-import { issueFromUnreadRow, comicLikeForReadButton } from "../../../models/issue";
+import { IIssue } from "../../../interfaces";
+import { comicLikeForReadButton } from "../../../models/issue";
 import { useUnreadIssues } from "../../../queries";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
@@ -34,10 +34,10 @@ export default function UnreadIssues() {
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
 
   const envelope = unreadIssuesQuery.data as
-    | { count: number; next: string | null; previous: string | null; results: IUnreadIssue[] }
+    | { count: number; next: string | null; previous: string | null; results: IIssue[] }
     | undefined;
   const unreadRows = useMemo(() => envelope?.results || [], [envelope]);
-  const data: IIssue[] = useMemo(() => unreadRows.map(issueFromUnreadRow), [unreadRows]);
+  const data: IIssue[] = useMemo(() => unreadRows, [unreadRows]);
   const columns: ColumnsType<IIssue> = useMemo(() => {
     const readCol = {
       key: "read",

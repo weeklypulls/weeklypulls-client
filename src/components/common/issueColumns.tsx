@@ -7,7 +7,7 @@ import {
   renderWeekLinkFromISO,
 } from "./columnHelpers";
 import ReadButton from "./ReadButton";
-import { IComic } from "../../interfaces";
+import { ComicLike } from "../../interfaces";
 
 type IssueColumnGetters<T> = {
   getCoverUrls: (record: T) => string[] | string | undefined | null;
@@ -76,7 +76,7 @@ export function buildIssueColumns<T>(getters: IssueColumnGetters<T>): ColumnsTyp
 }
 
 export function buildReadColumn<T>(args: {
-  getComic: (record: T) => IComic;
+  getComic: (record: T) => ComicLike;
   getValue: (record: T) => boolean;
   title?: string;
   width?: number;

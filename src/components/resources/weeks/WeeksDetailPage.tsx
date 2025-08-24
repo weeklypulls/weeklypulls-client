@@ -4,8 +4,7 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import COLUMNS from "./WeeksDetailPageColumns";
-import { IComic, IIssue } from "../../../interfaces";
-import { issueFromWeekComic } from "../../../models/issue";
+import { IIssue } from "../../../interfaces";
 import { useWeek } from "../../../queries";
 import utils from "../../../utils";
 import Title from "../../common/Title";
@@ -16,12 +15,12 @@ export default function WeeksDetailPage() {
 
   const weekQuery = useWeek(weekId);
 
-  const comics: IComic[] = useMemo(() => {
+  const comics: any[] = useMemo(() => {
     return weekQuery.data?.comics ?? [];
   }, [weekQuery.data]);
 
   const dataSource: IIssue[] = useMemo(() => {
-    return comics.map((comic: IComic) => issueFromWeekComic(comic));
+    return (comics as IIssue[]) || [];
   }, [comics]);
 
   const nextWeek = utils.nextWeek(weekId);

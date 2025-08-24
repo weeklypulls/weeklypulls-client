@@ -3,8 +3,8 @@ import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { IComic, IIssue } from "../../../interfaces";
-import { issueFromWeekComic, comicLikeForReadButton } from "../../../models/issue";
+import { IIssue } from "../../../interfaces";
+import { comicLikeForReadButton } from "../../../models/issue";
 import {
   usePull,
   useSeries,
@@ -37,13 +37,12 @@ export default function PullsDetail() {
     const series = seriesQuery.data;
     if (!pull || !series) return [];
     const readSet = new Set<string>((pull.read || []).map(String));
-    return (series?.comics ?? []).map((comic: IComic) => {
-      const base = issueFromWeekComic(comic);
+    return (series?.comics ?? []).map((comic: IIssue) => {
       return {
-        ...base,
+        ...comic,
         volume: {
-          ...base.volume,
-          name: series.title || base.volume.name,
+          ...comic.volume,
+          name: series.title || comic.volume.name,
         },
         pull: {
           id: String(pull.id),

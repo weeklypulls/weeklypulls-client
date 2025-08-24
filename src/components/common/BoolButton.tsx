@@ -2,7 +2,7 @@ import { CheckOutlined, CloseOutlined, DoubleRightOutlined } from "@ant-design/i
 import { Button } from "antd";
 import React, { useCallback } from "react";
 
-import { IComic } from "../../interfaces";
+import { ComicLike } from "../../interfaces";
 import { useMarkIssue } from "../../queries";
 
 const ICON_MAP: { [key: string]: React.ReactNode } = {
@@ -13,7 +13,7 @@ const ICON_MAP: { [key: string]: React.ReactNode } = {
 
 interface IProps {
   actions: [string, string];
-  comic: IComic;
+  comic: ComicLike;
   icons: [string, string];
   langs: [string, string];
   value: boolean;
