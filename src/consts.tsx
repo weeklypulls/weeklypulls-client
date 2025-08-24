@@ -4,5 +4,3 @@ export const ACTIONS = {
   UNREAD: "UNREAD",
   UNSKIP: "UNSKIP",
 };
-
-export const DATE_FORMAT = "YYYY-MM-DD";

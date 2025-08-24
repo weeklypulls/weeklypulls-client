@@ -6,8 +6,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import type { StoreApi } from "../store";
 import { StoreContext } from "../storeContext";
-// Removed legacy ComicsListPage
-// import ComicsListPage from './resources/series/ComicsListPage';
 import utils from "../utils";
 import Logo from "./common/Logo";
 import PageLogin from "./page-login/PageLogin";

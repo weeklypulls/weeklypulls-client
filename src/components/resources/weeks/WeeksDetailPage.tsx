@@ -4,8 +4,9 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import COLUMNS from "./WeeksDetailPageColumns";
-import { IComic, IComicPullPair } from "../../../interfaces";
-import { useWeek, usePulls } from "../../../queries";
+import { IComic, IIssue } from "../../../interfaces";
+import { issueFromWeekComic } from "../../../models/issue";
+import { useWeek } from "../../../queries";
 import utils from "../../../utils";
 import Title from "../../common/Title";
 
@@ -14,36 +15,14 @@ export default function WeeksDetailPage() {
   const weekId = params.weekId ?? "";
 
   const weekQuery = useWeek(weekId);
-  const pullsQuery = usePulls();
 
   const comics: IComic[] = useMemo(() => {
     return weekQuery.data?.comics ?? [];
   }, [weekQuery.data]);
 
-  const dataSource: IComicPullPair[] = useMemo(() => {
-    const pulls = pullsQuery.data ?? [];
-    return comics.map((comic: IComic) => {
-      // Prefer server-provided pull context if present
-      let pull = undefined as any;
-      if (comic.pull_id) {
-        pull = pulls.find((p) => String(p.id) === String(comic.pull_id));
-      } else {
-        pull = pulls.find((p) => String(p.series_id) === String(comic.series_id));
-      }
-      let read = false;
-      if (typeof comic.read === "boolean") {
-        read = comic.read;
-      } else if (pull) {
-        read = pull.read.includes(comic.id);
-      }
-      return {
-        comic,
-        key: comic.id,
-        pull,
-        read,
-      };
-    });
-  }, [comics, pullsQuery.data]);
+  const dataSource: IIssue[] = useMemo(() => {
+    return comics.map((comic: IComic) => issueFromWeekComic(comic));
+  }, [comics]);
 
   const nextWeek = utils.nextWeek(weekId);
   const lastWeek = utils.prevWeek(weekId);
@@ -66,7 +45,7 @@ export default function WeeksDetailPage() {
       <Table
         columns={COLUMNS}
         dataSource={dataSource}
-        loading={weekQuery.isLoading || pullsQuery.isLoading}
+        loading={weekQuery.isLoading}
         pagination={false}
         size="small"
         rowClassName={utils.rowClassName}

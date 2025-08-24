@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import type { ButtonProps } from "antd";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 interface IProps extends ButtonProps {
   onClick: () => Promise<any> | any;

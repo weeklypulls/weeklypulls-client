@@ -1,5 +1,5 @@
 // Tiny path getter: safely access nested properties by dot path
-export function getPath(obj: any, path: string, fallback?: any) {
+function getPath(obj: any, path: string, fallback?: any) {
   if (!obj || !path) return fallback;
   const parts = path.split(".");
   let cur: any = obj;
@@ -13,7 +13,7 @@ export function getPath(obj: any, path: string, fallback?: any) {
   return cur === undefined ? fallback : cur;
 }
 
-import { IComicPullPair } from "./interfaces";
+import { IComicPullPair, IIssue } from "./interfaces";
 
 // Helper: format a Date to YYYY-MM-DD using local time
 function formatISODateLocal(d: Date) {
@@ -93,8 +93,14 @@ function stringAttrsSort(a: Record<string, any>, b: Record<string, any>, attrs: 
   return 0;
 }
 
-function rowClassName(record: IComicPullPair) {
-  const { read } = record;
+function rowClassName(record: IComicPullPair | IIssue) {
+  // Legacy pair shape
+  if ((record as any).read !== undefined) {
+    return (record as any).read ? "comic-read" : "comic-toread";
+  }
+  // New IIssue shape uses pull.read
+  const issue = record as IIssue;
+  const read = issue.pull?.read ?? false;
   return read ? "comic-read" : "comic-toread";
 }
 

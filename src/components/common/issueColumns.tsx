@@ -9,7 +9,7 @@ import {
 import ReadButton from "./ReadButton";
 import { IComic } from "../../interfaces";
 
-export type IssueColumnGetters<T> = {
+type IssueColumnGetters<T> = {
   getCoverUrls: (record: T) => string[] | string | undefined | null;
   getTitlePrimary: (record: T) => string;
   getTitleSecondary?: (record: T) => string | undefined;

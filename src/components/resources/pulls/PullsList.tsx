@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 
 import COLUMNS from "./PullsListColumns";
-import { IPullSeriesPair } from "../../../interfaces";
+import { IPull } from "../../../interfaces";
 import { usePulls, usePullLists } from "../../../queries";
 import Title from "../../common/Title";
 
@@ -14,14 +14,9 @@ function PullsList() {
   const [isAddVisible, setIsAddVisible] = useState(false);
   const [addSeriesId, setAddSeriesId] = useState("");
   const [addPullList, setAddPullList] = useState<number | undefined>(undefined);
-  const dataSource: IPullSeriesPair[] = useMemo(() => {
-    if (!pullsQuery.data) return [];
-    return pullsQuery.data.map((pull: any) => ({
-      key: pull.id,
-      pull,
-      pullList: pullListsQuery.data?.find((pl: any) => pl.id === pull.pull_list_id),
-    }));
-  }, [pullsQuery.data, pullListsQuery.data]);
+  const dataSource: IPull[] = useMemo(() => {
+    return (pullsQuery.data || []) as IPull[];
+  }, [pullsQuery.data]);
 
   const onAddNew = useCallback((data: Record<string, unknown>) => {
     // Preserve existing behavior
@@ -76,7 +71,7 @@ function PullsList() {
         </div>
       </Modal>
 
-      <Table<IPullSeriesPair>
+      <Table<IPull>
         columns={COLUMNS}
         dataSource={dataSource}
         loading={pullsQuery.isLoading || pullListsQuery.isLoading}

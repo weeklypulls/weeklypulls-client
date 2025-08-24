@@ -13,12 +13,6 @@ export interface IComic {
   read?: boolean;
 }
 
-export interface ISeries {
-  comics: IComic[];
-  series_id: string;
-  title: string;
-}
-
 export interface IPull {
   id: string;
   pull_list_id: string;
@@ -28,34 +22,50 @@ export interface IPull {
   series_start_year?: number;
 }
 
-export interface IWeek {
-  week_of: string;
-  comics: IComic[];
-}
-
-export interface IPullList {
-  id: string;
-  title: string;
-}
-
 interface IPair {
   key: string;
 }
 
+// Legacy pair kept for now for compatibility in a few code paths (will be removed)
 export interface IComicPullPair extends IPair {
   comic: IComic;
   pull: IPull | undefined;
   read: boolean;
 }
 
-export interface IComicPullSeriesPair extends IComicPullPair {
-  series?: ISeries;
+/**
+ * Unified domain model: Issue + Volume + optional Pull context
+ * Mirrors backend models to reduce client-side joining.
+ */
+export interface IVolume {
+  id: string; // ComicVineVolume.cv_id as string
+  name?: string;
+  start_year?: number | null;
+  // Optional nested publisher if/when backend includes it
+  publisher?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
-export interface IPullSeriesPair extends IPair {
-  key: string;
-  pull: IPull;
-  pullList?: IPullList;
+export interface IPullContext {
+  id: string; // Pull.id
+  pulled: boolean; // true if user has this series in any pull list
+  read: boolean; // true if this issue id is in pull.read
+  pull_list_id?: string; // optional for context screens
+}
+
+export interface IIssue {
+  id: string; // ComicVineIssue.cv_id as string
+  number?: string;
+  name?: string; // issue title/subtitle
+  title: string; // recommended display title (e.g., `${volume.name} #${number}`)
+  date: string; // canonical YYYY-MM-DD
+  images: string[]; // ordered by preference (first is best)
+  site_url?: string;
+  description?: string;
+  volume: IVolume; // associated volume (series)
+  pull?: IPullContext | null; // user context when available
 }
 
 export interface IUnreadIssue {
@@ -74,4 +84,10 @@ export interface IUnreadIssue {
   image_url?: string;
   // id of the corresponding Pull (if available from API)
   pull_id?: number;
+}
+
+// Temporary legacy compatibility: used by PullsDetail. Remove after migrating to IIssue.
+export interface IComicPullSeriesPair extends IComicPullPair {
+  // Minimal series shape used for title rendering
+  series?: { title?: string };
 }
