@@ -1,40 +1,17 @@
-type PathImpl<T, K extends keyof T> = K extends string
-  ? T[K] extends Record<string, unknown>
-    ? K | `${K}.${PathImpl<T[K], keyof T[K]>}`
-    : K
-  : never;
-
-export type Path<T> = PathImpl<T, keyof T>;
-
-// Given a T and a valid dot path P, get the value type at that path
-export type PathValue<T, P extends Path<T>> = P extends `${infer K}.${infer Rest}`
-  ? K extends keyof T
-    ? PathValue<T[K], Extract<Rest, Path<T[K]>>>
-    : never
-  : P extends keyof T
-    ? T[P]
-    : never;
-
 // Tiny path getter: safely access nested properties by dot path
-export function getPath<T extends object, P extends Path<T>, R = unknown>(
-  obj: T,
-  path: P,
-  fallback?: R
-): PathValue<T, P> | R {
-  if (!obj || !path) return fallback as R;
-
-  const parts = String(path).split(".") as readonly string[];
-  let cur: unknown = obj;
-
+function getPath<T extends object, R = unknown>(obj: T, path: string, fallback?: R): R | unknown {
+  if (!obj || !path) return fallback;
+  const parts = path.split(".");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let cur: any = obj;
   for (const p of parts) {
-    if (cur !== null && typeof cur === "object" && p in (cur as Record<string, unknown>)) {
-      cur = (cur as Record<string, unknown>)[p];
+    if (cur != null && Object.prototype.hasOwnProperty.call(cur, p)) {
+      cur = cur[p];
     } else {
-      return fallback as R;
+      return fallback;
     }
   }
-
-  return (cur === undefined ? fallback : (cur as PathValue<T, P>)) as PathValue<T, P> | R;
+  return cur === undefined ? fallback : cur;
 }
 
 import { IIssue } from "./interfaces";
@@ -103,16 +80,18 @@ function prevWeek(weekIso: string) {
   return formatISODateLocal(d);
 }
 
-export function stringAttrsSort<T extends object, P extends Path<T>>(
-  a: T,
-  b: T,
-  attrs: readonly P[]
-): number {
+function stringAttrsSort<T extends object>(a: T, b: T, attrs: string[]) {
   for (const attr of attrs) {
-    const av = String(getPath<T, P, unknown>(a, attr) ?? "");
-    const bv = String(getPath<T, P, unknown>(b, attr) ?? "");
-    const cmp = av.localeCompare(bv);
-    if (cmp !== 0) return cmp;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const av = String(getPath(a as any, attr) ?? "");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const bv = String(getPath(b as any, attr) ?? "");
+    if (av < bv) {
+      return -1;
+    }
+    if (av > bv) {
+      return 1;
+    }
   }
   return 0;
 }
