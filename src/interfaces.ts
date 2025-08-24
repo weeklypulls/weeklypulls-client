@@ -22,16 +22,7 @@ export interface IPull {
   series_start_year?: number;
 }
 
-interface IPair {
-  key: string;
-}
-
-// Legacy pair kept for now for compatibility in a few code paths (will be removed)
-export interface IComicPullPair extends IPair {
-  comic: IComic;
-  pull: IPull | undefined;
-  read: boolean;
-}
+//
 
 /**
  * Unified domain model: Issue + Volume + optional Pull context
@@ -86,8 +77,4 @@ export interface IUnreadIssue {
   pull_id?: number;
 }
 
-// Temporary legacy compatibility: used by PullsDetail. Remove after migrating to IIssue.
-export interface IComicPullSeriesPair extends IComicPullPair {
-  // Minimal series shape used for title rendering
-  series?: { title?: string };
-}
+// (legacy pair types removed in favor of IIssue)

@@ -15,7 +15,7 @@ export interface ApiClient {
   readonly hasToken: boolean;
 }
 
-export function createClient(): ApiClient {
+function createClient(): ApiClient {
   const user = axios.create({
     baseURL: URL_DATA,
     headers: JSON_HEADERS,

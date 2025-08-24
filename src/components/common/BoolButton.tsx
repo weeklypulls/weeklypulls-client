@@ -23,8 +23,13 @@ export default function BoolButton({ actions, comic, icons, langs, value }: IPro
   const markMutation = useMarkIssue();
   const mark = useCallback(() => {
     const action = actions[value ? 1 : 0];
-    markMutation.mutate({ seriesId: comic.series_id, issueId: comic.id, actionKey: action });
-  }, [actions, comic.id, comic.series_id, markMutation, value]);
+    markMutation.mutate({
+      seriesId: comic.series_id,
+      issueId: comic.id,
+      actionKey: action,
+      pullId: comic.pull_id || undefined,
+    });
+  }, [actions, comic.id, comic.series_id, comic.pull_id, markMutation, value]);
 
   const iconKey = icons[value ? 1 : 0];
   const lang = langs[value ? 1 : 0];

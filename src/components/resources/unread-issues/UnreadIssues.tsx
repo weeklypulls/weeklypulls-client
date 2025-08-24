@@ -3,7 +3,8 @@ import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useState, ChangeEvent } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
-import { IUnreadIssue } from "../../../interfaces";
+import { IIssue, IUnreadIssue } from "../../../interfaces";
+import { issueFromUnreadRow, comicLikeForReadButton } from "../../../models/issue";
 import { useUnreadIssues } from "../../../queries";
 import ReadButton from "../../common/ReadButton";
 import Title from "../../common/Title";
@@ -35,27 +36,17 @@ export default function UnreadIssues() {
   const envelope = unreadIssuesQuery.data as
     | { count: number; next: string | null; previous: string | null; results: IUnreadIssue[] }
     | undefined;
-  const data = useMemo(() => envelope?.results || [], [envelope]);
-  const columns: ColumnsType<IUnreadIssue> = useMemo(() => {
+  const unreadRows = useMemo(() => envelope?.results || [], [envelope]);
+  const data: IIssue[] = useMemo(() => unreadRows.map(issueFromUnreadRow), [unreadRows]);
+  const columns: ColumnsType<IIssue> = useMemo(() => {
     const readCol = {
       key: "read",
       dataIndex: "read",
       title: "",
       width: 48,
-      render: (_: unknown, issue: IUnreadIssue) => {
-        // adapt unread issue into minimal IComic shape needed by ReadButton
-        const comicLike: any = {
-          id: String(issue.cv_id),
-          // canonical date only
-          date: issue.date || "",
-          series_id: String(issue.volume_id),
-          images: issue.image_url
-            ? [issue.image_url]
-            : issue.image_medium_url
-              ? [issue.image_medium_url]
-              : [],
-        };
-        return <ReadButton comic={comicLike} value={false} />; // unread list only shows unread items
+      render: (_: unknown, issue: IIssue) => {
+        const comicLike = comicLikeForReadButton(issue);
+        return <ReadButton comic={comicLike} value={issue.pull?.read ?? false} />;
       },
     };
     return [readCol, ...COLUMNS];
@@ -81,11 +72,11 @@ export default function UnreadIssues() {
   const pullFilterOptions = useMemo(() => {
     const map = new Map<string, { text: string; value: string }>();
     data.forEach((i) => {
-      const base = (i.volume_name || "").trim();
+      const base = (i.volume?.name || "").trim();
       if (!base) return;
-      const year = i.volume_start_year ? ` (${i.volume_start_year})` : "";
+      const year = i.volume?.start_year ? ` (${i.volume.start_year})` : "";
       const label = `${base}${year}`;
-      const value = `${base}$${i.volume_start_year || ""}`;
+      const value = `${base}$${i.volume?.start_year || ""}`;
       if (!map.has(value)) map.set(value, { text: label, value });
     });
     return Array.from(map.values()).sort((a, b) => a.text.localeCompare(b.text));
@@ -162,7 +153,7 @@ export default function UnreadIssues() {
             }));
           }
         }}
-        rowKey="cv_id"
+        rowKey={(r) => r.id}
         size="small"
       />
     </div>

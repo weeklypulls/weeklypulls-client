@@ -8,7 +8,7 @@ export interface StoreApi {
   mark(seriesId: string, issueId: string, actionKey: string): Promise<any>;
 }
 
-export function createStore(): StoreApi {
+function createStore(): StoreApi {
   const client = createClient();
 
   const broadcast = () => {

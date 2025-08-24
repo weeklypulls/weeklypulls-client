@@ -3,7 +3,8 @@ import type { ColumnsType } from "antd/es/table";
 import { useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { IComic, IComicPullSeriesPair } from "../../../interfaces";
+import { IComic, IIssue } from "../../../interfaces";
+import { issueFromWeekComic, comicLikeForReadButton } from "../../../models/issue";
 import {
   usePull,
   useSeries,
@@ -31,31 +32,41 @@ export default function PullsDetail() {
   const deletePull = useDeletePull();
   const markAllRead = useMarkAllRead();
 
-  const dataSource: IComicPullSeriesPair[] = useMemo(() => {
+  const dataSource: IIssue[] = useMemo(() => {
     const pull = pullQuery.data;
     const series = seriesQuery.data;
     if (!pull || !series) return [];
-    return (series?.comics ?? []).map((comic: IComic) => ({
-      comic,
-      key: comic.id,
-      pull,
-      read: (pull.read || []).includes(comic.id),
-      series,
-    }));
+    const readSet = new Set<string>((pull.read || []).map(String));
+    return (series?.comics ?? []).map((comic: IComic) => {
+      const base = issueFromWeekComic(comic);
+      return {
+        ...base,
+        volume: {
+          ...base.volume,
+          name: series.title || base.volume.name,
+        },
+        pull: {
+          id: String(pull.id),
+          pulled: true,
+          read: readSet.has(String(comic.id)),
+          pull_list_id: String(pull.pull_list_id || ""),
+        },
+      } as IIssue;
+    });
   }, [pullQuery.data, seriesQuery.data]);
 
-  const columns: ColumnsType<IComicPullSeriesPair> = useMemo(() => {
-    const base = buildIssueColumns<IComicPullSeriesPair>({
-      getCoverUrls: (r) => r.comic.images,
-      getTitlePrimary: (r) => r.comic.title,
+  const columns: ColumnsType<IIssue> = useMemo(() => {
+    const base = buildIssueColumns<IIssue>({
+      getCoverUrls: (r) => r.images,
+      getTitlePrimary: (r) => r.title,
       getTitleSecondary: () => (seriesQuery.data?.title ? `${seriesQuery.data.title}` : undefined),
-      getTitleHref: (r) => r.comic.site_url,
-      getTitleTooltip: (r) => r.comic.description,
-      getDate: (r) => r.comic.date,
+      getTitleHref: (r) => r.site_url,
+      getTitleTooltip: (r) => r.description,
+      getDate: (r) => r.date,
     });
-    const readCol = buildReadColumn<IComicPullSeriesPair>({
-      getComic: (r) => r.comic,
-      getValue: (r) => r.read,
+    const readCol = buildReadColumn<IIssue>({
+      getComic: (r) => comicLikeForReadButton(r),
+      getValue: (r) => r.pull?.read ?? false,
     });
     return [readCol, ...base];
   }, [seriesQuery.data]);
@@ -90,7 +101,7 @@ export default function PullsDetail() {
 
   const pull = pullQuery.data;
   const series = seriesQuery.data;
-  const allIssueIds = (series?.comics || []).map((c: IComic) => c.id);
+  const allIssueIds = dataSource.map((i: IIssue) => i.id);
   const isAllRead = !!(
     pull?.read &&
     allIssueIds.length > 0 &&
@@ -141,6 +152,7 @@ export default function PullsDetail() {
         loading={pullQuery.isLoading || seriesQuery.isLoading}
         pagination={{ pageSize: 50 }}
         rowClassName={utils.rowClassName}
+        rowKey={(r) => r.id}
         size="small"
       />
     </div>

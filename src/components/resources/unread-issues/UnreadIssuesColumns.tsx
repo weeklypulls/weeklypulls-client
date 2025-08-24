@@ -1,26 +1,30 @@
 import type { ColumnsType } from "antd/es/table";
 
-import { IUnreadIssue } from "../../../interfaces";
+import { IIssue } from "../../../interfaces";
 import utils from "../../../utils";
 import { buildIssueColumns } from "../../common/issueColumns";
 
-const titleSort = (a: IUnreadIssue, b: IUnreadIssue) =>
-  utils.stringAttrsSort(a, b, ["volume_name", "number"]);
+// Title sort for issues: by volume name then by issue number text
+const titleSort = (a: IIssue, b: IIssue) =>
+  utils.stringAttrsSort(a as any, b as any, ["volume.name", "number"]);
 
 // Server-side sorting for date; keep client-side title sort only
-
-const base = buildIssueColumns<IUnreadIssue>({
-  getCoverUrls: (r) => r.image_medium_url || r.image_url || undefined,
-  getTitlePrimary: (r) => `${r.volume_name} #${r.number}`,
+const base = buildIssueColumns<IIssue>({
+  getCoverUrls: (r) => r.images,
+  getTitlePrimary: (r) => r.title,
   getTitleSecondary: (r) => r.name,
-  getTitleHref: (r) => r.site_url || undefined,
+  getTitleHref: (r) => r.site_url,
   getTitleTooltip: (r) => r.description,
-  getPullLink: (r) => ({ pull_id: r.pull_id, title: r.volume_name, year: r.volume_start_year }),
+  getPullLink: (r) => ({
+    pull_id: r.pull?.id,
+    title: r.volume?.name,
+    year: r.volume?.start_year ?? undefined,
+  }),
   getDate: (r) => r.date,
 });
 
 // Preserve sorting and filter behavior on top of the shared columns
-const COLUMNS: ColumnsType<IUnreadIssue> = base.map((col) => {
+const COLUMNS: ColumnsType<IIssue> = base.map((col) => {
   if (col.key === "title") {
     return { ...col, sorter: titleSort };
   }
@@ -36,8 +40,10 @@ const COLUMNS: ColumnsType<IUnreadIssue> = base.map((col) => {
       ...col,
       filterMultiple: true,
       filters: [],
-      onFilter: (value: Value, record: IUnreadIssue) => {
-        const text = `${record.volume_name || ""}$${record.volume_start_year || ""}`;
+      onFilter: (value: Value, record: IIssue) => {
+        const title = record.volume?.name || "";
+        const year = record.volume?.start_year || "";
+        const text = `${title}$${year}`;
         return text === String(value);
       },
     };

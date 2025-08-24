@@ -65,10 +65,3 @@ export function renderPullLink(
     return <Link to={`/pulls/${String(pull_id)}`}>{`${title || "Series"}${yr}`}</Link>;
   };
 }
-
-// Plain date or fallback
-export function renderPlainDate(getDate: (record: any) => string | undefined | null) {
-  return function PlainDate(_text: unknown, record: any) {
-    return getDate(record) || "--";
-  };
-}

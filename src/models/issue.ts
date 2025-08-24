@@ -67,5 +67,6 @@ export function comicLikeForReadButton(issue: IIssue) {
     date: issue.date,
     series_id: issue.volume.id,
     images: issue.images || [],
+    pull_id: issue.pull?.id || null,
   } as any;
 }

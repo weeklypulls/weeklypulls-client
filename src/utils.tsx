@@ -13,7 +13,7 @@ function getPath(obj: any, path: string, fallback?: any) {
   return cur === undefined ? fallback : cur;
 }
 
-import { IComicPullPair, IIssue } from "./interfaces";
+import { IIssue } from "./interfaces";
 
 // Helper: format a Date to YYYY-MM-DD using local time
 function formatISODateLocal(d: Date) {
@@ -93,7 +93,7 @@ function stringAttrsSort(a: Record<string, any>, b: Record<string, any>, attrs: 
   return 0;
 }
 
-function rowClassName(record: IComicPullPair | IIssue) {
+function rowClassName(record: any) {
   // Legacy pair shape
   if ((record as any).read !== undefined) {
     return (record as any).read ? "comic-read" : "comic-toread";

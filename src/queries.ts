@@ -62,29 +62,6 @@ export function useCreatePull() {
   });
 }
 
-// Series (fetch individual series for each pull like previous getAllSeries)
-export function useSeriesForPulls(enabled: boolean) {
-  const store = useContext<StoreApi>(StoreContext);
-  const pullsQuery = usePulls();
-  return useQuery({
-    queryKey: ["series", { ids: pullsQuery.data?.map((p: any) => p.series_id) }],
-    queryFn: async () => {
-      const pulls = pullsQuery.data || [];
-      const results: Record<string, any> = {};
-      await Promise.all(
-        pulls.map(async (pull: any) => {
-          const id = pull.series_id;
-          const resp = await store.client.user.get(`series/${id}/`);
-          results[id] = resp.data;
-        })
-      );
-      return results; // map of series_id -> series data
-    },
-    enabled: enabled && !!pullsQuery.data?.length,
-    staleTime: weeks(2),
-  });
-}
-
 // Mutation to mark read/unread replicating store.mark logic (simplified to READ only for now)
 export function useMarkIssue() {
   const queryClient = useQueryClient();
@@ -94,13 +71,21 @@ export function useMarkIssue() {
       seriesId,
       issueId,
       actionKey,
+      pullId,
     }: {
       seriesId: string;
       issueId: string;
-      actionKey: string;
+      actionKey: string; // "READ" | "UNREAD"
+      pullId?: string | number; // when available, prefer server shortcut for READ
     }) => {
-      // reuse existing endpoint semantics
-      return await store.mark(seriesId, issueId, actionKey);
+      // Prefer dedicated endpoint when marking READ and pullId is known
+      if (actionKey === "READ" && pullId) {
+        await store.client.user.post(`pulls/${pullId}/mark_read/`, { issue_id: issueId });
+        return { seriesId, issueId, actionKey, pullId };
+      }
+      // Fallback to generic mark (supports READ and UNREAD)
+      await store.mark(seriesId, issueId, actionKey);
+      return { seriesId, issueId, actionKey, pullId };
     },
     onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: ["pulls"] });
@@ -247,7 +232,7 @@ export function useWeek(weekId: string | undefined) {
 }
 
 // Unread Issues
-export interface UnreadIssuesFilters {
+interface UnreadIssuesFilters {
   page?: number;
   limit?: number; // page_size
   since?: string;
@@ -277,27 +262,5 @@ export function useUnreadIssues(filters: UnreadIssuesFilters) {
     },
     // short cache; original resource used 5 minute freshness
     staleTime: minutes(5),
-  });
-}
-
-export function useMarkUnreadIssue() {
-  const qc = useQueryClient();
-  const store = useContext<StoreApi>(StoreContext);
-  return useMutation({
-    mutationFn: async (issue: { cv_id: number; pull_id?: number; volume_id: number }) => {
-      const issueId = issue.cv_id;
-      if (issue.pull_id) {
-        await store.client.user.post(`pulls/${issue.pull_id}/mark_read/`, {
-          issue_id: issue.cv_id,
-        });
-      } else {
-        await store.mark(String(issue.volume_id), String(issue.cv_id), "READ");
-      }
-      return issueId;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["pulls"] });
-      qc.invalidateQueries({ queryKey: ["unread-issues"] });
-    },
   });
 }
