@@ -253,12 +253,11 @@ export function useWeek(weekId: string | undefined) {
   });
 }
 
-// Unread Issues
-interface UnreadIssuesFilters {
+export interface UnreadIssuesFilters {
   page?: number;
-  limit?: number; // page_size
-  search?: string; // matches series/volume name
-  ordering?: "date" | "-date";
+  limit?: number;
+  search?: string;
+  ordering?: string;
 }
 
 export function useUnreadIssues(filters: UnreadIssuesFilters) {

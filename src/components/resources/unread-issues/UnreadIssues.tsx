@@ -1,26 +1,54 @@
 import { Table, Button, Input } from "antd";
-import type { SorterResult, TablePaginationConfig } from "antd/es/table/interface";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import type { SorterResult, TablePaginationConfig, SortOrder } from "antd/es/table/interface";
+import { useCallback, useMemo, useState } from "react";
 
 import COLUMNS from "./UnreadIssuesColumns";
 import { IIssue } from "../../../interfaces";
-import { useUnreadIssues } from "../../../queries";
+import { UnreadIssuesFilters, useUnreadIssues } from "../../../queries";
 import Title from "../../common/Title";
 
-interface IFilters {
-  page?: number;
-  limit?: number;
-  search?: string;
-  ordering?: "date" | "-date";
-}
+const getSort = (
+  srt: SorterResult<IIssue> | SorterResult<IIssue>[] | null
+): UnreadIssuesFilters["ordering"] => {
+  const s = Array.isArray(srt) ? srt[0] : srt;
+
+  if (!s) {
+    // oldest first by default
+    return "date";
+  }
+
+  const prefix = s.order === "descend" ? "-" : "";
+  const field = s?.columnKey || s?.field || "date";
+  return `${prefix}${field}`;
+};
+
+const computeFilters = (
+  srt: SorterResult<IIssue> | SorterResult<IIssue>[] | null,
+  pag: TablePaginationConfig | null,
+  searchText: string
+): UnreadIssuesFilters => {
+  const page = pag?.current || 1;
+  const limit = pag?.pageSize || 50;
+  const ordering = getSort(srt);
+
+  // Search
+  const search = (searchText || "").trim() || undefined;
+
+  return { page, limit, ordering, search };
+};
 
 export default function UnreadIssues() {
-  const [filters, setFilters] = useState<IFilters>({ page: 1, limit: 50, ordering: "-date" });
   const [searchDraft, setSearchDraft] = useState<string>("");
   const [tableSorter, setTableSorter] = useState<
     SorterResult<IIssue> | SorterResult<IIssue>[] | null
   >(null);
   const [tablePagination, setTablePagination] = useState<TablePaginationConfig | null>(null);
+
+  const filters: UnreadIssuesFilters = useMemo(
+    () => computeFilters(tableSorter, tablePagination, searchDraft),
+    [tableSorter, tablePagination, searchDraft]
+  );
+
   const unreadIssuesQuery = useUnreadIssues(filters);
 
   const onRefresh = useCallback(() => unreadIssuesQuery.refetch(), [unreadIssuesQuery]);
@@ -28,37 +56,15 @@ export default function UnreadIssues() {
   const envelope = unreadIssuesQuery.data;
   const data = useMemo(() => envelope?.results || [], [envelope]);
 
-  // Interpret AntD's sorter to backend ordering param
-  useEffect(() => {
-    if (!tableSorter) return;
-    const s = Array.isArray(tableSorter) ? tableSorter[0] : tableSorter;
-    const field = s?.columnKey || s?.field;
-    const ord = s?.order;
-    if (field === "date") {
-      const ordering = ord === "ascend" ? "date" : ord === "descend" ? "-date" : undefined;
-      setFilters((prev) => ({ ...prev, ordering, page: 1 }));
-    }
-  }, [tableSorter]);
+  // Control date column sort order according to filters
+  const columns = useMemo(() => {
+    const ord = filters.ordering;
+    const s: SortOrder | undefined =
+      ord === "date" ? "ascend" : ord === "-date" ? "descend" : undefined;
+    return COLUMNS.map((c) => (c.key === "date" ? { ...c, sortOrder: s } : c));
+  }, [filters.ordering]);
 
-  // Interpret AntD's pagination to backend page/limit params
-  useEffect(() => {
-    if (!tablePagination) return;
-    const nextPage = tablePagination.current || 1;
-    const nextSize = tablePagination.pageSize;
-    setFilters((prev) => ({
-      ...prev,
-      page: nextPage,
-      limit: nextSize || prev.limit,
-    }));
-  }, [tablePagination]);
-
-  // Debounce search text into filters.search
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      setFilters((prev) => ({ ...prev, search: searchDraft || undefined, page: 1 }));
-    }, 350);
-    return () => clearTimeout(handle);
-  }, [searchDraft]);
+  // No effects needed; filters are derived from inputs
 
   return (
     <div>
@@ -69,7 +75,7 @@ export default function UnreadIssues() {
           enterButton
           value={searchDraft}
           onChange={(e) => setSearchDraft(e.target.value)}
-          onSearch={(val) => setFilters((prev) => ({ ...prev, search: val || undefined, page: 1 }))}
+          onSearch={(val) => setSearchDraft(val)}
           style={{ width: 320 }}
         />
         <Button type="primary" onClick={onRefresh} loading={unreadIssuesQuery.isFetching}>
@@ -78,7 +84,7 @@ export default function UnreadIssues() {
       </Title>
 
       <Table
-        columns={COLUMNS}
+        columns={columns}
         dataSource={data}
         loading={unreadIssuesQuery.isFetching}
         pagination={{
