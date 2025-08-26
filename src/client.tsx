@@ -10,6 +10,12 @@ const JSON_HEADERS = {
 export interface ApiClient {
   user: ReturnType<typeof axios.create>;
   login(username: string, password: string): Promise<void>;
+  register(data: {
+    username: string;
+    email: string;
+    password1: string;
+    password2: string;
+  }): Promise<void>;
   logout(): void;
   readonly token: string | undefined;
   readonly hasToken: boolean;
@@ -37,6 +43,16 @@ function createClient(): ApiClient {
     }
   }
 
+  async function register(data: {
+    username: string;
+    email: string;
+    password1: string;
+    password2: string;
+  }) {
+    // dj-rest-auth registration endpoint
+    await axios.post(`${URL_DATA}auth/registration/`, data, { headers: JSON_HEADERS });
+  }
+
   function logout() {
     store.remove("api-token");
     delete user.defaults.headers.common["Authorization"];
@@ -45,6 +61,7 @@ function createClient(): ApiClient {
   return {
     user,
     login,
+    register,
     logout,
     get token() {
       return getToken();

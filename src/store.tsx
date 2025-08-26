@@ -4,6 +4,12 @@ export interface StoreApi {
   client: ApiClient;
   readonly isAuthenticated: boolean;
   login(username: string, password: string): Promise<void>;
+  register(data: {
+    username: string;
+    email: string;
+    password1: string;
+    password2: string;
+  }): Promise<void>;
   logout(): void;
   mark(
     seriesId: string,
@@ -22,6 +28,18 @@ function createStore(): StoreApi {
 
   async function login(username: string, password: string) {
     await client.login(username, password);
+    broadcast();
+  }
+
+  async function register(data: {
+    username: string;
+    email: string;
+    password1: string;
+    password2: string;
+  }) {
+    await client.register(data);
+    // Auto-login after successful registration
+    await client.login(data.username, data.password1);
     broadcast();
   }
 
@@ -56,6 +74,7 @@ function createStore(): StoreApi {
       return client.hasToken;
     },
     login,
+    register,
     logout,
     mark,
   };

@@ -1,6 +1,6 @@
 import { Button, Card, Input } from "antd";
 import { useContext, useEffect, useState, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
@@ -68,6 +68,11 @@ export default function PageLogin() {
           >
             Submit
           </Button>
+          <div style={{ marginTop: 12 }}>
+            <small>
+              New here? <Link to="/register">Create an account</Link>
+            </small>
+          </div>
         </form>
       </Card>
     </div>
