@@ -164,7 +164,7 @@ export default function App() {
                 )
               }
             />
-            <Route
+            {/* <Route
               path="/register"
               element={
                 isAuthenticated ? (
@@ -177,7 +177,8 @@ export default function App() {
                   </div>
                 )
               }
-            />
+            /> */}
+            <Route path="/register" element={<Navigate to="/login" replace />} />
           </Routes>
         </Content>
       </Layout>

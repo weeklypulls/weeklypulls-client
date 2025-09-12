@@ -68,11 +68,11 @@ export default function PageLogin() {
           >
             Submit
           </Button>
-          <div style={{ marginTop: 12 }}>
+          {/* <div style={{ marginTop: 12 }}>
             <small>
               New here? <Link to="/register">Create an account</Link>
             </small>
-          </div>
+          </div> */}
         </form>
       </Card>
     </div>
