@@ -1,5 +1,5 @@
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { Button, Table } from "antd";
+import { Alert, Button, Empty, Table } from "antd";
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
@@ -16,7 +16,7 @@ export default function WeeksDetailPage() {
   const weekQuery = useWeek(weekId);
 
   const dataSource: IIssue[] = useMemo(() => {
-    return (weekQuery.data?.comics as IIssue[]) ?? [];
+    return weekQuery.data?.comics ?? [];
   }, [weekQuery.data]);
 
   const nextWeek = utils.nextWeek(weekId);
@@ -37,14 +37,36 @@ export default function WeeksDetailPage() {
           </Button>
         </Link>
       </Title>
-      <Table
-        columns={COLUMNS}
-        dataSource={dataSource}
-        loading={weekQuery.isLoading}
-        pagination={false}
-        size="small"
-        rowClassName={utils.rowClassName}
-      />
+
+      {weekQuery.isError && (
+        <Alert
+          type="error"
+          showIcon
+          message="Failed to load this week’s issues"
+          description={weekQuery.error?.message || "An unexpected error occurred."}
+          action={
+            <Button size="small" onClick={() => weekQuery.refetch()} loading={weekQuery.isFetching}>
+              Retry
+            </Button>
+          }
+        />
+      )}
+
+      {!weekQuery.isLoading && !weekQuery.isError && dataSource.length === 0 && (
+        <Empty description="No issues found for this week" />
+      )}
+
+      {(dataSource.length > 0 || weekQuery.isLoading) && (
+        <Table
+          columns={COLUMNS}
+          dataSource={dataSource}
+          loading={weekQuery.isLoading}
+          pagination={false}
+          size="small"
+          rowKey="id"
+          rowClassName={utils.rowClassName}
+        />
+      )}
     </div>
   );
 }

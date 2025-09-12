@@ -245,7 +245,7 @@ export function useWeek(weekId: string | undefined) {
     queryKey: ["week", weekId],
     queryFn: async () => {
       if (!weekId) return null;
-      const resp = await store.client.user.get(`weeks/${weekId}/`);
+      const resp = await store.client.user.get<{ comics: IIssue[] }>(`weeks/${weekId}/`);
       return resp.data;
     },
     enabled: !!weekId,
