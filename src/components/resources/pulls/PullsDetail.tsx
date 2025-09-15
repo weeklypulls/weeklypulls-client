@@ -14,6 +14,7 @@ import {
 import utils from "../../../utils";
 import { buildIssueColumns } from "../../common/issueColumns";
 import LoadingButton from "../../common/LoadingButton";
+import PageSpace from "../../common/PageSpace";
 import Title from "../../common/Title";
 
 const COLUMNS = buildIssueColumns();
@@ -99,7 +100,7 @@ export default function PullsDetail() {
   if (!pull) return <Empty description="Pull not found" />;
 
   return (
-    <div>
+    <PageSpace>
       <Title title={series?.title || ""}>
         <LoadingButton
           onClick={onMarkAllRead}
@@ -138,6 +139,6 @@ export default function PullsDetail() {
         rowKey={(r) => r.id}
         size="small"
       />
-    </div>
+    </PageSpace>
   );
 }

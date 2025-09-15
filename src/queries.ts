@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import type { IPullList, IIssue } from "./interfaces";
+import type { IPullList, IIssue, IWeekDetail } from "./interfaces";
 import type { StoreApi } from "./store";
 import { StoreContext } from "./storeContext";
 
@@ -245,7 +245,7 @@ export function useWeek(weekId: string | undefined) {
     queryKey: ["week", weekId],
     queryFn: async () => {
       if (!weekId) return null;
-      const resp = await store.client.user.get<{ comics: IIssue[] }>(`weeks/${weekId}/`);
+      const resp = await store.client.user.get<IWeekDetail>(`weeks/${weekId}/`);
       return resp.data;
     },
     enabled: !!weekId,

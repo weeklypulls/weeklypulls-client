@@ -46,3 +46,15 @@ export interface IIssue {
   volume: IVolume; // associated volume (series)
   pull?: IPullContext | null; // user context when available
 }
+
+export interface IPrimingInfo {
+  complete: boolean;
+  next_date?: string | null;
+  next_page?: number | null;
+}
+
+export interface IWeekDetail {
+  week_of: string;
+  comics: IIssue[];
+  priming?: IPrimingInfo;
+}

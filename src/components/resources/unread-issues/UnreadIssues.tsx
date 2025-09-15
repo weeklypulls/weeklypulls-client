@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import COLUMNS from "./UnreadIssuesColumns";
 import { IIssue } from "../../../interfaces";
 import { UnreadIssuesFilters, useUnreadIssues } from "../../../queries";
+import PageSpace from "../../common/PageSpace";
 import Title from "../../common/Title";
 
 const getSort = (
@@ -67,7 +68,7 @@ export default function UnreadIssues() {
   // No effects needed; filters are derived from inputs
 
   return (
-    <div>
+    <PageSpace>
       <Title title="Unread Issues" allowWrapButtons>
         <Input.Search
           placeholder="Search series (e.g. Spider, Batman, X-Men…)"
@@ -102,6 +103,6 @@ export default function UnreadIssues() {
         rowKey={(r) => r.id}
         size="small"
       />
-    </div>
+    </PageSpace>
   );
 }

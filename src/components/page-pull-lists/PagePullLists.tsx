@@ -2,6 +2,7 @@ import { Button, Input, Modal, Table } from "antd";
 import { useCallback, useState } from "react";
 
 import { usePullLists, useCreatePullList } from "../../queries";
+import PageSpace from "../common/PageSpace";
 import Title from "../common/Title";
 
 type IModel = Record<string, unknown>;
@@ -32,7 +33,7 @@ function PagePullLists() {
   const columns = [{ title: "Title", dataIndex: "title", key: "title" }];
 
   return (
-    <>
+    <PageSpace>
       <Title title="Pull Lists">
         <Button onClick={openAdd}>Add new</Button>
       </Title>
@@ -57,7 +58,7 @@ function PagePullLists() {
           placeholder="Pull list title"
         />
       </Modal>
-    </>
+    </PageSpace>
   );
 }
 

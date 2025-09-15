@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import COLUMNS from "./PullsListColumns";
 import { IPull, IPullList } from "../../../interfaces";
 import { usePulls, usePullLists } from "../../../queries";
+import PageSpace from "../../common/PageSpace";
 import Title from "../../common/Title";
 
 function PullsList() {
@@ -36,7 +37,7 @@ function PullsList() {
   }, [addSeriesId, addPullList, onAddNew]);
 
   return (
-    <div>
+    <PageSpace>
       <Title title="Pulls">
         <Button onClick={openAdd}>Add new</Button>
       </Title>
@@ -78,7 +79,7 @@ function PullsList() {
         pagination={false}
         size="small"
       />
-    </div>
+    </PageSpace>
   );
 }
 export default PullsList;

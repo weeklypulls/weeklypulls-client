@@ -7,6 +7,7 @@ import COLUMNS from "./WeeksDetailPageColumns";
 import { IIssue } from "../../../interfaces";
 import { useWeek } from "../../../queries";
 import utils from "../../../utils";
+import PageSpace from "../../common/PageSpace";
 import Title from "../../common/Title";
 
 export default function WeeksDetailPage() {
@@ -23,7 +24,7 @@ export default function WeeksDetailPage() {
   const lastWeek = utils.prevWeek(weekId);
 
   return (
-    <div>
+    <PageSpace>
       <Title title={`Week of ${weekId}`}>
         <Link to={`/weeks/${lastWeek}`}>
           <Button type="primary" icon={<LeftOutlined />}>
@@ -52,6 +53,28 @@ export default function WeeksDetailPage() {
         />
       )}
 
+      {weekQuery.data?.priming && weekQuery.data.priming.complete === false && (
+        <Alert
+          type="info"
+          showIcon
+          message="Still fetching more issues for this week"
+          description={
+            weekQuery.data.priming.next_date
+              ? `Next date ${weekQuery.data.priming.next_date} (page ${weekQuery.data.priming.next_page ?? 1})`
+              : undefined
+          }
+          action={
+            <Button
+              type="primary"
+              onClick={() => weekQuery.refetch()}
+              loading={weekQuery.isFetching}
+            >
+              Fetch more
+            </Button>
+          }
+        />
+      )}
+
       {!weekQuery.isLoading && !weekQuery.isError && dataSource.length === 0 && (
         <Empty description="No issues found for this week" />
       )}
@@ -67,6 +90,6 @@ export default function WeeksDetailPage() {
           rowClassName={utils.rowClassName}
         />
       )}
-    </div>
+    </PageSpace>
   );
 }
