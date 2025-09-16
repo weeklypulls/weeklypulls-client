@@ -23,25 +23,49 @@ function pullCell(_text: string, record: IIssue) {
 
 const coverCell = renderCoverFromUrls((r: IIssue) => r.images);
 
-const COLUMNS: ColumnsType<IIssue> = [
-  {
-    dataIndex: ["images"],
-    key: "images",
-    render: coverCell,
-    title: "Covers",
-  },
-  {
-    dataIndex: ["title"],
-    key: "title",
-    render: pullLinkCell,
-    title: "Title",
-  },
-  {
-    dataIndex: ["volume", "id"],
-    key: "series_id",
-    render: pullCell,
-    title: "Series",
-  },
-];
+export type PublisherFilter = { text: string; value: string };
 
-export default COLUMNS;
+type ColumnStateOptions = {
+  publisherFilteredValue?: string[];
+  publisherSortOrder?: "ascend" | "descend" | null;
+};
+
+export default function buildWeeksColumns(
+  publisherFilters?: PublisherFilter[],
+  opts?: ColumnStateOptions
+): ColumnsType<IIssue> {
+  const cols: ColumnsType<IIssue> = [
+    {
+      dataIndex: ["images"],
+      key: "images",
+      render: coverCell,
+      title: "Covers",
+    },
+    {
+      dataIndex: ["title"],
+      key: "title",
+      render: pullLinkCell,
+      title: "Title",
+    },
+    {
+      dataIndex: ["volume", "id"],
+      key: "series_id",
+      render: pullCell,
+      title: "Series",
+    },
+    {
+      dataIndex: ["volume", "publisher", "name"],
+      key: "publisher",
+      title: "Publisher",
+      filters: publisherFilters,
+      filteredValue: opts?.publisherFilteredValue,
+      onFilter: (value, record) => (record.volume.publisher?.name || "") === String(value ?? ""),
+      render: (_text, record) => record.volume.publisher?.name || "—",
+      sorter: (a, b) =>
+        (a.volume.publisher?.name || "").localeCompare(b.volume.publisher?.name || ""),
+      sortOrder: opts?.publisherSortOrder ?? null,
+      sortDirections: ["ascend", "descend"],
+    },
+  ];
+  return cols;
+}

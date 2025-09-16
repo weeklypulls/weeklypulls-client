@@ -1,6 +1,6 @@
 import { Button, Card, Input } from "antd";
 import { useContext, useEffect, useState, FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";

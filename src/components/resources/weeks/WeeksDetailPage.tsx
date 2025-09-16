@@ -1,9 +1,10 @@
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Alert, Button, Empty, Table } from "antd";
-import { useMemo } from "react";
+import type { TableProps } from "antd";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import COLUMNS from "./WeeksDetailPageColumns";
+import buildWeeksColumns from "./WeeksDetailPageColumns";
 import { IIssue } from "../../../interfaces";
 import { useWeek } from "../../../queries";
 import utils from "../../../utils";
@@ -16,12 +17,74 @@ export default function WeeksDetailPage() {
 
   const weekQuery = useWeek(weekId);
 
+  // Persisted table state (sorter + filters)
+  type StoredState = {
+    sorter?: { columnKey?: string; order?: "ascend" | "descend" | null };
+    filters?: { publisher?: string[] };
+  };
+  const STORAGE_KEY = "weeks.tableState.v1";
+
+  const [stored, setStored] = useState<StoredState>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw) as StoredState;
+    } catch {
+      // ignore
+    }
+    // First-time default: if user prefers Marvel, default to that filter
+    return { filters: { publisher: ["Marvel"] } };
+  });
+
   const dataSource: IIssue[] = useMemo(() => {
     return weekQuery.data?.comics ?? [];
   }, [weekQuery.data]);
 
   const nextWeek = utils.nextWeek(weekId);
   const lastWeek = utils.prevWeek(weekId);
+
+  const publisherFilters = useMemo(() => {
+    const names = new Set<string>();
+    for (const issue of dataSource) {
+      const name = issue.volume.publisher?.name;
+      if (name) names.add(name);
+    }
+    return Array.from(names)
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => ({ text: name, value: name }));
+  }, [dataSource]);
+
+  // Derive controlled column state
+  const publisherFilteredValue = stored.filters?.publisher;
+  const publisherSortOrder =
+    stored.sorter?.columnKey === "publisher" ? (stored.sorter.order ?? null) : null;
+
+  const columns = useMemo(
+    () =>
+      buildWeeksColumns(publisherFilters, {
+        publisherFilteredValue,
+        publisherSortOrder,
+      }),
+    [publisherFilters, publisherFilteredValue, publisherSortOrder]
+  );
+
+  const handleTableChange: TableProps<IIssue>["onChange"] = (_pagination, filters, sorter) => {
+    const s = Array.isArray(sorter) ? sorter[0] : sorter;
+    const next: StoredState = {
+      sorter: {
+        columnKey: (s?.columnKey as string | undefined) ?? undefined,
+        order: s?.order ?? null,
+      },
+      filters: {
+        publisher: (filters?.publisher as string[] | undefined) ?? undefined,
+      },
+    };
+    setStored(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   return (
     <PageSpace>
@@ -81,13 +144,14 @@ export default function WeeksDetailPage() {
 
       {(dataSource.length > 0 || weekQuery.isLoading) && (
         <Table
-          columns={COLUMNS}
+          columns={columns}
           dataSource={dataSource}
           loading={weekQuery.isLoading}
           pagination={false}
           size="small"
           rowKey="id"
           rowClassName={utils.rowClassName}
+          onChange={handleTableChange}
         />
       )}
     </PageSpace>

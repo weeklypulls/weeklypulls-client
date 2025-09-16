@@ -9,7 +9,6 @@ import { StoreContext } from "../storeContext";
 import utils from "../utils";
 import Logo from "./common/Logo";
 import PageLogin from "./page-login/PageLogin";
-import PageRegister from "./page-login/PageRegister";
 import PageLogout from "./page-logout/PageLogout";
 import PagePullLists from "./page-pull-lists/PagePullLists";
 import PullsPages from "./resources/pulls/PullsPages";
