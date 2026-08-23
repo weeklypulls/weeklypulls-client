@@ -21,15 +21,19 @@ function pullListCell(_text: string, record: IPull) {
 const COLUMNS = [
   {
     dataIndex: "series_title",
-    key: "api_title",
+    key: "series_title",
     render: pullLinkCell,
     title: "Title",
+    sorter: true,
   },
   {
     dataIndex: "pull_list_id",
-    key: "pull_list_id",
+    // Matches the backend's ordering_fields name (pull_list__title), since
+    // pull_list_id itself isn't sortable - it's a join to PullList.title.
+    key: "pull_list__title",
     render: pullListCell,
     title: "List",
+    sorter: true,
   },
 ];
 

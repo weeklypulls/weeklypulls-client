@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 
-import type { IPullList, IIssue, IWeekDetail } from "./interfaces";
+import type { IPull, IPullList, IIssue, IWeekDetail } from "./interfaces";
 import type { StoreApi } from "./store";
 import { StoreContext } from "./storeContext";
 
@@ -37,20 +37,33 @@ export function useCreatePullList() {
 }
 
 // Pulls
-export function usePulls() {
+export interface PullsFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  ordering?: string;
+}
+
+export function usePulls(filters: PullsFilters = {}) {
   const store = useContext<StoreApi>(StoreContext);
   return useQuery({
-    queryKey: ["pulls"],
+    queryKey: ["pulls", filters],
     queryFn: async () => {
-      const response = await store.client.user.get("pulls/");
-      return response.data as Array<{
-        id: string | number;
-        pull_list_id: string | number;
-        read: string[];
-        series_id: string | number;
-        series_title?: string;
-        series_start_year?: number;
-      }>;
+      const params = new URLSearchParams();
+      if (filters.page) params.append("page", String(filters.page));
+      if (filters.limit) params.append("limit", String(filters.limit));
+      if (filters.search) params.append("search", filters.search);
+      if (filters.ordering) params.append("ordering", filters.ordering);
+      const qs = params.toString();
+      const endpoint = qs ? `pulls/?${qs}` : "pulls/";
+      const response = await store.client.user.get(endpoint);
+      // DRF pagination envelope: { count, next, previous, results }
+      return response.data as {
+        count: number;
+        next: string | null;
+        previous: string | null;
+        results: IPull[];
+      };
     },
     staleTime: minutes(20),
   });
