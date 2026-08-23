@@ -1,9 +1,7 @@
 import type { ColumnsType } from "antd/es/table";
-// no explicit React import needed with automatic JSX runtime
 import { Link } from "react-router-dom";
 
 import { IIssue, IPull } from "../../../interfaces";
-// no utils used here
 import { renderCoverFromUrls } from "../../common/columnHelpers";
 import PullButton from "../../common/PullButton";
 

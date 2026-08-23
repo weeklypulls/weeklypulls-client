@@ -1,81 +1,32 @@
-import { Button, Input, Modal, Select, Table } from "antd";
-import { useCallback, useMemo, useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { Button, Table } from "antd";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 import COLUMNS from "./PullsListColumns";
-import { IPull, IPullList } from "../../../interfaces";
-import { usePulls, usePullLists } from "../../../queries";
+import { IPull } from "../../../interfaces";
+import { usePulls } from "../../../queries";
 import PageSpace from "../../common/PageSpace";
 import Title from "../../common/Title";
 
 function PullsList() {
-  // const navigate = useNavigate(); // reserved for future navigation needs
+  const navigate = useNavigate();
   const pullsQuery = usePulls();
-  const pullListsQuery = usePullLists();
-  const [isAddVisible, setIsAddVisible] = useState(false);
-  const [addSeriesId, setAddSeriesId] = useState("");
-  const [addPullList, setAddPullList] = useState<number | undefined>(undefined);
   const dataSource: IPull[] = useMemo(() => {
     return (pullsQuery.data || []) as IPull[];
   }, [pullsQuery.data]);
 
-  const onAddNew = useCallback((data: Record<string, unknown>) => {
-    // Preserve existing behavior
-    // tslint:disable-next-line:no-console
-    console.log(data);
-  }, []);
-
-  const openAdd = useCallback(() => setIsAddVisible(true), []);
-  const closeAdd = useCallback(() => setIsAddVisible(false), []);
-  const submitAdd = useCallback(async () => {
-    const series_id = addSeriesId && addSeriesId.trim();
-    if (!series_id || !addPullList) return;
-    onAddNew({ series_id, pull_list_id: addPullList });
-    setIsAddVisible(false);
-    setAddSeriesId("");
-    setAddPullList(undefined);
-  }, [addSeriesId, addPullList, onAddNew]);
-
   return (
     <PageSpace>
       <Title title="Pulls">
-        <Button onClick={openAdd}>Add new</Button>
+        <Button type="primary" onClick={() => navigate("/pulls/add")}>
+          Add series
+        </Button>
       </Title>
-
-      <Modal open={isAddVisible} title="Add Series" onCancel={closeAdd} onOk={submitAdd}>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="add-series" style={{ display: "block", marginBottom: 4 }}>
-            Series
-          </label>
-          <Input
-            id="add-series"
-            placeholder="Series ID"
-            value={addSeriesId}
-            onChange={(e) => setAddSeriesId(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="add-pulllist" style={{ display: "block", marginBottom: 4 }}>
-            Pull List
-          </label>
-          <Select<number>
-            id="add-pulllist"
-            value={addPullList}
-            onChange={(val: number) => setAddPullList(val)}
-            style={{ width: "100%" }}
-            placeholder="Select a pull list"
-            options={(pullListsQuery.data || []).map((pl: IPullList) => ({
-              label: pl.title,
-              value: pl.id,
-            }))}
-          />
-        </div>
-      </Modal>
 
       <Table<IPull>
         columns={COLUMNS}
         dataSource={dataSource}
-        loading={pullsQuery.isLoading || pullListsQuery.isLoading}
+        loading={pullsQuery.isLoading}
         pagination={false}
         size="small"
       />

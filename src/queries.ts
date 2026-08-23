@@ -209,6 +209,41 @@ export function useSeries(seriesId: string | number | undefined) {
   });
 }
 
+export interface SeriesSearchParams {
+  q?: string;
+  publisher?: string | number;
+  year?: string | number;
+  ordering?: string; // comma separated allowed fields (name,start_year)
+  limit?: number;
+}
+
+export function useSeriesSearch(params: SeriesSearchParams) {
+  const store = useContext<StoreApi>(StoreContext);
+  return useQuery({
+    queryKey: ["series-search", params],
+    queryFn: async () => {
+      const search = new URLSearchParams();
+      if (params.q) search.set("q", params.q);
+      if (params.publisher) search.set("publisher", String(params.publisher));
+      if (params.year) search.set("year", String(params.year));
+      if (params.ordering) search.set("ordering", params.ordering);
+      if (params.limit) search.set("limit", String(params.limit));
+      const qs = search.toString();
+      const resp = await store.client.user.get(`series/${qs ? `?${qs}` : ""}`);
+      return resp.data as {
+        results: Array<{
+          id: number;
+          name: string;
+          start_year?: number;
+          issue_count: number;
+          publisher?: { id: number; name: string } | null;
+        }>;
+      };
+    },
+    staleTime: minutes(10),
+  });
+}
+
 export function useUpdatePull() {
   const store = useContext<StoreApi>(StoreContext);
   const qc = useQueryClient();
