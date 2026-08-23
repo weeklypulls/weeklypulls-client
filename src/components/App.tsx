@@ -10,7 +10,6 @@ import utils from "../utils";
 import Logo from "./common/Logo";
 import PageLogin from "./page-login/PageLogin";
 import PageLogout from "./page-logout/PageLogout";
-import PagePullLists from "./page-pull-lists/PagePullLists";
 import PullsPages from "./resources/pulls/PullsPages";
 import UnreadIssuesPage from "./resources/unread-issues/UnreadIssuesPage";
 import WeeksDetailPage from "./resources/weeks/WeeksDetailPage";
@@ -45,7 +44,6 @@ export default function App() {
   const selectedKey = useMemo(() => {
     const p = location.pathname;
     if (p.startsWith("/unread-issues")) return "unread-issues";
-    if (p.startsWith("/pull-lists")) return "pull-lists";
     if (p.startsWith("/weeks")) return "weeks";
     if (p.startsWith("/pulls")) return "pulls";
     return "";
@@ -53,7 +51,6 @@ export default function App() {
 
   const navItems = [
     { key: "unread-issues", label: <NavLink to="/unread-issues">Unread Issues</NavLink> },
-    { key: "pull-lists", label: <NavLink to="/pull-lists">Pull Lists</NavLink> },
     { key: "weeks", label: <NavLink to={`/weeks/${currentWeek}`}>Weeks</NavLink> },
     { key: "pulls", label: <NavLink to="/pulls">Pulls</NavLink> },
   ];
@@ -129,12 +126,7 @@ export default function App() {
                 <PrivateRoute isAuthenticated={isAuthenticated} element={<UnreadIssuesPage />} />
               }
             />
-            <Route
-              path="/pull-lists"
-              element={
-                <PrivateRoute isAuthenticated={isAuthenticated} element={<PagePullLists />} />
-              }
-            />
+            <Route path="/pull-lists" element={<Navigate to="/pulls" replace />} />
             <Route
               path="/pulls/*"
               element={<PrivateRoute isAuthenticated={isAuthenticated} element={<PullsPages />} />}

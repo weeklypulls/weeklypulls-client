@@ -1,13 +1,16 @@
-import { Button, Input, Modal, Table } from "antd";
+import { Button, Drawer, Input, Modal, Table } from "antd";
 import { useCallback, useState } from "react";
 
-import { usePullLists, useCreatePullList } from "../../queries";
-import PageSpace from "../common/PageSpace";
-import Title from "../common/Title";
+import { usePullLists, useCreatePullList } from "../../../queries";
 
 type IModel = Record<string, unknown>;
 
-function PagePullLists() {
+interface IProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+function PullListsDrawer({ open, onClose }: IProps) {
   const { data: pullLists = [], isLoading } = usePullLists();
   const createMutation = useCreatePullList();
   const [isAddVisible, setIsAddVisible] = useState(false);
@@ -29,18 +32,18 @@ function PagePullLists() {
     setTitle("");
   }, [onAddNew, title]);
 
-  const all = pullLists;
   const columns = [{ title: "Title", dataIndex: "title", key: "title" }];
 
   return (
-    <PageSpace>
-      <Title title="Pull Lists">
-        <Button onClick={openAdd}>Add new</Button>
-      </Title>
-
+    <Drawer
+      title="Pull Lists"
+      open={open}
+      onClose={onClose}
+      extra={<Button onClick={openAdd}>Add new</Button>}
+    >
       <Table
         rowKey="id"
-        dataSource={all}
+        dataSource={pullLists}
         columns={columns}
         loading={isLoading}
         pagination={false}
@@ -58,8 +61,8 @@ function PagePullLists() {
           placeholder="Pull list title"
         />
       </Modal>
-    </PageSpace>
+    </Drawer>
   );
 }
 
-export default PagePullLists;
+export default PullListsDrawer;
