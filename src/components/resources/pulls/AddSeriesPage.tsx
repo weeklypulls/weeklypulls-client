@@ -92,7 +92,9 @@ export default function AddSeriesPage() {
     ] as import("antd").TableProps<SeriesRow>["columns"];
   }, [createPull, selectedPullList, navigate]);
 
-  const onSearch = useCallback((values: SearchFormValues) => {
+  const [form] = Form.useForm<SearchFormValues>();
+
+  const onSearch = useCallback((values: SearchFormValues, live?: boolean) => {
     const next: SeriesSearchParams = {
       limit: 50,
       ordering: values.ordering || "name",
@@ -100,6 +102,7 @@ export default function AddSeriesPage() {
     if (values.q) next.q = values.q.trim();
     if (values.publisher) next.publisher = values.publisher;
     if (values.year) next.year = values.year;
+    if (live) next.live = true;
     setParams(next);
   }, []);
 
@@ -114,7 +117,12 @@ export default function AddSeriesPage() {
           onChange={(val) => setSelectedPullList(val)}
         />
       </Title>
-      <Form layout="inline" onFinish={onSearch} style={{ marginBottom: 16 }}>
+      <Form
+        form={form}
+        layout="inline"
+        onFinish={(values) => onSearch(values)}
+        style={{ marginBottom: 16 }}
+      >
         <Form.Item name="q" label="Title">
           <Input allowClear placeholder="Search title or ID" style={{ width: 220 }} />
         </Form.Item>
@@ -136,8 +144,16 @@ export default function AddSeriesPage() {
           />
         </Form.Item>
         <Form.Item>
-          <Button htmlType="submit" type="primary" loading={searchQuery.isLoading}>
+          <Button htmlType="submit" type="primary" loading={searchQuery.isLoading && !params.live}>
             Search
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button
+            loading={searchQuery.isLoading && !!params.live}
+            onClick={() => onSearch(form.getFieldsValue(), true)}
+          >
+            Search ComicVine directly
           </Button>
         </Form.Item>
       </Form>
@@ -149,7 +165,13 @@ export default function AddSeriesPage() {
         loading={searchQuery.isLoading}
         pagination={false}
         size="small"
-        locale={{ emptyText: params.q ? "No results" : "Enter search terms" }}
+        locale={{
+          emptyText: params.q
+            ? params.live
+              ? "No results on ComicVine"
+              : "No cached results - try “Search ComicVine directly”"
+            : "Enter search terms",
+        }}
       />
     </PageSpace>
   );

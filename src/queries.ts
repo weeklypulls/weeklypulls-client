@@ -228,6 +228,10 @@ export interface SeriesSearchParams {
   year?: string | number;
   ordering?: string; // comma separated allowed fields (name,start_year)
   limit?: number;
+  // Search ComicVine directly instead of the local cache - use when a
+  // title isn't showing up because a *different* local match means the
+  // empty-results fallback never kicks in.
+  live?: boolean;
 }
 
 export function useSeriesSearch(params: SeriesSearchParams) {
@@ -241,6 +245,7 @@ export function useSeriesSearch(params: SeriesSearchParams) {
       if (params.year) search.set("year", String(params.year));
       if (params.ordering) search.set("ordering", params.ordering);
       if (params.limit) search.set("limit", String(params.limit));
+      if (params.live) search.set("live", "true");
       const qs = search.toString();
       const resp = await store.client.user.get(`series/${qs ? `?${qs}` : ""}`);
       return resp.data as {
