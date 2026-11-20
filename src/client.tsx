@@ -1,7 +1,7 @@
 import axios from "axios";
 import store from "store";
 
-const URL_DATA = "https://weeklypulls-data.herokuapp.com/";
+const URL_DATA = import.meta.env.VITE_API_URL ?? "https://weeklypulls-data.herokuapp.com/";
 const JSON_HEADERS = {
   Accept: "application/json; charset=utf-8;",
   "Content-Type": "application/json",
