@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const port = process.env.PORT || 8080;
 const app = express();
+app.disable("x-powered-by");
 
 const buildDir = path.join(__dirname, "build");
 app.use(express.static(buildDir));
