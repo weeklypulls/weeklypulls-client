@@ -20,16 +20,27 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
+export interface RegisterData {
+  username: string;
+  email: string;
+  password1: string;
+  password2: string;
+}
+
 export interface ApiClient {
   user: ReturnType<typeof axios.create>;
   login(username: string, password: string): Promise<void>;
-  register(data: {
-    username: string;
-    email: string;
-    password1: string;
-    password2: string;
+  register(data: RegisterData): Promise<void>;
+  logout(): Promise<void>;
+  verifyEmail(key: string): Promise<void>;
+  resendVerification(email: string): Promise<void>;
+  requestPasswordReset(email: string): Promise<void>;
+  confirmPasswordReset(data: {
+    uid: string;
+    token: string;
+    new_password1: string;
+    new_password2: string;
   }): Promise<void>;
-  logout(): void;
   readonly token: string | undefined;
   readonly hasToken: boolean;
 }
@@ -47,28 +58,56 @@ function createClient(): ApiClient {
     user.defaults.headers.common["Authorization"] = existing;
   }
 
+  // Endpoints that don't need a token.
+  const anon = axios.create({ baseURL: URL_DATA, headers: JSON_HEADERS });
+
   async function login(username: string, password: string) {
-    const response = await axios.post(`${URL_DATA}api-token-auth/`, { username, password });
-    localStorage.setItem(TOKEN_KEY, JSON.stringify(`TOKEN ${response.data.token}`));
+    // dj-rest-auth's login refuses accounts whose email isn't verified.
+    const response = await anon.post<{ key: string }>("auth/login/", { username, password });
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(`TOKEN ${response.data.key}`));
     const t = getToken();
     if (t) {
       user.defaults.headers.common["Authorization"] = t;
     }
   }
 
-  async function register(data: {
-    username: string;
-    email: string;
-    password1: string;
-    password2: string;
-  }) {
-    // dj-rest-auth registration endpoint
-    await axios.post(`${URL_DATA}auth/registration/`, data, { headers: JSON_HEADERS });
+  // Sends a verification email; the account can't log in until it's used.
+  async function register(data: RegisterData) {
+    await anon.post("auth/registration/", data);
   }
 
-  function logout() {
+  async function logout() {
+    // Revoke the token on the server too, but log out locally regardless.
+    if (getToken()) {
+      try {
+        await user.post("auth/logout/");
+      } catch {
+        // Already invalid, or offline.
+      }
+    }
     localStorage.removeItem(TOKEN_KEY);
     delete user.defaults.headers.common["Authorization"];
+  }
+
+  async function verifyEmail(key: string) {
+    await anon.post("auth/registration/verify-email/", { key });
+  }
+
+  async function resendVerification(email: string) {
+    await anon.post("auth/registration/resend-email/", { email });
+  }
+
+  async function requestPasswordReset(email: string) {
+    await anon.post("auth/password/reset/", { email });
+  }
+
+  async function confirmPasswordReset(data: {
+    uid: string;
+    token: string;
+    new_password1: string;
+    new_password2: string;
+  }) {
+    await anon.post("auth/password/reset/confirm/", data);
   }
 
   return {
@@ -76,6 +115,10 @@ function createClient(): ApiClient {
     login,
     register,
     logout,
+    verifyEmail,
+    resendVerification,
+    requestPasswordReset,
+    confirmPasswordReset,
     get token() {
       return getToken();
     },

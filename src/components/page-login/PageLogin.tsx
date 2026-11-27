@@ -1,7 +1,10 @@
-import { Button, Card, Input } from "antd";
+import { Alert, Button, Card, Input } from "antd";
 import { useContext, useEffect, useState, type SubmitEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
+import ErrorList from "./ErrorList";
+import ResendVerification from "./ResendVerification";
+import { apiErrorMessages, isUnverifiedEmailError } from "../../apiErrors";
 import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
 
@@ -11,6 +14,8 @@ export default function PageLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [unverified, setUnverified] = useState(false);
 
   useEffect(() => {
     if (store.isAuthenticated) {
@@ -18,16 +23,20 @@ export default function PageLogin() {
     }
   }, [store.isAuthenticated, navigate]);
 
-  const onSave = async (model: { username: string; password: string }) => {
-    await store.login(model.username, model.password);
-    navigate("/");
-  };
-
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setErrors([]);
+    setUnverified(false);
     try {
-      await onSave({ username, password });
+      await store.login(username, password);
+      navigate("/");
+    } catch (err) {
+      if (isUnverifiedEmailError(err)) {
+        setUnverified(true);
+      } else {
+        setErrors(apiErrorMessages(err, "Couldn't log in."));
+      }
     } finally {
       setLoading(false);
     }
@@ -37,6 +46,21 @@ export default function PageLogin() {
     <div className="login-form">
       <Card title="Log in">
         <form onSubmit={handleSubmit}>
+          <ErrorList errors={errors} />
+          {unverified && (
+            <Alert
+              type="warning"
+              showIcon
+              style={{ marginBottom: 12 }}
+              title="Please verify your email first"
+              description={
+                <>
+                  We sent a link to the address you signed up with. Didn&apos;t get it?
+                  <ResendVerification />
+                </>
+              }
+            />
+          )}
           <div style={{ marginBottom: 12 }}>
             <label htmlFor="login-username" style={{ display: "block", marginBottom: 4 }}>
               Username
@@ -66,13 +90,13 @@ export default function PageLogin() {
             loading={loading}
             disabled={!username || !password}
           >
-            Submit
+            Log in
           </Button>
-          {/* <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 12 }}>
             <small>
-              New here? <Link to="/register">Create an account</Link>
+              <Link to="/forgot-password">Forgot your password?</Link>
             </small>
-          </div> */}
+          </div>
         </form>
       </Card>
     </div>

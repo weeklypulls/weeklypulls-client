@@ -1,16 +1,11 @@
-import createClient, { ApiClient } from "./client";
+import createClient, { type ApiClient, type RegisterData } from "./client";
 import { ACTIONS } from "./consts";
 export interface StoreApi {
   client: ApiClient;
   readonly isAuthenticated: boolean;
   login(username: string, password: string): Promise<void>;
-  register(data: {
-    username: string;
-    email: string;
-    password1: string;
-    password2: string;
-  }): Promise<void>;
-  logout(): void;
+  register(data: RegisterData): Promise<void>;
+  logout(): Promise<void>;
   mark(
     seriesId: string,
     issueId: string,
@@ -31,20 +26,13 @@ function createStore(): StoreApi {
     broadcast();
   }
 
-  async function register(data: {
-    username: string;
-    email: string;
-    password1: string;
-    password2: string;
-  }) {
+  // No auto-login: the new account has to verify its email first.
+  async function register(data: RegisterData) {
     await client.register(data);
-    // Auto-login after successful registration
-    await client.login(data.username, data.password1);
-    broadcast();
   }
 
-  function logout() {
-    client.logout();
+  async function logout() {
+    await client.logout();
     broadcast();
   }
 

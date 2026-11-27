@@ -9,7 +9,12 @@ import type { StoreApi } from "../store";
 import { StoreContext } from "../storeContext";
 import utils from "../utils";
 import Logo from "./common/Logo";
+import AuthLayout from "./page-login/AuthLayout";
+import PageForgotPassword from "./page-login/PageForgotPassword";
 import PageLogin from "./page-login/PageLogin";
+import PageRegister from "./page-login/PageRegister";
+import PageResetPassword from "./page-login/PageResetPassword";
+import PageVerifyEmail from "./page-login/PageVerifyEmail";
 import PageLogout from "./page-logout/PageLogout";
 
 import "antd/dist/reset.css";
@@ -42,6 +47,9 @@ export default function App() {
     window.addEventListener("auth-changed", handler);
     return () => window.removeEventListener("auth-changed", handler);
   }, [store]);
+
+  const loggedOutOnly = (page: React.ReactElement) =>
+    isAuthenticated ? <Navigate to="/unread-issues" replace /> : <AuthLayout>{page}</AuthLayout>;
 
   const currentWeek = useMemo(() => utils.nearestWed(), []);
   const location = useLocation();
@@ -151,35 +159,27 @@ export default function App() {
                   <PrivateRoute isAuthenticated={isAuthenticated} element={<PageLogout />} />
                 }
               />
+              <Route path="/login" element={loggedOutOnly(<PageLogin />)} />
+              {/* Works, but nothing links here until registration opens. */}
+              <Route path="/register" element={loggedOutOnly(<PageRegister />)} />
+              <Route path="/forgot-password" element={loggedOutOnly(<PageForgotPassword />)} />
+              {/* Email links: these work whether or not someone is logged in. */}
               <Route
-                path="/login"
+                path="/reset-password/:uid/:token"
                 element={
-                  isAuthenticated ? (
-                    <Navigate to="/unread-issues" replace />
-                  ) : (
-                    <div style={{ display: "flex", justifyContent: "center", paddingTop: 64 }}>
-                      <div style={{ maxWidth: 400, width: "100%" }}>
-                        <PageLogin />
-                      </div>
-                    </div>
-                  )
+                  <AuthLayout>
+                    <PageResetPassword />
+                  </AuthLayout>
                 }
               />
-              {/* <Route
-              path="/register"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/unread-issues" replace />
-                ) : (
-                  <div style={{ display: "flex", justifyContent: "center", paddingTop: 64 }}>
-                    <div style={{ maxWidth: 400, width: "100%" }}>
-                      <PageRegister />
-                    </div>
-                  </div>
-                )
-              }
-            /> */}
-              <Route path="/register" element={<Navigate to="/login" replace />} />
+              <Route
+                path="/verify-email/:key"
+                element={
+                  <AuthLayout>
+                    <PageVerifyEmail />
+                  </AuthLayout>
+                }
+              />
             </Routes>
           </Suspense>
         </Content>

@@ -1,7 +1,9 @@
-import { Button, Card, Input, message } from "antd";
+import { Button, Card, Input, Result } from "antd";
 import { useContext, useEffect, useState, type SubmitEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
+import ErrorList from "./ErrorList";
+import { apiErrorMessages } from "../../apiErrors";
 import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
 
@@ -13,6 +15,8 @@ export default function PageRegister() {
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     if (store.isAuthenticated) {
@@ -23,27 +27,39 @@ export default function PageRegister() {
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password1 !== password2) {
-      message.error("Passwords do not match");
+      setErrors(["The passwords don't match."]);
       return;
     }
     setLoading(true);
+    setErrors([]);
     try {
       await store.register({ username, email, password1, password2 });
-      // store.register auto-logs in; redirect to app
-      navigate("/");
+      setSent(true);
     } catch (err) {
-      const anyErr = err as unknown as { response?: { data?: unknown } };
-      const detail = anyErr?.response?.data || (err as Error).message || "Registration failed";
-      message.error(typeof detail === "string" ? detail : JSON.stringify(detail));
+      setErrors(apiErrorMessages(err, "Couldn't create your account."));
     } finally {
       setLoading(false);
     }
   };
 
+  if (sent) {
+    return (
+      <Card>
+        <Result
+          status="success"
+          title="Check your email"
+          subTitle={`We sent a link to ${email}. Open it to verify your address, then log in.`}
+          extra={<Link to="/login">Go to log in</Link>}
+        />
+      </Card>
+    );
+  }
+
   return (
     <div className="register-form">
       <Card title="Create account">
         <form onSubmit={handleSubmit}>
+          <ErrorList errors={errors} />
           <div style={{ marginBottom: 12 }}>
             <label htmlFor="reg-username" style={{ display: "block", marginBottom: 4 }}>
               Username
@@ -52,6 +68,7 @@ export default function PageRegister() {
               id="reg-username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
             />
           </div>
           <div style={{ marginBottom: 12 }}>
@@ -63,6 +80,7 @@ export default function PageRegister() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
           </div>
           <div style={{ marginBottom: 12 }}>
@@ -74,6 +92,7 @@ export default function PageRegister() {
               type="password"
               value={password1}
               onChange={(e) => setPassword1(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <div style={{ marginBottom: 12 }}>
@@ -85,6 +104,7 @@ export default function PageRegister() {
               type="password"
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}
+              autoComplete="new-password"
             />
           </div>
           <Button
@@ -95,6 +115,11 @@ export default function PageRegister() {
           >
             Create account
           </Button>
+          <div style={{ marginTop: 12 }}>
+            <small>
+              Already have an account? <Link to="/login">Log in</Link>
+            </small>
+          </div>
         </form>
       </Card>
     </div>
