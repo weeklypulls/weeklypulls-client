@@ -1,6 +1,6 @@
 import { UserOutlined } from "@ant-design/icons";
-import { Layout, Menu, Dropdown, Button, ConfigProvider, theme } from "antd";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Layout, Menu, Dropdown, Button, ConfigProvider, Spin, theme } from "antd";
+import React, { Suspense, lazy, useContext, useEffect, useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -10,11 +10,12 @@ import utils from "../utils";
 import Logo from "./common/Logo";
 import PageLogin from "./page-login/PageLogin";
 import PageLogout from "./page-logout/PageLogout";
-import PullsPages from "./resources/pulls/PullsPages";
-import UnreadIssuesPage from "./resources/unread-issues/UnreadIssuesPage";
-import WeeksDetailPage from "./resources/weeks/WeeksDetailPage";
 
 import "antd/dist/reset.css";
+
+const PullsPages = lazy(() => import("./resources/pulls/PullsPages"));
+const UnreadIssuesPage = lazy(() => import("./resources/unread-issues/UnreadIssuesPage"));
+const WeeksDetailPage = lazy(() => import("./resources/weeks/WeeksDetailPage"));
 
 const { Header, Content } = Layout;
 
@@ -108,54 +109,59 @@ export default function App() {
             minHeight: 280,
           }}
         >
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/unread-issues" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
+          <Suspense fallback={<Spin size="large" />}>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/unread-issues" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
 
-            <Route
-              path="/unread-issues"
-              element={
-                <PrivateRoute isAuthenticated={isAuthenticated} element={<UnreadIssuesPage />} />
-              }
-            />
-            <Route path="/pull-lists" element={<Navigate to="/pulls" replace />} />
-            <Route
-              path="/pulls/*"
-              element={<PrivateRoute isAuthenticated={isAuthenticated} element={<PullsPages />} />}
-            />
-            <Route
-              path="/weeks/:weekId"
-              element={
-                <PrivateRoute isAuthenticated={isAuthenticated} element={<WeeksDetailPage />} />
-              }
-            />
-            <Route
-              path="/logout"
-              element={<PrivateRoute isAuthenticated={isAuthenticated} element={<PageLogout />} />}
-            />
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/unread-issues" replace />
-                ) : (
-                  <div style={{ display: "flex", justifyContent: "center", paddingTop: 64 }}>
-                    <div style={{ maxWidth: 400, width: "100%" }}>
-                      <PageLogin />
+              <Route
+                path="/unread-issues"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<UnreadIssuesPage />} />
+                }
+              />
+              <Route path="/pull-lists" element={<Navigate to="/pulls" replace />} />
+              <Route
+                path="/pulls/*"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PullsPages />} />
+                }
+              />
+              <Route
+                path="/weeks/:weekId"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<WeeksDetailPage />} />
+                }
+              />
+              <Route
+                path="/logout"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PageLogout />} />
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/unread-issues" replace />
+                  ) : (
+                    <div style={{ display: "flex", justifyContent: "center", paddingTop: 64 }}>
+                      <div style={{ maxWidth: 400, width: "100%" }}>
+                        <PageLogin />
+                      </div>
                     </div>
-                  </div>
-                )
-              }
-            />
-            {/* <Route
+                  )
+                }
+              />
+              {/* <Route
               path="/register"
               element={
                 isAuthenticated ? (
@@ -169,8 +175,9 @@ export default function App() {
                 )
               }
             /> */}
-            <Route path="/register" element={<Navigate to="/login" replace />} />
-          </Routes>
+              <Route path="/register" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </Suspense>
         </Content>
       </Layout>
     </Layout>
