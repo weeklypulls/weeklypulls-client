@@ -1,5 +1,4 @@
-// ESLint flat config for CRA-era React + TypeScript
-import prettier from "eslint-plugin-prettier";
+// ESLint flat config (React + TypeScript)
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
@@ -15,13 +14,14 @@ export default [
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: "latest",
       sourceType: "module",
       globals: globals.browser,
       parser: tseslint.parser,
       parserOptions: {
         ecmaFeatures: { jsx: true },
-        project: false,
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     plugins: {
@@ -30,7 +30,6 @@ export default [
       "react-hooks": reactHooks,
       import: importPlugin,
       "jsx-a11y": jsxA11y,
-      prettier,
     },
     settings: {
       react: { version: "detect" },
@@ -58,16 +57,15 @@ export default [
       "react/react-in-jsx-scope": "off",
       // Forbid explicit `any`; prefer unknown and proper narrowing.
       "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-deprecated": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
           argsIgnorePattern: "^_",
-          varsIgnorePattern: "^(?:_|autoBindMethods|inject|observer|observable|action)$",
+          varsIgnorePattern: "^_",
           ignoreRestSiblings: true,
         },
       ],
-      // Prettier integration
-      "prettier/prettier": "warn",
     },
   },
 ];

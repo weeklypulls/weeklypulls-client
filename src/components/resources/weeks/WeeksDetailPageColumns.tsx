@@ -14,7 +14,12 @@ function pullLinkCell(_text: string, record: IIssue) {
 
 function pullCell(_text: string, record: IIssue) {
   const pull: IPull | undefined = record.pull?.id
-    ? { id: record.pull.id, pull_list_id: "", read: [], series_id: record.volume.id }
+    ? {
+        id: record.pull.id,
+        pull_list_id: record.pull.pull_list_id ?? "",
+        read: [],
+        series_id: record.volume.id,
+      }
     : undefined;
   return <PullButton issue={record} pull={pull} />;
 }

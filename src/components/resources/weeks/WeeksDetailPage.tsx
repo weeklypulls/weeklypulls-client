@@ -96,7 +96,7 @@ export default function WeeksDetailPage() {
         </Link>
         <Button disabled>{weekId}</Button>
         <Link to={`/weeks/${nextWeek}`}>
-          <Button type="primary" icon={<RightOutlined />} iconPosition="end">
+          <Button type="primary" icon={<RightOutlined />} iconPlacement="end">
             {nextWeek}
           </Button>
         </Link>
@@ -106,7 +106,7 @@ export default function WeeksDetailPage() {
         <Alert
           type="error"
           showIcon
-          message="Failed to load this week’s issues"
+          title="Failed to load this week’s issues"
           description={weekQuery.error?.message || "An unexpected error occurred."}
           action={
             <Button size="small" onClick={() => weekQuery.refetch()} loading={weekQuery.isFetching}>
@@ -120,7 +120,7 @@ export default function WeeksDetailPage() {
         <Alert
           type="info"
           showIcon
-          message="Still fetching more issues for this week"
+          title="Still fetching more issues for this week"
           description={
             weekQuery.data.priming.next_date
               ? `Next date ${weekQuery.data.priming.next_date} (page ${weekQuery.data.priming.next_page ?? 1})`

@@ -91,10 +91,11 @@ export default function PullsDetail() {
     allIssueIds.length > 0 &&
     pull.read.length >= allIssueIds.length
   );
+  const loadedPullId = pull?.id;
   const onMarkAllRead = useCallback(() => {
-    if (!pull?.id || isAllRead) return;
-    markAllRead.mutate({ pullId: String(pull.id), issueIds: allIssueIds });
-  }, [pull?.id, isAllRead, markAllRead, allIssueIds]);
+    if (!loadedPullId || isAllRead) return;
+    markAllRead.mutate({ pullId: String(loadedPullId), issueIds: allIssueIds });
+  }, [loadedPullId, isAllRead, markAllRead, allIssueIds]);
 
   if (isBusy || pullQuery.isLoading || seriesQuery.isLoading) return <Spin size="large" />;
   if (!pull) return <Empty description="Pull not found" />;

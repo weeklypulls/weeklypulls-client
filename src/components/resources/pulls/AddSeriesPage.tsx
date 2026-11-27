@@ -48,7 +48,7 @@ export default function AddSeriesPage() {
         dataIndex: "name",
         key: "name",
         render: (_: unknown, record: SeriesRow) => (
-          <Space direction="vertical" size={0} style={{ minWidth: 220 }}>
+          <Space orientation="vertical" size={0} style={{ minWidth: 220 }}>
             <span>{record.name}</span>
             <Typography.Text type="secondary" style={{ fontSize: 12 }}>
               {record.start_year || "—"} • {record.publisher?.name || "Unknown Publisher"}

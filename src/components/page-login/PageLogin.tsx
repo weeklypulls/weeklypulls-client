@@ -1,5 +1,5 @@
 import { Button, Card, Input } from "antd";
-import { useContext, useEffect, useState, FormEvent } from "react";
+import { useContext, useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { StoreApi } from "../../store";
@@ -23,7 +23,7 @@ export default function PageLogin() {
     navigate("/");
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {

@@ -1,7 +1,20 @@
 import axios from "axios";
-import store from "store";
 
-const URL_DATA = import.meta.env.VITE_API_URL ?? "https://weeklypulls-data.herokuapp.com/";
+const URL_DATA = import.meta.env.VITE_API_URL ?? "https://api.weeklypulls.com/";
+const TOKEN_KEY = "api-token";
+
+// Values are JSON-encoded, matching what the old `store` package wrote, so
+// tokens saved before the switch still load.
+function readToken(): string | undefined {
+  const raw = localStorage.getItem(TOKEN_KEY);
+  if (raw === null) return undefined;
+  try {
+    const value: unknown = JSON.parse(raw);
+    return typeof value === "string" ? value : undefined;
+  } catch {
+    return raw;
+  }
+}
 const JSON_HEADERS = {
   Accept: "application/json; charset=utf-8;",
   "Content-Type": "application/json",
@@ -27,7 +40,7 @@ function createClient(): ApiClient {
     headers: JSON_HEADERS,
   });
 
-  const getToken = () => store.get("api-token");
+  const getToken = readToken;
   // initialize auth header if token exists
   const existing = getToken();
   if (existing) {
@@ -36,7 +49,7 @@ function createClient(): ApiClient {
 
   async function login(username: string, password: string) {
     const response = await axios.post(`${URL_DATA}api-token-auth/`, { username, password });
-    store.set("api-token", `TOKEN ${response.data.token}`);
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(`TOKEN ${response.data.token}`));
     const t = getToken();
     if (t) {
       user.defaults.headers.common["Authorization"] = t;
@@ -54,7 +67,7 @@ function createClient(): ApiClient {
   }
 
   function logout() {
-    store.remove("api-token");
+    localStorage.removeItem(TOKEN_KEY);
     delete user.defaults.headers.common["Authorization"];
   }
 

@@ -1,5 +1,5 @@
 import { Button, Card, Input, message } from "antd";
-import { useContext, useEffect, useState, FormEvent } from "react";
+import { useContext, useEffect, useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { StoreApi } from "../../store";
@@ -20,7 +20,7 @@ export default function PageRegister() {
     }
   }, [store.isAuthenticated, navigate]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (password1 !== password2) {
       message.error("Passwords do not match");
