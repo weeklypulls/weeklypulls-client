@@ -1,8 +1,9 @@
 import { UserOutlined } from "@ant-design/icons";
+import { wrapReactRouterRouting } from "@sentry/react";
 import { Layout, Menu, Dropdown, Button, ConfigProvider, Spin, theme } from "antd";
 import React, { Suspense, lazy, useContext, useEffect, useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 
 import type { StoreApi } from "../store";
 import { StoreContext } from "../storeContext";
@@ -12,6 +13,9 @@ import PageLogin from "./page-login/PageLogin";
 import PageLogout from "./page-logout/PageLogout";
 
 import "antd/dist/reset.css";
+
+// Names route transactions after the matched route pattern.
+const Routes = wrapReactRouterRouting(RouterRoutes);
 
 const PullsPages = lazy(() => import("./resources/pulls/PullsPages"));
 const UnreadIssuesPage = lazy(() => import("./resources/unread-issues/UnreadIssuesPage"));
