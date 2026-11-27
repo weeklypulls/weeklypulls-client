@@ -2,12 +2,13 @@ import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Alert, Button, Empty, Table } from "antd";
 import type { TableProps } from "antd";
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import buildWeeksColumns from "./WeeksDetailPageColumns";
 import { IIssue } from "../../../interfaces";
 import { useWeek } from "../../../queries";
 import utils from "../../../utils";
+import ButtonLink from "../../common/ButtonLink";
 import PageSpace from "../../common/PageSpace";
 import Title from "../../common/Title";
 
@@ -89,17 +90,18 @@ export default function WeeksDetailPage() {
   return (
     <PageSpace>
       <Title title={`Week of ${weekId}`}>
-        <Link to={`/weeks/${lastWeek}`}>
-          <Button type="primary" icon={<LeftOutlined />}>
-            {lastWeek}
-          </Button>
-        </Link>
+        <ButtonLink to={`/weeks/${lastWeek}`} type="primary" icon={<LeftOutlined />}>
+          {lastWeek}
+        </ButtonLink>
         <Button disabled>{weekId}</Button>
-        <Link to={`/weeks/${nextWeek}`}>
-          <Button type="primary" icon={<RightOutlined />} iconPlacement="end">
-            {nextWeek}
-          </Button>
-        </Link>
+        <ButtonLink
+          to={`/weeks/${nextWeek}`}
+          type="primary"
+          icon={<RightOutlined />}
+          iconPlacement="end"
+        >
+          {nextWeek}
+        </ButtonLink>
       </Title>
 
       {weekQuery.isError && (

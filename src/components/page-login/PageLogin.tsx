@@ -95,6 +95,8 @@ export default function PageLogin() {
           <div style={{ marginTop: 12 }}>
             <small>
               <Link to="/forgot-password">Forgot your password?</Link>
+              <br />
+              New here? <Link to="/register">Create an account</Link>
             </small>
           </div>
         </form>

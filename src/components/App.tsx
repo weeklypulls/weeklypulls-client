@@ -8,6 +8,7 @@ import { Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import type { StoreApi } from "../store";
 import { StoreContext } from "../storeContext";
 import utils from "../utils";
+import ButtonLink from "./common/ButtonLink";
 import Logo from "./common/Logo";
 import AuthLayout from "./page-login/AuthLayout";
 import PageForgotPassword from "./page-login/PageForgotPassword";
@@ -22,11 +23,15 @@ import "antd/dist/reset.css";
 // Names route transactions after the matched route pattern.
 const Routes = wrapReactRouterRouting(RouterRoutes);
 
+const PageAccount = lazy(() => import("./page-account/PageAccount"));
+const PageLanding = lazy(() => import("./page-public/PageLanding"));
+const PagePrivacy = lazy(() => import("./page-public/PagePrivacy"));
+const PageTerms = lazy(() => import("./page-public/PageTerms"));
 const PullsPages = lazy(() => import("./resources/pulls/PullsPages"));
 const UnreadIssuesPage = lazy(() => import("./resources/unread-issues/UnreadIssuesPage"));
 const WeeksDetailPage = lazy(() => import("./resources/weeks/WeeksDetailPage"));
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer } = Layout;
 
 type PrivateRouteProps = {
   isAuthenticated: boolean;
@@ -71,6 +76,10 @@ export default function App() {
   const userMenu = {
     items: [
       {
+        key: "account",
+        label: <NavLink to="/account">Account</NavLink>,
+      },
+      {
         key: "logout",
         label: <NavLink to="/logout">Log out</NavLink>,
       },
@@ -104,10 +113,23 @@ export default function App() {
               />
             </div>
           )}
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <Dropdown menu={userMenu} placement="bottomRight" trigger={["click"]}>
               <Button icon={<UserOutlined />}>Account</Button>
             </Dropdown>
+          ) : (
+            <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+              {location.pathname !== "/login" && (
+                <ButtonLink to="/login" type="text" style={{ color: "#fff" }}>
+                  Log in
+                </ButtonLink>
+              )}
+              {location.pathname !== "/register" && (
+                <ButtonLink to="/register" type="primary">
+                  Sign up
+                </ButtonLink>
+              )}
+            </div>
           )}
         </Header>
       </ConfigProvider>
@@ -126,11 +148,7 @@ export default function App() {
               <Route
                 path="/"
                 element={
-                  isAuthenticated ? (
-                    <Navigate to="/unread-issues" replace />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
+                  isAuthenticated ? <Navigate to="/unread-issues" replace /> : <PageLanding />
                 }
               />
 
@@ -154,13 +172,20 @@ export default function App() {
                 }
               />
               <Route
+                path="/account"
+                element={
+                  <PrivateRoute isAuthenticated={isAuthenticated} element={<PageAccount />} />
+                }
+              />
+              <Route path="/privacy" element={<PagePrivacy />} />
+              <Route path="/terms" element={<PageTerms />} />
+              <Route
                 path="/logout"
                 element={
                   <PrivateRoute isAuthenticated={isAuthenticated} element={<PageLogout />} />
                 }
               />
               <Route path="/login" element={loggedOutOnly(<PageLogin />)} />
-              {/* Works, but nothing links here until registration opens. */}
               <Route path="/register" element={loggedOutOnly(<PageRegister />)} />
               <Route path="/forgot-password" element={loggedOutOnly(<PageForgotPassword />)} />
               {/* Email links: these work whether or not someone is logged in. */}
@@ -183,6 +208,13 @@ export default function App() {
             </Routes>
           </Suspense>
         </Content>
+        <Footer style={{ textAlign: "center", paddingTop: 0 }}>
+          <NavLink to="/privacy">Privacy</NavLink> · <NavLink to="/terms">Terms</NavLink> · Comic
+          data from{" "}
+          <a href="https://comicvine.gamespot.com/" target="_blank" rel="noreferrer">
+            Comic Vine
+          </a>
+        </Footer>
       </Layout>
     </Layout>
   );

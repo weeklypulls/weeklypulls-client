@@ -6,6 +6,7 @@ export interface StoreApi {
   login(username: string, password: string): Promise<void>;
   register(data: RegisterData): Promise<void>;
   logout(): Promise<void>;
+  deleteAccount(password: string): Promise<void>;
   mark(
     seriesId: string,
     issueId: string,
@@ -36,6 +37,13 @@ function createStore(): StoreApi {
     broadcast();
   }
 
+  // Ends with a full page load of the landing page, which also drops any of
+  // the deleted account's data cached in memory.
+  async function deleteAccount(password: string) {
+    await client.deleteAccount(password);
+    window.location.replace("/?account-deleted");
+  }
+
   async function mark(seriesId: string, issueId: string, actionKey: string) {
     const pullsResp = await client.user.get("pulls/");
     const pulls: Array<{
@@ -64,6 +72,7 @@ function createStore(): StoreApi {
     login,
     register,
     logout,
+    deleteAccount,
     mark,
   };
 }

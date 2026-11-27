@@ -27,6 +27,13 @@ export interface RegisterData {
   password2: string;
 }
 
+export interface AccountDetails {
+  pk: number;
+  username: string;
+  email: string;
+  date_joined: string;
+}
+
 export interface ApiClient {
   user: ReturnType<typeof axios.create>;
   login(username: string, password: string): Promise<void>;
@@ -41,6 +48,14 @@ export interface ApiClient {
     new_password1: string;
     new_password2: string;
   }): Promise<void>;
+  getAccount(): Promise<AccountDetails>;
+  changePassword(data: {
+    old_password: string;
+    new_password1: string;
+    new_password2: string;
+  }): Promise<void>;
+  exportAccount(): Promise<Blob>;
+  deleteAccount(password: string): Promise<void>;
   readonly token: string | undefined;
   readonly hasToken: boolean;
 }
@@ -110,6 +125,30 @@ function createClient(): ApiClient {
     await anon.post("auth/password/reset/confirm/", data);
   }
 
+  async function getAccount() {
+    return (await user.get<AccountDetails>("auth/user/")).data;
+  }
+
+  async function changePassword(data: {
+    old_password: string;
+    new_password1: string;
+    new_password2: string;
+  }) {
+    await user.post("auth/password/change/", data);
+  }
+
+  async function exportAccount() {
+    const response = await user.get("account/export/", { responseType: "blob" });
+    return response.data as Blob;
+  }
+
+  // Deletes the account on the server, then forgets the (now invalid) token.
+  async function deleteAccount(password: string) {
+    await user.post("account/delete/", { password });
+    localStorage.removeItem(TOKEN_KEY);
+    delete user.defaults.headers.common["Authorization"];
+  }
+
   return {
     user,
     login,
@@ -119,6 +158,10 @@ function createClient(): ApiClient {
     resendVerification,
     requestPasswordReset,
     confirmPasswordReset,
+    getAccount,
+    changePassword,
+    exportAccount,
+    deleteAccount,
     get token() {
       return getToken();
     },

@@ -1,10 +1,11 @@
-import { Button, Card, Result, Spin } from "antd";
+import { Card, Result, Spin } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import ResendVerification from "./ResendVerification";
 import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
+import ButtonLink from "../common/ButtonLink";
 
 // Reached from the link in the verification email: /verify-email/<key>
 export default function PageVerifyEmail() {
@@ -39,9 +40,9 @@ export default function PageVerifyEmail() {
           title="Email verified"
           subTitle="Thanks! Your account is ready."
           extra={
-            <Link to="/login">
-              <Button type="primary">Log in</Button>
-            </Link>
+            <ButtonLink to="/login" type="primary">
+              Log in
+            </ButtonLink>
           }
         />
       </Card>

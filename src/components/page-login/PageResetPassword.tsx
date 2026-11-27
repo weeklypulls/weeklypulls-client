@@ -1,11 +1,12 @@
 import { Button, Card, Input, Result } from "antd";
 import { useContext, useState, type SubmitEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import ErrorList from "./ErrorList";
 import { apiErrorMessages } from "../../apiErrors";
 import type { StoreApi } from "../../store";
 import { StoreContext } from "../../storeContext";
+import ButtonLink from "../common/ButtonLink";
 
 // Reached from the link in the password-reset email:
 // /reset-password/<uid>/<token>
@@ -55,9 +56,9 @@ export default function PageResetPassword() {
           title="Password changed"
           subTitle="You can now log in with your new password."
           extra={
-            <Link to="/login">
-              <Button type="primary">Log in</Button>
-            </Link>
+            <ButtonLink to="/login" type="primary">
+              Log in
+            </ButtonLink>
           }
         />
       </Card>
@@ -72,9 +73,9 @@ export default function PageResetPassword() {
           title="This link has expired or was already used"
           subTitle="Reset links only work once. Request a new one and use the latest email."
           extra={
-            <Link to="/forgot-password">
-              <Button type="primary">Send a new link</Button>
-            </Link>
+            <ButtonLink to="/forgot-password" type="primary">
+              Send a new link
+            </ButtonLink>
           }
         />
       </Card>

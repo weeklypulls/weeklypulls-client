@@ -117,6 +117,12 @@ export default function PageRegister() {
           </Button>
           <div style={{ marginTop: 12 }}>
             <small>
+              By creating an account you agree to the <Link to="/terms">terms of use</Link> and{" "}
+              <Link to="/privacy">privacy policy</Link>.
+            </small>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <small>
               Already have an account? <Link to="/login">Log in</Link>
             </small>
           </div>
